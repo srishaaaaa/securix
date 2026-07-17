@@ -1,0 +1,49 @@
+# --- Python / backend ---
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+backend/venv/
+backend/.venv/
+
+# SQLite databases (local dev data - don't commit real user data)
+*.db
+*.db-journal
+backend/*.db
+
+# Uploaded documents/selfies captured during KYC flows - personal data,
+# never commit real ones. Keep the folder itself via .gitkeep.
+backend/uploads/*
+!backend/uploads/.gitkeep
+
+# Real UIDAI certificate, if/when someone drops one in for production use.
+# The bundled TEST cert/key (test_uidai_cert.pem, test_uidai_private_key.pem)
+# are intentionally tracked - see backend/certs/README.md.
+backend/certs/uidai_cert.pem
+
+# --- Environment / secrets ---
+.env
+.env.local
+.env.*.local
+!.env.example
+!frontend/.env.example
+
+# --- Node / frontend ---
+node_modules/
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+*.local
+
+# --- Editors / OS ---
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+# --- Logs ---
+*.log
+npm-debug.log*

@@ -1,0 +1,32 @@
+fastapi==0.115.6
+uvicorn[standard]==0.34.0
+sqlalchemy==2.0.36
+python-jose[cryptography]==3.3.0
+bcrypt==4.2.1
+python-multipart==0.0.20
+pillow==11.1.0
+pytesseract==0.3.13
+opencv-python-headless==4.10.0.84
+numpy==1.26.4
+pydantic==2.10.4
+email-validator==2.2.0
+
+# Added for Module 1 (challenge-response liveness), Module 2 (geo-velocity),
+# and Module 3 (fraud network graph). Requires internet access on first run:
+# mediapipe downloads its face-mesh model, and geo.py calls a free IP
+# geolocation API. mediapipe officially supports Python 3.9-3.12.
+mediapipe==0.10.18
+requests==2.32.3
+networkx==3.4.2
+
+# Added for the Aadhaar Secure QR verification module (services/aadhaar_qr.py).
+# pyzbar needs the system zbar library to actually decode QR codes:
+#   Linux:   sudo apt-get install libzbar0
+#   macOS:   brew install zbar
+#   Windows: none needed - the pyzbar wheel bundles it.
+# cryptography does the RSA/SHA-256 signature check; qrcode is only used by
+# the test-QR generator script (scripts/generate_test_aadhaar_qr.py), not by
+# the running app.
+pyzbar==0.1.9
+cryptography==44.0.0
+qrcode==8.0
