@@ -151,9 +151,8 @@ async def create_verification(
     db.commit()
 
     # webhook + notification dispatch, non-blocking
-    background_tasks.add_task(webhooks_service.dispatch_event, db, "verification.completed", verification)
-    owner = db.query(models.User).filter(models.User.id == api_key.created_by_id).first()
-    background_tasks.add_task(notify_service.notify_status_change, db, verification, owner, verification.status.value)
+    background_tasks.add_task(webhooks_service.dispatch_event, "verification.completed", verification.id)
+    background_tasks.add_task(notify_service.notify_status_change, verification.id, api_key.created_by_id, verification.status.value)
 
     response = schemas.PartnerVerificationOut(
         id=verification.id, status=verification.status.value, risk_score=verification.risk_score,

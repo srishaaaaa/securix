@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import { ArrowLeft, ShieldAlert, ShieldCheck, Smartphone, Phone, FileText, Loader2 } from "lucide-react";
 import { api } from "../api/client";
 
-const KIND_COLOR = { verification: "#22d3ee", device: "#f5a623", phone: "#a78bfa", document: "#f4415e" };
+const KIND_COLOR = { verification: "#5b6ef5", device: "#f0a63a", phone: "#b794f7", document: "#f2495c" };
 const KIND_ICON = { device: Smartphone, phone: Phone, document: FileText };
 
 /**
@@ -36,11 +36,13 @@ export default function FraudNetwork() {
 
   return (
     <div className="relative mx-auto max-w-4xl px-6 py-14">
-      <Link to="/admin" className="inline-flex items-center gap-1.5 text-sm text-ink-400 hover:text-ink-100">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-72 bg-aurora opacity-60" />
+
+      <Link to="/admin" className="relative inline-flex items-center gap-1.5 text-sm text-ink-500 hover:text-accent-soft">
         <ArrowLeft className="h-3.5 w-3.5" /> Back to admin
       </Link>
 
-      <div className="mt-6 mb-8 text-center">
+      <div className="relative mt-6 mb-8 text-center">
         <h1 className="font-display text-2xl font-semibold text-ink-100">Fraud network</h1>
         <p className="mt-2 text-sm text-ink-300">
           Verifications sharing a device, phone number, or document number with this one.
@@ -48,26 +50,26 @@ export default function FraudNetwork() {
       </div>
 
       {error && (
-        <p className="rounded-xl bg-signal-crimson/10 px-4 py-3 text-center text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+        <p className="relative rounded-xl bg-signal-crimson/10 px-4 py-3 text-center text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
           {error}
         </p>
       )}
 
       {!graph && !error && (
-        <div className="flex justify-center py-20">
-          <Loader2 className="h-6 w-6 animate-spin text-cyan-glow" />
+        <div className="relative flex justify-center py-20">
+          <Loader2 className="h-6 w-6 animate-spin text-accent" />
         </div>
       )}
 
       {graph && graph.nodes.length > 0 && (
-        <div className="rounded-2xl glass-panel p-6">
+        <div className="relative rounded-2xl glass-panel p-6 shadow-soft">
           <div className="mb-4 flex items-center justify-center gap-2">
             {graph.flagged ? (
-              <span className="flex items-center gap-1.5 rounded-full bg-signal-crimson/10 px-3.5 py-1.5 text-xs font-semibold text-signal-crimson ring-1 ring-signal-crimson/20">
+              <span className="flex items-center gap-1.5 rounded-full bg-signal-crimson/10 px-3.5 py-1.5 text-xs font-semibold text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
                 <ShieldAlert className="h-3.5 w-3.5" /> {graph.linked_count} linked verifications — worth a look
               </span>
             ) : (
-              <span className="flex items-center gap-1.5 rounded-full bg-signal-emerald/10 px-3.5 py-1.5 text-xs font-semibold text-signal-emerald ring-1 ring-signal-emerald/20">
+              <span className="flex items-center gap-1.5 rounded-full bg-signal-emerald/10 px-3.5 py-1.5 text-xs font-semibold text-signal-emerald ring-1 ring-inset ring-signal-emerald/20">
                 <ShieldCheck className="h-3.5 w-3.5" /> {graph.linked_count} linked verifications — within normal range
               </span>
             )}
@@ -113,7 +115,7 @@ export default function FraudNetwork() {
             })}
           </svg>
 
-          <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-ink-400">
+          <div className="mt-4 flex flex-wrap justify-center gap-4 text-xs text-ink-500">
             <Legend color={KIND_COLOR.verification} label="Verification" />
             <Legend color={KIND_COLOR.device} label="Shared device" />
             <Legend color={KIND_COLOR.phone} label="Shared phone" />

@@ -20,6 +20,7 @@ import json
 import requests
 
 from .. import models
+from ..database import SessionLocal
 
 WEBHOOK_TIMEOUT_SECONDS = 5
 
@@ -65,27 +66,39 @@ def deliver(db, endpoint: models.WebhookEndpoint, event: str, data: dict) -> mod
     return delivery
 
 
-def dispatch_event(db, event: str, verification: models.Verification):
+def dispatch_event(event: str, verification_id: str):
     """Delivers `event` to every active webhook endpoint belonging to the
     API key that created this verification. UI-created verifications have
     no api_key_id, so they simply have no endpoints to notify (a partner
-    only gets webhooks for verifications they submitted via the API)."""
-    if not verification.api_key_id:
-        return
+    only gets webhooks for verifications they submitted via the API).
 
-    endpoints = db.query(models.WebhookEndpoint).filter(
-        models.WebhookEndpoint.api_key_id == verification.api_key_id,
-        models.WebhookEndpoint.is_active == True,  # noqa: E712
-    ).all()
-    if not endpoints:
-        return
+    Runs as a FastAPI BackgroundTask, i.e. after the triggering request's
+    own `db` session has already been closed (see notify.py's
+    notify_status_change docstring for why) - so this opens its own
+    short-lived session and re-fetches the verification fresh instead of
+    being handed the closed one.
+    """
+    db = SessionLocal()
+    try:
+        verification = db.query(models.Verification).filter(models.Verification.id == verification_id).first()
+        if not verification or not verification.api_key_id:
+            return
 
-    data = {
-        "verification_id": verification.id,
-        "status": verification.status.value if verification.status else None,
-        "risk_score": verification.risk_score,
-        "risk_band": verification.risk_band,
-        "trust_score": verification.trust_score,
-    }
-    for endpoint in endpoints:
-        deliver(db, endpoint, event, data)
+        endpoints = db.query(models.WebhookEndpoint).filter(
+            models.WebhookEndpoint.api_key_id == verification.api_key_id,
+            models.WebhookEndpoint.is_active == True,  # noqa: E712
+        ).all()
+        if not endpoints:
+            return
+
+        data = {
+            "verification_id": verification.id,
+            "status": verification.status.value if verification.status else None,
+            "risk_score": verification.risk_score,
+            "risk_band": verification.risk_band,
+            "trust_score": verification.trust_score,
+        }
+        for endpoint in endpoints:
+            deliver(db, endpoint, event, data)
+    finally:
+        db.close()

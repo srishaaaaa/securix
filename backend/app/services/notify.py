@@ -26,10 +26,12 @@ so the rest of the KYC flow is never blocked by a missing integration.
 import os
 import smtplib
 from email.mime.text import MIMEText
+from typing import Optional
 
 import requests
 
 from .. import models
+from ..database import SessionLocal
 
 SMTP_HOST = os.getenv("SMTP_HOST")
 SMTP_PORT = int(os.getenv("SMTP_PORT", "587"))
@@ -97,16 +99,35 @@ def send_sms(db, verification_id: str, to_number: str, body: str):
         _log(db, verification_id, "sms", to_number, event, "failed", str(exc))
 
 
-def notify_status_change(db, verification: models.Verification, user: models.User, new_status: str):
+def notify_status_change(verification_id: str, user_id: Optional[str], new_status: str):
     """Fires both channels (best-effort, independently) whenever a
-    verification's status resolves to approved/rejected/under_review."""
+    verification's status resolves to approved/rejected/under_review.
+
+    Runs as a FastAPI BackgroundTask, i.e. after the HTTP response for the
+    triggering request has already been built - by that point the request's
+    own `db` session dependency has been closed (FastAPI closes yield-based
+    dependencies before handing the response to Starlette, which is what
+    actually runs background tasks). Passing that closed session's ORM
+    objects in here would intermittently raise DetachedInstanceError the
+    moment a not-yet-loaded attribute is touched. So this opens its own
+    short-lived session and re-fetches fresh rows instead.
+    """
     body = STATUS_MESSAGES.get(new_status)
     if not body:
         return
 
-    if user and user.email:
-        send_email(db, verification.id, user.email, "SECURIX verification update", body)
+    db = SessionLocal()
+    try:
+        verification = db.query(models.Verification).filter(models.Verification.id == verification_id).first()
+        if not verification:
+            return
+        user = db.query(models.User).filter(models.User.id == user_id).first() if user_id else None
 
-    phone = verification.phone_number or (user.mobile if user else None)
-    if phone:
-        send_sms(db, verification.id, phone, body)
+        if user and user.email:
+            send_email(db, verification.id, user.email, "SECURIX verification update", body)
+
+        phone = verification.phone_number or (user.mobile if user else None)
+        if phone:
+            send_sms(db, verification.id, phone, body)
+    finally:
+        db.close()

@@ -505,8 +505,8 @@ def finalize(
     # KYC-as-a-service webhook (only fires for verifications created via the
     # partner API - see services/webhooks.py) + status notification email/SMS.
     # Both are best-effort and run after the response, never blocking it.
-    background_tasks.add_task(webhooks_service.dispatch_event, db, "verification.completed", verification)
-    background_tasks.add_task(notify_service.notify_status_change, db, verification, current_user, verification.status.value)
+    background_tasks.add_task(webhooks_service.dispatch_event, "verification.completed", verification.id)
+    background_tasks.add_task(notify_service.notify_status_change, verification.id, current_user.id, verification.status.value)
 
     return verification
 
@@ -541,9 +541,8 @@ def _advance_status_after_step_up(
     db.commit()
 
     if new_status != previous_status:
-        owner = db.query(models.User).filter(models.User.id == verification.user_id).first()
-        background_tasks.add_task(notify_service.notify_status_change, db, verification, owner, new_status)
-        background_tasks.add_task(webhooks_service.dispatch_event, db, "verification.status_changed", verification)
+        background_tasks.add_task(notify_service.notify_status_change, verification.id, verification.user_id, new_status)
+        background_tasks.add_task(webhooks_service.dispatch_event, "verification.status_changed", verification.id)
 
 
 def _require_pending_second_factor(v: models.Verification):

@@ -30,6 +30,26 @@ _NAME_STOPWORDS = {
     "BIRTH", "ADDRESS", "MALE", "FEMALE", "SIGNATURE",
 }
 
+# Standard Aadhaar/PAN/passport disclaimer sentences ("Aadhaar is proof of
+# identity, not of citizenship... should not be used without further
+# verification (online/offline)...") are long, comma-free prose - exactly
+# the shape the crude "longest remaining line" address guess below is
+# looking for, so without an explicit denylist they get picked as the
+# address instead of the real one. Matched case-insensitively against
+# individual words, tolerant of the OCR mangling common on these lines.
+_ADDRESS_DISCLAIMER_WORDS = {
+    "verification", "verify", "verified", "citizenship", "proof", "declared",
+    "electronically", "generated", "signature", "helpline", "toll", "download",
+    "downloaded", "specimen", "resident", "residents", "grievance", "complaint",
+    "offline", "masked", "transmitted", "reprint", "letter", "require", "requires",
+}
+_PIN_CODE_RE = re.compile(r"\b\d{6}\b")
+
+# Ignored when deciding whether a line is "pure boilerplate" (e.g.
+# "GOVERNMENT OF INDIA") so a connector word like "OF" doesn't make an
+# otherwise all-stopword header line slip past the boilerplate check.
+_CONNECTOR_WORDS = {"OF", "AND", "THE", "FOR", "TO", "IN", "A", "AN", "IS", "ON", "&"}
+
 
 def _verhoeff_check(number: str) -> bool:
     """Lightweight structural check for a 12-digit Aadhaar-style number.
@@ -123,12 +143,17 @@ def extract_fields(text: str, document_type: str) -> dict:
             fields["format_valid"] = True
 
     # crude address guess: longest remaining line that isn't the name,
-    # a pure boilerplate header, or the ID-number line
+    # a pure boilerplate header, the ID-number line, or the standard legal
+    # disclaimer sentence - and preferring a line with a 6-digit PIN code
+    # (a real positive signal for an Indian address) over plain length.
     addr_candidates = sorted(lines, key=len, reverse=True)
+    addr_candidates = sorted(addr_candidates, key=lambda c: bool(_PIN_CODE_RE.search(c)), reverse=True)
     for c in addr_candidates:
         words = c.split()
-        is_boilerplate = words and all(w.upper().strip(".") in _NAME_STOPWORDS for w in words)
-        if c.title() == fields.get("name") or is_boilerplate:
+        substantive_words = [w for w in words if w.upper().strip(".") not in _CONNECTOR_WORDS]
+        is_boilerplate = substantive_words and all(w.upper().strip(".") in _NAME_STOPWORDS for w in substantive_words)
+        is_disclaimer = any(w.lower().strip(".,()?'’") in _ADDRESS_DISCLAIMER_WORDS for w in words)
+        if c.title() == fields.get("name") or is_boilerplate or is_disclaimer:
             continue
         if fields.get("doc_number") and fields["doc_number"].replace(" ", "") in c.replace(" ", ""):
             continue

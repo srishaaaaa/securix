@@ -45,7 +45,7 @@ export default function StepUpPanel({ verification, onResolved }) {
 
   if (verification.step_up_action === "none" || status === "completed") {
     return status === "completed" ? (
-      <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-signal-emerald/10 px-4 py-3.5 text-sm text-signal-emerald ring-1 ring-signal-emerald/20">
+      <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-signal-emerald/10 px-4 py-3.5 text-sm text-signal-emerald ring-1 ring-inset ring-signal-emerald/20">
         <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
         Step-up verification complete — decision updated.
       </div>
@@ -144,12 +144,14 @@ export default function StepUpPanel({ verification, onResolved }) {
   };
 
   return (
-    <div className="mt-5 rounded-xl border border-signal-amber/25 bg-signal-amber/[0.06] p-5">
+    <div className="mt-5 rounded-2xl border border-signal-amber/20 bg-signal-amber/[0.05] p-5">
       <div className="flex items-start gap-2.5">
-        <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-amber" />
+        <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-signal-amber/15">
+          <AlertTriangle className="h-4 w-4 text-signal-amber" />
+        </div>
         <div>
           <h3 className="font-display text-sm font-semibold text-ink-100">Additional verification required</h3>
-          <p className="mt-1 text-xs text-ink-300">{reason}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink-300">{reason}</p>
         </div>
       </div>
 
@@ -160,13 +162,13 @@ export default function StepUpPanel({ verification, onResolved }) {
             <div className="flex flex-col gap-2.5 sm:flex-row">
               <button
                 onClick={() => setMethod("otp")}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-cyan-glow/40 bg-cyan-glow/10 px-4 py-2.5 text-sm font-medium text-cyan-glow transition hover:bg-cyan-glow/20"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent-soft transition hover:bg-accent/15"
               >
                 <KeyRound className="h-4 w-4" /> Verify with OTP
               </button>
               <button
                 onClick={() => setMethod("selfie")}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-cyan-glow/40 bg-cyan-glow/10 px-4 py-2.5 text-sm font-medium text-cyan-glow transition hover:bg-cyan-glow/20"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent-soft transition hover:bg-accent/15"
               >
                 <Camera className="h-4 w-4" /> Retake selfie
               </button>
@@ -179,7 +181,7 @@ export default function StepUpPanel({ verification, onResolved }) {
                 <button
                   onClick={requestOtp}
                   disabled={otpLoading}
-                  className="flex items-center gap-2 rounded-lg bg-cyan-glow px-4 py-2.5 text-sm font-semibold text-void-950 transition hover:bg-cyan-glow/90 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
                 >
                   {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />} Send OTP
                 </button>
@@ -188,7 +190,7 @@ export default function StepUpPanel({ verification, onResolved }) {
                   {devOtp && (
                     <p className="text-xs text-ink-500">
                       No SMS/email provider configured in this build — your test OTP is{" "}
-                      <span className="font-mono text-cyan-glow">{devOtp}</span>.
+                      <span className="font-mono text-accent-soft">{devOtp}</span>.
                     </p>
                   )}
                   <div className="flex gap-2">
@@ -196,12 +198,12 @@ export default function StepUpPanel({ verification, onResolved }) {
                       value={otpValue}
                       onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       placeholder="6-digit OTP"
-                      className="w-32 rounded-lg border border-white/[0.1] bg-void-800 px-3 py-2 text-sm text-ink-100 outline-none focus:border-cyan-glow/40"
+                      className="w-32 rounded-lg border border-white/[0.1] bg-void-800 px-3 py-2 text-sm text-ink-100 outline-none transition focus:border-accent/50"
                     />
                     <button
                       onClick={verifyOtp}
                       disabled={otpLoading || otpValue.length < 4}
-                      className="flex items-center gap-2 rounded-lg bg-cyan-glow px-4 py-2 text-sm font-semibold text-void-950 transition hover:bg-cyan-glow/90 disabled:opacity-50"
+                      className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
                     >
                       {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
                     </button>
@@ -224,14 +226,14 @@ export default function StepUpPanel({ verification, onResolved }) {
                 <canvas ref={canvasRef} className="hidden" />
               </div>
               {!cameraReady ? (
-                <button onClick={startCamera} className="flex items-center gap-2 rounded-lg bg-cyan-glow px-4 py-2.5 text-sm font-semibold text-void-950">
+                <button onClick={startCamera} className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow">
                   <Camera className="h-4 w-4" /> Enable camera
                 </button>
               ) : (
                 <button
                   onClick={captureAndSubmitSelfie}
                   disabled={capturing}
-                  className="flex items-center gap-2 rounded-lg bg-cyan-glow px-4 py-2.5 text-sm font-semibold text-void-950 disabled:opacity-50"
+                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
                 >
                   {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                   {capturing ? "Capturing…" : "Capture & verify"}
@@ -256,7 +258,7 @@ export default function StepUpPanel({ verification, onResolved }) {
             <button
               onClick={requestVideoKyc}
               disabled={queueLoading}
-              className="flex items-center gap-2 rounded-lg bg-cyan-glow px-4 py-2.5 text-sm font-semibold text-void-950 transition hover:bg-cyan-glow/90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
             >
               {queueLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />} Join video-KYC queue
             </button>

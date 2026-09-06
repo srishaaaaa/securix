@@ -16,7 +16,7 @@ function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <div className="min-h-screen bg-void-900 text-ink-100">
+        <div className="min-h-screen bg-void-900 font-body text-ink-100">
           <Navbar />
           <main>
             <Routes>

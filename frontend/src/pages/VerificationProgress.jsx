@@ -15,14 +15,14 @@ import { api } from "../api/client";
 function StatusPill({ state }) {
   // state: "good" | "warn" | "bad" | "na"
   const map = {
-    good: { label: "Passed", cls: "bg-emerald-50 text-emerald-600 ring-emerald-200", Icon: CheckCircle2 },
-    warn: { label: "Review", cls: "bg-amber-50 text-amber-600 ring-amber-200", Icon: AlertTriangle },
-    bad: { label: "Failed", cls: "bg-rose-50 text-rose-600 ring-rose-200", Icon: XCircle },
-    na: { label: "N/A", cls: "bg-slate-50 text-slate-400 ring-slate-200", Icon: MinusCircle },
+    good: { label: "Passed", cls: "bg-signal-emerald/10 text-signal-emerald ring-signal-emerald/25", Icon: CheckCircle2 },
+    warn: { label: "Review", cls: "bg-signal-amber/10 text-signal-amber ring-signal-amber/25", Icon: AlertTriangle },
+    bad: { label: "Failed", cls: "bg-signal-crimson/10 text-signal-crimson ring-signal-crimson/25", Icon: XCircle },
+    na: { label: "N/A", cls: "bg-white/[0.04] text-ink-500 ring-white/[0.08]", Icon: MinusCircle },
   };
   const { label, cls, Icon } = map[state] || map.na;
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ${cls}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-xs font-semibold ring-1 ring-inset ${cls}`}>
       <Icon className="h-3.5 w-3.5" /> {label}
     </span>
   );
@@ -30,17 +30,17 @@ function StatusPill({ state }) {
 
 function Stat({ label, value, mono }) {
   return (
-    <div className="rounded-xl bg-slate-50 px-3.5 py-3">
-      <p className={`text-sm font-semibold text-slate-800 ${mono ? "font-mono" : ""}`}>{value ?? "—"}</p>
-      <p className="mt-0.5 text-[11px] uppercase tracking-wide text-slate-400">{label}</p>
+    <div className="rounded-xl bg-void-700/50 px-3.5 py-3">
+      <p className={`text-sm font-semibold text-ink-100 ${mono ? "font-mono" : ""}`}>{value ?? "—"}</p>
+      <p className="mt-0.5 text-[11px] uppercase tracking-wide text-ink-500">{label}</p>
     </div>
   );
 }
 
-function Bar({ value = 0, colorClass = "bg-blue-500" }) {
+function Bar({ value = 0, colorClass = "bg-accent" }) {
   const pct = Math.max(0, Math.min(100, value));
   return (
-    <div className="h-2 w-full overflow-hidden rounded-full bg-slate-100">
+    <div className="h-2 w-full overflow-hidden rounded-full bg-void-700">
       <motion.div
         initial={{ width: 0 }}
         animate={{ width: `${pct}%` }}
@@ -54,11 +54,11 @@ function Bar({ value = 0, colorClass = "bg-blue-500" }) {
 function NotAvailableList({ items }) {
   if (!items || items.length === 0) return null;
   return (
-    <div className="mt-3 rounded-xl border border-dashed border-slate-200 bg-slate-50/60 px-4 py-3">
-      <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-400">
+    <div className="mt-3 rounded-xl border border-dashed border-white/[0.1] bg-white/[0.02] px-4 py-3">
+      <p className="text-[11px] font-semibold uppercase tracking-wide text-ink-500">
         Not implemented in this build
       </p>
-      <p className="mt-1 text-xs leading-relaxed text-slate-500">
+      <p className="mt-1 text-xs leading-relaxed text-ink-500">
         {items.map((i) => i.replaceAll("_", " ")).join(", ")} — these need external
         data/models (deepfake classifiers, geo-IP, specimen signatures, etc.) not
         available in this demo, so no score is fabricated for them.
@@ -74,23 +74,23 @@ function NotAvailableList({ items }) {
 function ModuleCard({ icon: Icon, title, description, state, summary, defaultOpen, children }) {
   const [open, setOpen] = useState(!!defaultOpen);
   return (
-    <div className="overflow-hidden rounded-2xl border border-slate-200/70 bg-white/80 shadow-[0_1px_2px_rgba(15,23,42,0.04),0_8px_24px_-12px_rgba(15,23,42,0.08)] backdrop-blur-sm">
+    <div className="overflow-hidden rounded-2xl glass-panel shadow-soft">
       <button
         onClick={() => setOpen((o) => !o)}
-        className="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-slate-50/60 sm:px-6 sm:py-5"
+        className="flex w-full items-center gap-4 px-5 py-4 text-left transition hover:bg-white/[0.02] sm:px-6 sm:py-5"
       >
-        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-md shadow-blue-500/20">
+        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl bg-gradient-to-br from-accent to-violet text-white shadow-glow">
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <h3 className="font-semibold text-slate-800">{title}</h3>
+            <h3 className="font-display font-semibold text-ink-100">{title}</h3>
             <StatusPill state={state} />
           </div>
-          <p className="mt-0.5 truncate text-xs text-slate-400">{description}</p>
+          <p className="mt-0.5 truncate text-xs text-ink-500">{description}</p>
         </div>
         {summary && <div className="hidden flex-shrink-0 text-right sm:block">{summary}</div>}
-        <ChevronDown className={`h-4 w-4 flex-shrink-0 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+        <ChevronDown className={`h-4 w-4 flex-shrink-0 text-ink-500 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       <AnimatePresence initial={false}>
         {open && (
@@ -101,7 +101,7 @@ function ModuleCard({ icon: Icon, title, description, state, summary, defaultOpe
             transition={{ duration: 0.25, ease: "easeInOut" }}
             className="overflow-hidden"
           >
-            <div className="border-t border-slate-100 px-5 pb-6 pt-5 sm:px-6">{children}</div>
+            <div className="border-t border-white/[0.06] px-5 pb-6 pt-5 sm:px-6">{children}</div>
           </motion.div>
         )}
       </AnimatePresence>
@@ -129,18 +129,18 @@ export default function VerificationProgress() {
 
   if (loading) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center bg-white">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-accent" />
       </div>
     );
   }
 
   if (error || !report) {
     return (
-      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3 bg-white text-center">
-        <AlertTriangle className="h-8 w-8 text-amber-500" />
-        <p className="text-slate-600">{error || "Report unavailable."}</p>
-        <Link to="/dashboard" className="text-sm font-medium text-blue-600 hover:underline">
+      <div className="flex min-h-[70vh] flex-col items-center justify-center gap-3 text-center">
+        <AlertTriangle className="h-8 w-8 text-signal-amber" />
+        <p className="text-ink-300">{error || "Report unavailable."}</p>
+        <Link to="/dashboard" className="text-sm font-medium text-accent-soft hover:underline">
           Back to dashboard
         </Link>
       </div>
@@ -160,43 +160,46 @@ export default function VerificationProgress() {
     stepUp: !step_up || step_up.action === "none" ? "na" : step_up.status === "completed" ? "good" : step_up.status === "failed" ? "bad" : "warn",
   };
   const completedCount = Object.values(modulesState).filter((s) => s !== "na").length;
-  const progressPct = Math.round((completedCount / 6) * 100);
+  const totalModules = Object.keys(modulesState).length;
+  const progressPct = Math.round((completedCount / totalModules) * 100);
 
-  const riskColor = risk.risk_band === "low" ? "text-emerald-600" : risk.risk_band === "medium" ? "text-amber-600" : "text-rose-600";
-  const riskBarColor = risk.risk_band === "low" ? "bg-emerald-500" : risk.risk_band === "medium" ? "bg-amber-500" : "bg-rose-500";
+  const riskColor = risk.risk_band === "low" ? "text-signal-emerald" : risk.risk_band === "medium" ? "text-signal-amber" : "text-signal-crimson";
+  const riskBarColor = risk.risk_band === "low" ? "bg-signal-emerald" : risk.risk_band === "medium" ? "bg-signal-amber" : "bg-signal-crimson";
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white pb-20">
+    <div className="relative min-h-screen pb-20">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-96 bg-aurora opacity-60" />
+
       {/* header */}
-      <div className="border-b border-slate-100 bg-white/80 backdrop-blur-sm">
+      <div className="relative border-b border-white/[0.06] bg-void-900/60 backdrop-blur-sm">
         <div className="mx-auto max-w-4xl px-6 py-8">
-          <Link to="/dashboard" className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-slate-400 hover:text-blue-600">
+          <Link to="/dashboard" className="mb-4 inline-flex items-center gap-1.5 text-xs font-medium text-ink-500 hover:text-accent-soft">
             <ArrowLeft className="h-3.5 w-3.5" /> Back to dashboard
           </Link>
           <div className="flex flex-col justify-between gap-6 sm:flex-row sm:items-center">
             <div>
-              <h1 className="font-display text-2xl font-bold text-slate-900 sm:text-3xl">Verification Progress</h1>
-              <p className="mt-1.5 text-sm text-slate-500">Track your KYC verification steps</p>
+              <h1 className="font-display text-2xl font-semibold text-ink-100 sm:text-3xl">Verification progress</h1>
+              <p className="mt-1.5 text-sm text-ink-300">Every module's output, in one audited report.</p>
             </div>
             <div className="flex items-center gap-4">
               <div className="relative h-16 w-16 flex-shrink-0">
                 <svg viewBox="0 0 64 64" className="h-16 w-16 -rotate-90">
-                  <circle cx="32" cy="32" r="27" fill="none" stroke="#e2e8f0" strokeWidth="6" />
+                  <circle cx="32" cy="32" r="27" fill="none" stroke="#212637" strokeWidth="6" />
                   <motion.circle
-                    cx="32" cy="32" r="27" fill="none" stroke="#3b82f6" strokeWidth="6" strokeLinecap="round"
+                    cx="32" cy="32" r="27" fill="none" stroke="#5b6ef5" strokeWidth="6" strokeLinecap="round"
                     strokeDasharray={2 * Math.PI * 27}
                     initial={{ strokeDashoffset: 2 * Math.PI * 27 }}
                     animate={{ strokeDashoffset: 2 * Math.PI * 27 * (1 - progressPct / 100) }}
                     transition={{ duration: 1, ease: "easeOut" }}
                   />
                 </svg>
-                <span className="absolute inset-0 flex items-center justify-center text-sm font-bold text-slate-700">
+                <span className="absolute inset-0 flex items-center justify-center text-sm font-semibold text-ink-100">
                   {progressPct}%
                 </span>
               </div>
               <button
                 onClick={() => window.print()}
-                className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white shadow-md shadow-blue-500/20 transition hover:bg-blue-700"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
               >
                 <Download className="h-4 w-4" /> Download report
               </button>
@@ -205,14 +208,14 @@ export default function VerificationProgress() {
         </div>
       </div>
 
-      <div className="mx-auto max-w-4xl space-y-5 px-6 py-8">
+      <div className="relative mx-auto max-w-4xl space-y-5 px-6 py-8">
         {/* 1. Document Upload */}
         <ModuleCard
           icon={Upload}
           title="Document Upload"
           description="Upload quality & format checks"
           state={modulesState.upload}
-          summary={<span className="text-sm font-semibold text-slate-700">{document_upload.quality?.quality_score ?? "—"}%</span>}
+          summary={<span className="text-sm font-semibold text-ink-100">{document_upload.quality?.quality_score ?? "—"}%</span>}
         >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Document type" value={document_upload.document_type?.replace("_", " ")} />
@@ -221,13 +224,13 @@ export default function VerificationProgress() {
             <Stat label="Lighting" value={document_upload.quality?.brightness_ok ? "OK" : "Poor"} />
           </div>
           <div className="mt-4">
-            <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+            <div className="mb-1.5 flex justify-between text-xs text-ink-500">
               <span>Quality score</span><span>{document_upload.quality?.quality_score ?? 0}%</span>
             </div>
             <Bar value={document_upload.quality?.quality_score ?? 0} />
           </div>
           {document_upload.quality?.issues?.length > 0 && (
-            <ul className="mt-4 space-y-1 text-xs text-amber-600">
+            <ul className="mt-4 space-y-1 text-xs text-signal-amber">
               {document_upload.quality.issues.map((iss, i) => <li key={i}>• {iss}</li>)}
             </ul>
           )}
@@ -239,7 +242,7 @@ export default function VerificationProgress() {
           title="OCR Text Extraction"
           description="AI-extracted document fields"
           state={modulesState.ocr}
-          summary={<span className="text-sm font-semibold text-slate-700">{ocr.ocr_confidence?.toFixed(0)}% conf.</span>}
+          summary={<span className="text-sm font-semibold text-ink-100">{ocr.ocr_confidence?.toFixed(0)}% conf.</span>}
         >
           <dl className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
             {[
@@ -248,9 +251,9 @@ export default function VerificationProgress() {
               ["Document number", ocr.fields.document_number],
               ["Address", ocr.fields.address],
             ].map(([label, value]) => (
-              <div key={label} className="flex items-center justify-between rounded-xl bg-slate-50 px-3.5 py-2.5">
-                <span className="text-xs text-slate-400">{label}</span>
-                <span className={`text-sm font-medium ${value ? "text-slate-700" : "text-rose-500"}`}>{value || "Not found"}</span>
+              <div key={label} className="flex items-center justify-between rounded-xl bg-void-700/50 px-3.5 py-2.5">
+                <span className="text-xs text-ink-500">{label}</span>
+                <span className={`text-sm font-medium ${value ? "text-ink-100" : "text-signal-crimson"}`}>{value || "Not found"}</span>
               </div>
             ))}
           </dl>
@@ -259,7 +262,7 @@ export default function VerificationProgress() {
             <Stat label="Format valid" value={ocr.format_valid ? "Yes" : "No"} />
           </div>
           {ocr.missing_fields.length > 0 && (
-            <p className="mt-3 text-xs text-amber-600">
+            <p className="mt-3 text-xs text-signal-amber">
               Unreadable/missing fields: {ocr.missing_fields.map((f) => f.replaceAll("_", " ")).join(", ")}
             </p>
           )}
@@ -271,7 +274,7 @@ export default function VerificationProgress() {
           title="AI Forgery Detection"
           description="Tamper, copy-move & metadata analysis"
           state={modulesState.forgery}
-          summary={<span className="text-sm font-semibold text-slate-700">{forgery.authenticity_verdict}</span>}
+          summary={<span className="text-sm font-semibold text-ink-100">{forgery.authenticity_verdict}</span>}
         >
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
             <Stat label="Forgery risk" value={`${forgery.forgery_score}%`} />
@@ -280,23 +283,23 @@ export default function VerificationProgress() {
             <Stat label="EXIF metadata" value={forgery.metadata?.exif_present ? "Present" : "Stripped"} />
           </div>
           <div className="mt-4">
-            <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+            <div className="mb-1.5 flex justify-between text-xs text-ink-500">
               <span>Forgery risk score</span><span>{forgery.forgery_score}%</span>
             </div>
-            <Bar value={forgery.forgery_score} colorClass={forgery.forgery_score >= 60 ? "bg-rose-500" : forgery.forgery_score >= 30 ? "bg-amber-500" : "bg-emerald-500"} />
+            <Bar value={forgery.forgery_score} colorClass={forgery.forgery_score >= 60 ? "bg-signal-crimson" : forgery.forgery_score >= 30 ? "bg-signal-amber" : "bg-signal-emerald"} />
           </div>
           {forgery.heatmap_png_base64 && (
             <div className="mt-4">
-              <p className="mb-2 text-xs font-medium text-slate-500">Compression-error heatmap (brighter = more suspicious)</p>
+              <p className="mb-2 text-xs font-medium text-ink-500">Compression-error heatmap (brighter = more suspicious)</p>
               <img
                 src={`data:image/png;base64,${forgery.heatmap_png_base64}`}
                 alt="Forgery heatmap"
-                className="max-h-56 w-full rounded-xl border border-slate-200 object-contain bg-slate-900"
+                className="max-h-56 w-full rounded-xl border border-white/[0.08] bg-void-950 object-contain"
               />
             </div>
           )}
           {forgery.indicators?.length > 0 && (
-            <ul className="mt-4 space-y-1 text-xs text-amber-600">
+            <ul className="mt-4 space-y-1 text-xs text-signal-amber">
               {forgery.indicators.map((ind, i) => <li key={i}>• {ind}</li>)}
             </ul>
           )}
@@ -311,7 +314,7 @@ export default function VerificationProgress() {
             description="UIDAI-signed QR: cryptographic authenticity check"
             state={modulesState.aadhaarQr}
             summary={
-              <span className="text-sm font-semibold text-slate-700">
+              <span className="text-sm font-semibold text-ink-100">
                 {!aadhaar_qr.qr_present ? "No QR found" : aadhaar_qr.signature_valid ? "Signature valid" : "Signature invalid"}
               </span>
             }
@@ -327,7 +330,7 @@ export default function VerificationProgress() {
                   <Stat label="Field match vs OCR" value={aadhaar_qr.mismatch_flag ? "Mismatch" : "Consistent"} />
                 </div>
                 {aadhaar_qr.using_test_certificate && (
-                  <div className="mt-4 rounded-xl border border-dashed border-amber-200 bg-amber-50/60 px-4 py-3 text-xs text-amber-700">
+                  <div className="mt-4 rounded-xl border border-dashed border-signal-amber/25 bg-signal-amber/[0.05] px-4 py-3 text-xs text-signal-amber">
                     Verifying against a locally-generated TEST certificate, not UIDAI's real signing key (unreachable
                     from this environment). A real Aadhaar QR will correctly show "Signature invalid" here until
                     UIDAI's actual certificate is dropped into <code>backend/certs/uidai_cert.pem</code> - see{" "}
@@ -335,19 +338,19 @@ export default function VerificationProgress() {
                   </div>
                 )}
                 {aadhaar_qr.mismatch_flag && (
-                  <p className="mt-3 text-xs text-rose-600">
+                  <p className="mt-3 text-xs text-signal-crimson">
                     The QR's signed demographic data disagrees with what OCR read off the printed card - a strong
                     forgery signal (e.g. a genuine QR reused on an altered card).
                   </p>
                 )}
                 {aadhaar_qr.notes?.length > 0 && (
-                  <ul className="mt-3 space-y-1 text-xs text-slate-500">
+                  <ul className="mt-3 space-y-1 text-xs text-ink-500">
                     {aadhaar_qr.notes.map((n, i) => n && <li key={i}>• {n}</li>)}
                   </ul>
                 )}
               </>
             ) : (
-              <p className="text-sm text-slate-400">
+              <p className="text-sm text-ink-500">
                 No decodable Secure QR code was found on this document (missing, unreadable, or not an Aadhaar card).
               </p>
             )}
@@ -360,7 +363,7 @@ export default function VerificationProgress() {
           title="Face Matching"
           description="Selfie vs. document photo comparison"
           state={modulesState.face}
-          summary={<span className="text-sm font-semibold text-slate-700">{face.similarity_percent}%</span>}
+          summary={<span className="text-sm font-semibold text-ink-100">{face.similarity_percent}%</span>}
         >
           {face.face_detected ? (
             <>
@@ -372,14 +375,14 @@ export default function VerificationProgress() {
                 <Stat label="Doc photo quality" value={`${face.document_photo_quality?.quality_score ?? 0}%`} />
               </div>
               <div className="mt-4">
-                <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+                <div className="mb-1.5 flex justify-between text-xs text-ink-500">
                   <span>Face similarity</span><span>{face.similarity_percent}%</span>
                 </div>
-                <Bar value={face.similarity_percent} colorClass={face.matched ? "bg-emerald-500" : "bg-rose-500"} />
+                <Bar value={face.similarity_percent} colorClass={face.matched ? "bg-signal-emerald" : "bg-signal-crimson"} />
               </div>
             </>
           ) : (
-            <p className="text-sm text-slate-400">No face verification captured for this document yet.</p>
+            <p className="text-sm text-ink-500">No face verification captured for this document yet.</p>
           )}
           <NotAvailableList items={face.not_available} />
         </ModuleCard>
@@ -390,20 +393,20 @@ export default function VerificationProgress() {
           title="AI Liveness Detection"
           description="Confirms a live person, not a photo/replay"
           state={modulesState.liveness}
-          summary={<span className="text-sm font-semibold text-slate-700">{liveness.liveness_score}%</span>}
+          summary={<span className="text-sm font-semibold text-ink-100">{liveness.liveness_score}%</span>}
         >
-          <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+          <div className="mb-1.5 flex justify-between text-xs text-ink-500">
             <span>Liveness score</span><span>{liveness.liveness_score}%</span>
           </div>
-          <Bar value={liveness.liveness_score} colorClass={liveness.liveness_score >= 60 ? "bg-emerald-500" : "bg-amber-500"} />
+          <Bar value={liveness.liveness_score} colorClass={liveness.liveness_score >= 60 ? "bg-signal-emerald" : "bg-signal-amber"} />
           <div className="mt-4 flex flex-wrap gap-2">
             {["image_sharpness", "natural_motion", "eye_blink_variation"].map((chk) => {
               const passed = liveness.checks_passed?.includes(chk);
               return (
                 <span
                   key={chk}
-                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ${
-                    passed ? "bg-emerald-50 text-emerald-600 ring-emerald-200" : "bg-slate-50 text-slate-400 ring-slate-200"
+                  className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium ring-1 ring-inset ${
+                    passed ? "bg-signal-emerald/10 text-signal-emerald ring-signal-emerald/25" : "bg-white/[0.03] text-ink-500 ring-white/[0.08]"
                   }`}
                 >
                   {passed ? <CheckCircle2 className="h-3.5 w-3.5" /> : <MinusCircle className="h-3.5 w-3.5" />}
@@ -413,20 +416,20 @@ export default function VerificationProgress() {
             })}
           </div>
           {liveness.challenge?.challenge_type && (
-            <div className="mt-4 rounded-xl bg-slate-50 px-4 py-3.5">
+            <div className="mt-4 rounded-xl bg-void-700/50 px-4 py-3.5">
               <div className="flex items-center justify-between">
-                <span className="text-xs font-medium uppercase tracking-wide text-slate-400">
+                <span className="text-xs font-medium uppercase tracking-wide text-ink-500">
                   Challenge: {liveness.challenge.challenge_type.replaceAll("_", " ")}
                 </span>
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                    liveness.challenge.passed ? "bg-emerald-100 text-emerald-700" : "bg-rose-100 text-rose-700"
+                    liveness.challenge.passed ? "bg-signal-emerald/15 text-signal-emerald" : "bg-signal-crimson/15 text-signal-crimson"
                   }`}
                 >
                   {liveness.challenge.passed ? "Passed" : "Failed"}
                 </span>
               </div>
-              <p className="mt-1.5 text-xs text-slate-500">{liveness.challenge.detail}</p>
+              <p className="mt-1.5 text-xs text-ink-500">{liveness.challenge.detail}</p>
             </div>
           )}
           <NotAvailableList items={liveness.not_available} />
@@ -441,7 +444,7 @@ export default function VerificationProgress() {
           defaultOpen
           summary={<span className={`text-sm font-semibold ${riskColor}`}>{risk.risk_score ?? "—"} · {risk.risk_band ?? "n/a"}</span>}
         >
-          <div className="mb-1.5 flex justify-between text-xs text-slate-500">
+          <div className="mb-1.5 flex justify-between text-xs text-ink-500">
             <span>Overall risk score</span><span className={riskColor}>{risk.risk_score ?? "—"} / 100</span>
           </div>
           <Bar value={risk.risk_score ?? 0} colorClass={riskBarColor} />
@@ -455,15 +458,15 @@ export default function VerificationProgress() {
             <Stat label="Prior flags" value={risk.factors.prior_flagged_verifications} />
           </div>
 
-          <div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3.5">
-            <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Recommendation</span>
+          <div className="mt-5 flex items-center justify-between rounded-xl bg-void-700/50 px-4 py-3.5">
+            <span className="text-xs font-medium uppercase tracking-wide text-ink-500">Recommendation</span>
             <span
               className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
                 risk.status === "approved"
-                  ? "bg-emerald-100 text-emerald-700"
+                  ? "bg-signal-emerald/15 text-signal-emerald"
                   : risk.status === "rejected"
-                  ? "bg-rose-100 text-rose-700"
-                  : "bg-amber-100 text-amber-700"
+                  ? "bg-signal-crimson/15 text-signal-crimson"
+                  : "bg-signal-amber/15 text-signal-amber"
               }`}
             >
               {risk.status === "approved" ? "Approve" : risk.status === "rejected" ? "Reject" : "Manual review"}
@@ -481,11 +484,11 @@ export default function VerificationProgress() {
           )}
 
           {risk.fraud_network && (
-            <div className="mt-5 flex items-center justify-between rounded-xl bg-slate-50 px-4 py-3.5">
-              <span className="text-xs font-medium uppercase tracking-wide text-slate-400">Fraud network</span>
+            <div className="mt-5 flex items-center justify-between rounded-xl bg-void-700/50 px-4 py-3.5">
+              <span className="text-xs font-medium uppercase tracking-wide text-ink-500">Fraud network</span>
               <span
                 className={`rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wide ${
-                  risk.fraud_network.flagged ? "bg-rose-100 text-rose-700" : "bg-emerald-100 text-emerald-700"
+                  risk.fraud_network.flagged ? "bg-signal-crimson/15 text-signal-crimson" : "bg-signal-emerald/15 text-signal-emerald"
                 }`}
               >
                 {risk.fraud_network.flagged ? `${risk.fraud_network.linked_count} linked identities` : "Clean"}
@@ -494,27 +497,27 @@ export default function VerificationProgress() {
           )}
 
           {risk.trust_engine && (
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-gradient-to-br from-slate-50 to-white p-5">
+            <div className="mt-6 rounded-2xl border border-white/[0.08] bg-gradient-to-br from-void-700/60 to-void-800/40 p-5">
               <div className="flex items-center justify-between">
-                <h4 className="text-sm font-semibold text-slate-700">Digital identity trust score</h4>
+                <h4 className="text-sm font-semibold text-ink-100">Digital identity trust score</h4>
                 <span
                   className={`font-display text-2xl font-bold ${
                     risk.trust_engine.trust_score >= 70
-                      ? "text-emerald-600"
+                      ? "text-signal-emerald"
                       : risk.trust_engine.trust_score >= 40
-                      ? "text-amber-600"
-                      : "text-rose-600"
+                      ? "text-signal-amber"
+                      : "text-signal-crimson"
                   }`}
                 >
                   {Math.round(risk.trust_engine.trust_score)}
-                  <span className="text-sm font-normal text-slate-400">/100</span>
+                  <span className="text-sm font-normal text-ink-500">/100</span>
                 </span>
               </div>
               <ul className="mt-3 space-y-1.5">
                 {risk.trust_engine.breakdown.map((rule, i) => (
                   <li key={i} className="flex items-center justify-between text-xs">
-                    <span className="text-slate-500">{rule.label}</span>
-                    <span className={rule.delta < 0 ? "font-mono font-semibold text-rose-600" : "font-mono text-slate-400"}>
+                    <span className="text-ink-500">{rule.label}</span>
+                    <span className={rule.delta < 0 ? "font-mono font-semibold text-signal-crimson" : "font-mono text-ink-500"}>
                       {rule.delta === 0 ? "—" : rule.delta}
                     </span>
                   </li>
@@ -535,12 +538,12 @@ export default function VerificationProgress() {
             state={modulesState.stepUp}
             defaultOpen={step_up.action !== "none"}
             summary={
-              <span className="text-sm font-semibold text-slate-700 capitalize">
+              <span className="text-sm font-semibold capitalize text-ink-100">
                 {step_up.action === "none" ? "Instant approval" : `${step_up.action.replaceAll("_", " ")} · ${step_up.status.replaceAll("_", " ")}`}
               </span>
             }
           >
-            <p className="text-sm text-slate-500">{step_up.reason}</p>
+            <p className="text-sm text-ink-500">{step_up.reason}</p>
             {step_up.action !== "none" && (
               <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3">
                 <Stat label="Action" value={step_up.action.replaceAll("_", " ")} />
@@ -552,13 +555,13 @@ export default function VerificationProgress() {
               </div>
             )}
             {step_up.action === "second_factor" && step_up.status === "pending" && (
-              <p className="mt-4 text-xs text-amber-600">
+              <p className="mt-4 text-xs text-signal-amber">
                 This verification needs a second factor (OTP or a repeat selfie) before it can be approved -
                 complete it from the verification flow.
               </p>
             )}
             {step_up.action === "video_kyc" && step_up.status !== "completed" && (
-              <p className="mt-4 text-xs text-amber-600">
+              <p className="mt-4 text-xs text-signal-amber">
                 Routed to a live video-KYC call with a human agent instead of an automatic rejection - queue and
                 completion are managed from the admin console.
               </p>

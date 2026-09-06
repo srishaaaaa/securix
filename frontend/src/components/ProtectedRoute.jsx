@@ -7,7 +7,7 @@ export function ProtectedRoute({ children, adminOnly = false }) {
   if (loading) {
     return (
       <div className="flex min-h-[60vh] items-center justify-center">
-        <div className="h-8 w-8 animate-spin rounded-full border-2 border-cyan-glow/30 border-t-cyan-glow" />
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent/25 border-t-accent" />
       </div>
     );
   }

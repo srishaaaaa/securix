@@ -258,7 +258,7 @@ export default function KycFlow() {
 
       {/* STEP 0 — Document upload */}
       {stepIndex === 0 && (
-        <div className="relative rounded-2xl glass-panel p-7">
+        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
           <h2 className="font-display text-lg font-semibold text-ink-100">Upload your ID document</h2>
           <p className="mt-1 text-sm text-ink-300">We'll extract your details automatically with OCR.</p>
 
@@ -269,7 +269,7 @@ export default function KycFlow() {
                 onClick={() => setDocType(d.value)}
                 className={`rounded-lg border px-3 py-2.5 text-xs font-medium transition ${
                   docType === d.value
-                    ? "border-cyan-glow/50 bg-cyan-glow/10 text-cyan-glow"
+                    ? "border-accent/50 bg-accent/10 text-accent-soft"
                     : "border-white/[0.08] text-ink-300 hover:border-white/[0.15]"
                 }`}
               >
@@ -280,14 +280,14 @@ export default function KycFlow() {
 
           <label
             htmlFor="doc-upload"
-            className="mt-6 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/[0.1] bg-void-800/50 px-6 py-10 text-center transition hover:border-cyan-glow/30"
+            className="mt-6 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/[0.1] bg-void-800/50 px-6 py-10 text-center transition hover:border-accent/30"
           >
             {docPreview ? (
               <img src={docPreview} alt="Document preview" className="max-h-48 rounded-lg object-contain" />
             ) : (
               <>
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-glow/10 ring-1 ring-cyan-glow/25">
-                  <Upload className="h-5 w-5 text-cyan-glow" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 ring-1 ring-inset ring-accent/25">
+                  <Upload className="h-5 w-5 text-accent-soft" />
                 </div>
                 <div>
                   <p className="text-sm font-medium text-ink-100">Click to upload a photo of your document</p>
@@ -300,7 +300,7 @@ export default function KycFlow() {
 
           <div className="mt-4">
             <label htmlFor="phone-number" className="text-xs font-medium text-ink-500">
-              Mobile number <span className="text-ink-600">(optional)</span>
+              Mobile number <span className="text-ink-700">(optional)</span>
             </label>
             <input
               id="phone-number"
@@ -308,12 +308,12 @@ export default function KycFlow() {
               value={phoneNumber}
               onChange={(e) => setPhoneNumber(e.target.value)}
               placeholder="+91 98765 43210"
-              className="mt-1.5 w-full rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2.5 text-sm text-ink-100 placeholder:text-ink-600 focus:border-cyan-glow/40 focus:outline-none"
+              className="mt-1.5 w-full rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2.5 text-sm text-ink-100 placeholder:text-ink-700 focus:border-accent/40 focus:outline-none"
             />
           </div>
 
           {docError && (
-            <div className="mt-4 flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+            <div className="mt-4 flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
               <AlertTriangle className="h-4 w-4 flex-shrink-0" />
               {docError}
             </div>
@@ -322,7 +322,7 @@ export default function KycFlow() {
           <button
             onClick={submitDocument}
             disabled={docLoading || !docFile}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-cyan-glow px-4 py-3 text-sm font-semibold text-void-950 shadow-glow transition hover:bg-cyan-glow/90 disabled:cursor-not-allowed disabled:opacity-40"
+            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
           >
             {docLoading ? (
               <>
@@ -339,7 +339,7 @@ export default function KycFlow() {
 
       {/* STEP 1 — Face + liveness */}
       {stepIndex === 1 && (
-        <div className="relative rounded-2xl glass-panel p-7">
+        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
           <h2 className="font-display text-lg font-semibold text-ink-100">Face verification & liveness check</h2>
           <p className="mt-1 text-sm text-ink-300">
             Look at the camera and stay still — we'll capture a short burst to confirm it's really you, live.
@@ -357,9 +357,9 @@ export default function KycFlow() {
               {capturing && (
                 <div className="absolute inset-x-0 bottom-0 bg-void-950/70 px-4 py-2 backdrop-blur">
                   <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full bg-cyan-glow transition-all duration-300" style={{ width: `${captureProgress}%` }} />
+                    <div className="h-full bg-accent transition-all duration-300" style={{ width: `${captureProgress}%` }} />
                   </div>
-                  <p className="mt-1.5 text-center font-mono text-[10px] uppercase tracking-widest text-cyan-glow">
+                  <p className="mt-1.5 text-center text-[10px] font-medium uppercase tracking-wide text-accent-soft">
                     capturing burst {captureProgress}%
                   </p>
                 </div>
@@ -368,13 +368,13 @@ export default function KycFlow() {
             </div>
 
             {cameraError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 {cameraError}
               </div>
             )}
             {faceError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 {faceError}
               </div>
@@ -383,7 +383,7 @@ export default function KycFlow() {
             {!cameraReady ? (
               <button
                 onClick={startCamera}
-                className="flex items-center gap-2 rounded-lg bg-cyan-glow px-5 py-3 text-sm font-semibold text-void-950 shadow-glow transition hover:bg-cyan-glow/90"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
               >
                 <Camera className="h-4 w-4" /> Enable camera
               </button>
@@ -391,7 +391,7 @@ export default function KycFlow() {
               <button
                 onClick={captureBurst}
                 disabled={capturing}
-                className="flex items-center gap-2 rounded-lg bg-cyan-glow px-5 py-3 text-sm font-semibold text-void-950 shadow-glow transition hover:bg-cyan-glow/90 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
               >
                 {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
                 {capturing ? "Capturing…" : "Start liveness capture"}
@@ -403,7 +403,7 @@ export default function KycFlow() {
 
       {/* STEP 2 — Challenge-response liveness (additional module) */}
       {stepIndex === 2 && (
-        <div className="relative rounded-2xl glass-panel p-7">
+        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
           <h2 className="font-display text-lg font-semibold text-ink-100">One more check — liveness challenge</h2>
           <p className="mt-1 text-sm text-ink-300">
             A random action makes this much harder to spoof with a photo or a pre-recorded video than a plain blink check.
@@ -415,9 +415,9 @@ export default function KycFlow() {
               {challengeCapturing && (
                 <div className="absolute inset-x-0 bottom-0 bg-void-950/70 px-4 py-2 backdrop-blur">
                   <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full bg-cyan-glow transition-all duration-300" style={{ width: `${challengeProgress}%` }} />
+                    <div className="h-full bg-accent transition-all duration-300" style={{ width: `${challengeProgress}%` }} />
                   </div>
-                  <p className="mt-1.5 text-center font-mono text-[10px] uppercase tracking-widest text-cyan-glow">
+                  <p className="mt-1.5 text-center text-[10px] font-medium uppercase tracking-wide text-accent-soft">
                     capturing {challengeProgress}%
                   </p>
                 </div>
@@ -425,20 +425,20 @@ export default function KycFlow() {
               <canvas ref={canvasRef} className="hidden" />
             </div>
 
-            <div className="rounded-xl bg-cyan-glow/10 px-5 py-3 text-center ring-1 ring-cyan-glow/25">
+            <div className="rounded-xl bg-accent/10 px-5 py-3 text-center ring-1 ring-inset ring-accent/25">
               {challengeLoading ? (
-                <span className="flex items-center gap-2 text-sm text-cyan-glow">
+                <span className="flex items-center gap-2 text-sm text-accent-soft">
                   <Loader2 className="h-4 w-4 animate-spin" /> Choosing your challenge…
                 </span>
               ) : (
-                <span className="text-base font-semibold text-cyan-glow">
+                <span className="text-base font-semibold text-accent-soft">
                   {CHALLENGE_LABELS[challengeType] || "Get ready…"}
                 </span>
               )}
             </div>
 
             {challengeError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
                 <AlertTriangle className="h-4 w-4 flex-shrink-0" />
                 {challengeError}
               </div>
@@ -447,7 +447,7 @@ export default function KycFlow() {
             <button
               onClick={captureChallengeBurst}
               disabled={challengeCapturing || challengeLoading || !challengeType}
-              className="flex items-center gap-2 rounded-lg bg-cyan-glow px-5 py-3 text-sm font-semibold text-void-950 shadow-glow transition hover:bg-cyan-glow/90 disabled:opacity-50"
+              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
             >
               {challengeCapturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
               {challengeCapturing ? "Capturing…" : "Perform action & capture"}
@@ -458,14 +458,14 @@ export default function KycFlow() {
 
       {/* STEP 3 — Analysis (brief processing beat) */}
       {stepIndex === 3 && (
-        <div className="flex flex-col items-center gap-6 rounded-2xl glass-panel p-10 text-center">
+        <div className="flex flex-col items-center gap-6 rounded-2xl glass-panel p-10 text-center shadow-soft-lg">
           <ScanFrame size={260} active />
           <div>
             <h2 className="font-display text-lg font-semibold text-ink-100">Running risk analysis…</h2>
             <p className="mt-1 text-sm text-ink-300">Combining OCR confidence, face match, liveness and fraud signals.</p>
           </div>
           {finalizeError && (
-            <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-signal-crimson/20">
+            <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
               <AlertTriangle className="h-4 w-4 flex-shrink-0" />
               {finalizeError}
               <button onClick={() => runFinalize(verification.id)} className="ml-2 underline">
@@ -478,7 +478,7 @@ export default function KycFlow() {
 
       {/* STEP 4 — Decision */}
       {stepIndex === 4 && verification && (
-        <div className="rounded-2xl glass-panel p-7">
+        <div className="rounded-2xl glass-panel p-7 shadow-soft-lg">
           <div className="flex flex-col items-center border-b border-white/[0.06] pb-8 text-center">
             <TrustGauge riskScore={verification.risk_score} band={verification.risk_band} size={190} />
             <div className="mt-4">
@@ -532,13 +532,13 @@ export default function KycFlow() {
           <div className="mt-7 flex flex-col gap-3 sm:flex-row">
             <button
               onClick={() => navigate(`/verification-progress/${verification.id}`)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-cyan-glow/40 bg-cyan-glow/10 px-5 py-3 text-sm font-semibold text-cyan-glow transition hover:bg-cyan-glow/20"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent-soft transition hover:bg-accent/20"
             >
               View full report
             </button>
             <button
               onClick={() => navigate("/dashboard")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-cyan-glow px-5 py-3 text-sm font-semibold text-void-950 shadow-glow transition hover:bg-cyan-glow/90"
+              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
             >
               Go to dashboard <ArrowRight className="h-4 w-4" />
             </button>
@@ -558,7 +558,7 @@ export default function KycFlow() {
 function Metric({ label, value }) {
   return (
     <div className="rounded-xl bg-void-800/60 px-3 py-3.5 text-center">
-      <p className="font-mono text-lg font-semibold text-ink-100">{value}</p>
+      <p className="font-display text-lg font-semibold text-ink-100">{value}</p>
       <p className="mt-0.5 text-[10px] uppercase tracking-wide text-ink-500">{label}</p>
     </div>
   );

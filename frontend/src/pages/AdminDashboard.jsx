@@ -8,8 +8,8 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis
 import { api } from "../api/client";
 import StatusBadge from "../components/StatusBadge";
 
-const BAND_COLORS = { low: "#34d399", medium: "#f5a623", high: "#f4415e" };
-const STATUS_COLORS = { approved: "#34d399", under_review: "#f5a623", rejected: "#f4415e", pending: "#7c8797" };
+const BAND_COLORS = { low: "#5b6ef5", medium: "#f0a63a", high: "#f2495c" };
+const STATUS_COLORS = { approved: "#2fd487", under_review: "#f0a63a", rejected: "#f2495c", pending: "#727a90" };
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -124,25 +124,25 @@ export default function AdminDashboard() {
 
       {/* stat cards */}
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
-        <StatCard label="Total users" value={stats?.total_users ?? "—"} Icon={Users} color="#22d3ee" />
-        <StatCard label="Verifications" value={stats?.total_verifications ?? "—"} Icon={ListChecks} color="#22d3ee" />
-        <StatCard label="Avg. risk score" value={stats?.average_risk_score ?? "—"} Icon={Gauge} color="#f5a623" />
-        <StatCard label="Fraud flags" value={stats?.fraud_flag_count ?? "—"} Icon={ShieldAlert} color="#f4415e" />
+        <StatCard label="Total users" value={stats?.total_users ?? "—"} Icon={Users} color="#5b6ef5" />
+        <StatCard label="Verifications" value={stats?.total_verifications ?? "—"} Icon={ListChecks} color="#5b6ef5" />
+        <StatCard label="Avg. risk score" value={stats?.average_risk_score ?? "—"} Icon={Gauge} color="#f0a63a" />
+        <StatCard label="Fraud flags" value={stats?.fraud_flag_count ?? "—"} Icon={ShieldAlert} color="#f2495c" />
       </div>
 
       {/* charts */}
       <div className="mb-8 grid grid-cols-1 gap-5 lg:grid-cols-2">
-        <div className="rounded-2xl glass-panel p-6">
+        <div className="rounded-2xl glass-panel p-6 shadow-soft">
           <h3 className="mb-4 font-display text-sm font-semibold text-ink-100">Risk band distribution</h3>
           <div className="flex items-center gap-6">
             <ResponsiveContainer width="55%" height={160}>
               <PieChart>
                 <Pie data={bandData} dataKey="value" nameKey="name" innerRadius={45} outerRadius={70} paddingAngle={3}>
                   {bandData.map((entry) => (
-                    <Cell key={entry.name} fill={BAND_COLORS[entry.name] || "#7c8797"} stroke="none" />
+                    <Cell key={entry.name} fill={BAND_COLORS[entry.name] || "#727a90"} stroke="none" />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={{ background: "#141a29", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }} />
+                <Tooltip contentStyle={{ background: "#181c28", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-2">
@@ -150,7 +150,7 @@ export default function AdminDashboard() {
                 <div key={d.name} className="flex items-center gap-2 text-xs">
                   <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: BAND_COLORS[d.name] }} />
                   <span className="capitalize text-ink-300">{d.name}</span>
-                  <span className="font-mono text-ink-100">{d.value}</span>
+                  <span className="font-medium text-ink-100">{d.value}</span>
                 </div>
               ))}
               {bandData.length === 0 && <p className="text-xs text-ink-500">No data yet</p>}
@@ -158,17 +158,17 @@ export default function AdminDashboard() {
           </div>
         </div>
 
-        <div className="rounded-2xl glass-panel p-6">
+        <div className="rounded-2xl glass-panel p-6 shadow-soft">
           <h3 className="mb-4 font-display text-sm font-semibold text-ink-100">Decisions by status</h3>
           <ResponsiveContainer width="100%" height={160}>
             <BarChart data={statusData}>
               <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: "#7c8797", fontSize: 11 }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#7c8797", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
-              <Tooltip contentStyle={{ background: "#141a29", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              <XAxis dataKey="name" tick={{ fill: "#727a90", fontSize: 11 }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#727a90", fontSize: 11 }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <Tooltip contentStyle={{ background: "#181c28", border: "1px solid rgba(255,255,255,0.08)", borderRadius: 8, fontSize: 12 }} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
               <Bar dataKey="value" radius={[6, 6, 0, 0]}>
                 {statusData.map((entry) => (
-                  <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || "#7c8797"} />
+                  <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || "#727a90"} />
                 ))}
               </Bar>
             </BarChart>
@@ -177,7 +177,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* tabs */}
-      <div className="mb-5 flex gap-1 rounded-lg bg-void-800/60 p-1 w-fit">
+      <div className="mb-5 flex w-fit gap-1 rounded-lg bg-void-800/60 p-1 ring-1 ring-white/[0.05]">
         <TabButton active={tab === "verifications"} onClick={() => setTab("verifications")}>Verifications</TabButton>
         <TabButton active={tab === "audit"} onClick={() => setTab("audit")}>
           <ScrollText className="h-3.5 w-3.5" /> Audit log
@@ -194,14 +194,14 @@ export default function AdminDashboard() {
       </div>
 
       {tab === "verifications" ? (
-        <div className="rounded-2xl glass-panel p-2">
+        <div className="rounded-2xl glass-panel p-2 shadow-soft">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3.5">
             <span className="text-sm font-medium text-ink-100">All verifications</span>
             <div className="relative">
               <select
                 value={statusFilter}
                 onChange={(e) => setStatusFilter(e.target.value)}
-                className="appearance-none rounded-lg border border-white/[0.08] bg-void-800 py-1.5 pl-3 pr-8 text-xs text-ink-300 outline-none focus:border-cyan-glow/40"
+                className="appearance-none rounded-lg border border-white/[0.08] bg-void-800 py-1.5 pl-3 pr-8 text-xs text-ink-300 outline-none focus:border-accent/40"
               >
                 <option value="">All statuses</option>
                 <option value="approved">Approved</option>
@@ -231,8 +231,8 @@ export default function AdminDashboard() {
                   <tr key={v.id} className="border-t border-white/[0.04] transition hover:bg-white/[0.02]">
                     <td className="px-4 py-3 capitalize text-ink-300">{v.document_type?.replace("_", " ")}</td>
                     <td className="px-4 py-3 text-ink-100">{v.ocr_name || "—"}</td>
-                    <td className="px-4 py-3 font-mono text-ink-100">{v.risk_score?.toFixed(1)}</td>
-                    <td className="px-4 py-3 capitalize" style={{ color: BAND_COLORS[v.risk_band] || "#7c8797" }}>
+                    <td className="px-4 py-3 font-medium text-ink-100">{v.risk_score?.toFixed(1)}</td>
+                    <td className="px-4 py-3 capitalize" style={{ color: BAND_COLORS[v.risk_band] || "#727a90" }}>
                       {v.risk_band || "—"}
                     </td>
                     <td className="px-4 py-3"><StatusBadge status={v.status} size="sm" /></td>
@@ -245,18 +245,18 @@ export default function AdminDashboard() {
                         <span className="text-xs text-ink-500">clean</span>
                       )}
                       {v.forgery_score >= 60 && (
-                        <span className="ml-2 inline-flex items-center gap-1 text-xs text-amber-400" title={v.forgery_indicators}>
+                        <span className="ml-2 inline-flex items-center gap-1 text-xs text-signal-amber" title={v.forgery_indicators}>
                           <Flag className="h-3.5 w-3.5" /> forgery signals
                         </span>
                       )}
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1.5">
-                        <ActionIcon title="Approve" onClick={() => decide(v.id, "approved")} color="#34d399" Icon={Check} />
-                        <ActionIcon title="Under review" onClick={() => decide(v.id, "under_review")} color="#f5a623" Icon={Clock} />
-                        <ActionIcon title="Reject" onClick={() => decide(v.id, "rejected")} color="#f4415e" Icon={X} />
-                        <ActionIcon title="Queue for manual review" onClick={() => queueForReview(v.id)} color="#22d3ee" Icon={UserCog} />
-                        <ActionIcon title="View fraud network" onClick={() => navigate(`/fraud-network/${v.id}`)} color="#a78bfa" Icon={Network} />
+                        <ActionIcon title="Approve" onClick={() => decide(v.id, "approved")} color="#2fd487" Icon={Check} />
+                        <ActionIcon title="Under review" onClick={() => decide(v.id, "under_review")} color="#f0a63a" Icon={Clock} />
+                        <ActionIcon title="Reject" onClick={() => decide(v.id, "rejected")} color="#f2495c" Icon={X} />
+                        <ActionIcon title="Queue for manual review" onClick={() => queueForReview(v.id)} color="#5b6ef5" Icon={UserCog} />
+                        <ActionIcon title="View fraud network" onClick={() => navigate(`/fraud-network/${v.id}`)} color="#b794f7" Icon={Network} />
                       </div>
                     </td>
                   </tr>
@@ -269,7 +269,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       ) : tab === "audit" ? (
-        <div className="rounded-2xl glass-panel p-2">
+        <div className="rounded-2xl glass-panel p-2 shadow-soft">
           <div className="max-h-[480px] overflow-y-auto">
             <table className="w-full min-w-[600px] text-left text-sm">
               <thead className="sticky top-0 bg-void-800/95 backdrop-blur">
@@ -282,7 +282,7 @@ export default function AdminDashboard() {
               <tbody>
                 {auditLogs.map((l) => (
                   <tr key={l.id} className="border-t border-white/[0.04]">
-                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-wide text-cyan-glow">{l.action}</td>
+                    <td className="px-4 py-3 font-mono text-xs uppercase tracking-wide text-accent-soft">{l.action}</td>
                     <td className="px-4 py-3 text-ink-300">{l.detail}</td>
                     <td className="px-4 py-3 whitespace-nowrap text-xs text-ink-500">{new Date(l.created_at).toLocaleString()}</td>
                   </tr>
@@ -292,7 +292,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       ) : tab === "review" ? (
-        <div className="rounded-2xl glass-panel p-2">
+        <div className="rounded-2xl glass-panel p-2 shadow-soft">
           <div className="max-h-[480px] overflow-y-auto">
             <table className="w-full min-w-[680px] text-left text-sm">
               <thead className="sticky top-0 bg-void-800/95 backdrop-blur">
@@ -316,10 +316,10 @@ export default function AdminDashboard() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1.5">
                         {r.status !== "in_progress" && (
-                          <ActionIcon title="Start review" onClick={() => advanceReview(r.id, "in_progress")} color="#f5a623" Icon={Clock} />
+                          <ActionIcon title="Start review" onClick={() => advanceReview(r.id, "in_progress")} color="#f0a63a" Icon={Clock} />
                         )}
                         {r.status !== "completed" && (
-                          <ActionIcon title="Mark completed" onClick={() => advanceReview(r.id, "completed")} color="#34d399" Icon={Check} />
+                          <ActionIcon title="Mark completed" onClick={() => advanceReview(r.id, "completed")} color="#2fd487" Icon={Check} />
                         )}
                       </div>
                     </td>
@@ -333,7 +333,7 @@ export default function AdminDashboard() {
           </div>
         </div>
       ) : tab === "video_kyc" ? (
-        <div className="rounded-2xl glass-panel p-2">
+        <div className="rounded-2xl glass-panel p-2 shadow-soft">
           <div className="flex items-center justify-between border-b border-white/[0.06] px-5 py-3.5">
             <span className="text-sm font-medium text-ink-100">Live video-KYC queue</span>
             <span className="text-xs text-ink-500">High-risk verifications routed here instead of an automatic rejection</span>
@@ -355,7 +355,7 @@ export default function AdminDashboard() {
                     <td className="px-4 py-3">
                       <button
                         onClick={() => navigate(`/verification-progress/${q.verification_id}`)}
-                        className="font-mono text-xs text-cyan-glow hover:underline"
+                        className="font-mono text-xs text-accent-soft hover:underline"
                       >
                         {q.verification_id.slice(0, 8)}…
                       </button>
@@ -366,12 +366,12 @@ export default function AdminDashboard() {
                     <td className="px-4 py-3">
                       <div className="flex justify-end gap-1.5">
                         {q.status === "waiting" && (
-                          <ActionIcon title="Assign to me / start call" onClick={() => assignVideoKyc(q.id)} color="#22d3ee" Icon={Video} />
+                          <ActionIcon title="Assign to me / start call" onClick={() => assignVideoKyc(q.id)} color="#5b6ef5" Icon={Video} />
                         )}
                         {q.status !== "completed" && q.status !== "cancelled" && (
                           <>
-                            <ActionIcon title="Approve after call" onClick={() => completeVideoKyc(q.id, "approved")} color="#34d399" Icon={Check} />
-                            <ActionIcon title="Reject after call" onClick={() => completeVideoKyc(q.id, "rejected")} color="#f4415e" Icon={X} />
+                            <ActionIcon title="Approve after call" onClick={() => completeVideoKyc(q.id, "approved")} color="#2fd487" Icon={Check} />
+                            <ActionIcon title="Reject after call" onClick={() => completeVideoKyc(q.id, "rejected")} color="#f2495c" Icon={X} />
                           </>
                         )}
                       </div>
@@ -388,9 +388,9 @@ export default function AdminDashboard() {
       ) : (
         <div className="space-y-5">
           {/* API keys */}
-          <div className="rounded-2xl glass-panel p-6">
+          <div className="rounded-2xl glass-panel p-6 shadow-soft">
             <h3 className="mb-1 flex items-center gap-2 font-display text-sm font-semibold text-ink-100">
-              <Key className="h-4 w-4 text-cyan-glow" /> API keys
+              <Key className="h-4 w-4 text-accent-soft" /> API keys
             </h3>
             <p className="mb-4 text-xs text-ink-500">
               Partners authenticate to <span className="font-mono">/api/v1/verifications</span> with an{" "}
@@ -402,18 +402,18 @@ export default function AdminDashboard() {
                 value={newKeyName}
                 onChange={(e) => setNewKeyName(e.target.value)}
                 placeholder="Key name, e.g. Acme Bank sandbox"
-                className="flex-1 rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-cyan-glow/40 focus:outline-none"
+                className="flex-1 rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2 text-sm text-ink-100 placeholder:text-ink-700 focus:border-accent/40 focus:outline-none"
               />
               <button
                 onClick={createKey}
-                className="flex items-center gap-1.5 rounded-lg bg-cyan-glow px-4 py-2 text-sm font-semibold text-void-950 shadow-glow hover:bg-cyan-glow/90"
+                className="flex items-center gap-1.5 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2 text-sm font-semibold text-white shadow-glow hover:brightness-110"
               >
                 <Key className="h-3.5 w-3.5" /> Create key
               </button>
             </div>
 
             {newKeyReveal && (
-              <div className="mb-4 rounded-lg bg-signal-emerald/10 p-3.5 ring-1 ring-signal-emerald/25">
+              <div className="mb-4 rounded-lg bg-signal-emerald/10 p-3.5 ring-1 ring-inset ring-signal-emerald/25">
                 <p className="mb-1.5 text-xs font-semibold text-signal-emerald">
                   Copy this now — it won't be shown again:
                 </p>
@@ -422,7 +422,7 @@ export default function AdminDashboard() {
                     {newKeyReveal.api_key}
                   </code>
                   <button onClick={() => navigator.clipboard.writeText(newKeyReveal.api_key)} title="Copy">
-                    <Copy className="h-3.5 w-3.5 text-ink-400 hover:text-ink-100" />
+                    <Copy className="h-3.5 w-3.5 text-ink-500 hover:text-ink-100" />
                   </button>
                 </div>
               </div>
@@ -442,12 +442,12 @@ export default function AdminDashboard() {
                 {apiKeys.map((k) => (
                   <tr key={k.id} className="border-t border-white/[0.04]">
                     <td className="py-2 text-ink-100">{k.name}</td>
-                    <td className="py-2 font-mono text-xs text-ink-400">{k.key_prefix}…</td>
+                    <td className="py-2 font-mono text-xs text-ink-500">{k.key_prefix}…</td>
                     <td className="py-2 text-ink-300">{k.is_active ? "Active" : "Revoked"}</td>
                     <td className="py-2 text-xs text-ink-500">{k.last_used_at ? new Date(k.last_used_at).toLocaleString() : "Never"}</td>
                     <td className="py-2 text-right">
                       {k.is_active && (
-                        <ActionIcon title="Revoke" onClick={() => api.revokeApiKey(k.id).then(refreshIntegrations)} color="#f4415e" Icon={Trash2} />
+                        <ActionIcon title="Revoke" onClick={() => api.revokeApiKey(k.id).then(refreshIntegrations)} color="#f2495c" Icon={Trash2} />
                       )}
                     </td>
                   </tr>
@@ -460,9 +460,9 @@ export default function AdminDashboard() {
           </div>
 
           {/* Webhooks */}
-          <div className="rounded-2xl glass-panel p-6">
+          <div className="rounded-2xl glass-panel p-6 shadow-soft">
             <h3 className="mb-1 flex items-center gap-2 font-display text-sm font-semibold text-ink-100">
-              <Plug className="h-4 w-4 text-purple-400" /> Webhooks
+              <Plug className="h-4 w-4 text-violet-soft" /> Webhooks
             </h3>
             <p className="mb-4 text-xs text-ink-500">
               Fires a signed <span className="font-mono">verification.completed</span> /{" "}
@@ -474,7 +474,7 @@ export default function AdminDashboard() {
               <select
                 value={newWebhookKeyId}
                 onChange={(e) => setNewWebhookKeyId(e.target.value)}
-                className="rounded-lg border border-white/[0.08] bg-void-800/50 px-3 py-2 text-sm text-ink-100 focus:border-cyan-glow/40 focus:outline-none"
+                className="rounded-lg border border-white/[0.08] bg-void-800/50 px-3 py-2 text-sm text-ink-100 focus:border-accent/40 focus:outline-none"
               >
                 <option value="">Select API key…</option>
                 {apiKeys.filter((k) => k.is_active).map((k) => (
@@ -485,18 +485,18 @@ export default function AdminDashboard() {
                 value={newWebhookUrl}
                 onChange={(e) => setNewWebhookUrl(e.target.value)}
                 placeholder="https://partner.example.com/webhooks/securix"
-                className="flex-1 min-w-[240px] rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2 text-sm text-ink-100 placeholder:text-ink-600 focus:border-cyan-glow/40 focus:outline-none"
+                className="min-w-[240px] flex-1 rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2 text-sm text-ink-100 placeholder:text-ink-700 focus:border-accent/40 focus:outline-none"
               />
               <button
                 onClick={createWebhook}
-                className="flex items-center gap-1.5 rounded-lg bg-purple-500 px-4 py-2 text-sm font-semibold text-white hover:bg-purple-500/90"
+                className="flex items-center gap-1.5 rounded-lg bg-violet px-4 py-2 text-sm font-semibold text-white hover:brightness-110"
               >
                 <Plug className="h-3.5 w-3.5" /> Register
               </button>
             </div>
 
             {newWebhookReveal && (
-              <div className="mb-4 rounded-lg bg-signal-emerald/10 p-3.5 ring-1 ring-signal-emerald/25">
+              <div className="mb-4 rounded-lg bg-signal-emerald/10 p-3.5 ring-1 ring-inset ring-signal-emerald/25">
                 <p className="mb-1.5 text-xs font-semibold text-signal-emerald">
                   Signing secret — copy this now, it won't be shown again:
                 </p>
@@ -505,7 +505,7 @@ export default function AdminDashboard() {
                     {newWebhookReveal.secret}
                   </code>
                   <button onClick={() => navigator.clipboard.writeText(newWebhookReveal.secret)} title="Copy">
-                    <Copy className="h-3.5 w-3.5 text-ink-400 hover:text-ink-100" />
+                    <Copy className="h-3.5 w-3.5 text-ink-500 hover:text-ink-100" />
                   </button>
                 </div>
               </div>
@@ -526,7 +526,7 @@ export default function AdminDashboard() {
                     <td className="py-2 text-ink-300">{w.is_active ? "Active" : "Revoked"}</td>
                     <td className="py-2 text-right">
                       {w.is_active && (
-                        <ActionIcon title="Revoke" onClick={() => api.revokeWebhook(w.id).then(refreshIntegrations)} color="#f4415e" Icon={Trash2} />
+                        <ActionIcon title="Revoke" onClick={() => api.revokeWebhook(w.id).then(refreshIntegrations)} color="#f2495c" Icon={Trash2} />
                       )}
                     </td>
                   </tr>
@@ -539,9 +539,9 @@ export default function AdminDashboard() {
           </div>
 
           {/* Notification log */}
-          <div className="rounded-2xl glass-panel p-6">
+          <div className="rounded-2xl glass-panel p-6 shadow-soft">
             <h3 className="mb-1 flex items-center gap-2 font-display text-sm font-semibold text-ink-100">
-              <Bell className="h-4 w-4 text-amber-400" /> Status notifications
+              <Bell className="h-4 w-4 text-signal-amber" /> Status notifications
             </h3>
             <p className="mb-4 text-xs text-ink-500">
               Email/SMS sent on status changes. Without SMTP/Twilio credentials configured on the server,
@@ -583,12 +583,12 @@ export default function AdminDashboard() {
 
 function StatCard({ label, value, Icon, color }) {
   return (
-    <div className="rounded-2xl glass-panel p-5">
+    <div className="rounded-2xl glass-panel p-5 shadow-soft">
       <div className="flex items-center justify-between">
         <span className="text-xs uppercase tracking-wide text-ink-500">{label}</span>
         <Icon className="h-4 w-4" style={{ color }} />
       </div>
-      <p className="mt-2.5 font-mono text-2xl font-semibold text-ink-100">{value}</p>
+      <p className="mt-2.5 font-display text-2xl font-semibold text-ink-100">{value}</p>
     </div>
   );
 }
@@ -598,7 +598,7 @@ function TabButton({ active, onClick, children }) {
     <button
       onClick={onClick}
       className={`flex items-center gap-1.5 rounded-md px-3.5 py-1.5 text-xs font-medium transition ${
-        active ? "bg-cyan-glow/15 text-cyan-glow" : "text-ink-500 hover:text-ink-300"
+        active ? "bg-accent/15 text-accent-soft" : "text-ink-500 hover:text-ink-300"
       }`}
     >
       {children}

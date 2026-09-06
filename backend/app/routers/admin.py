@@ -93,9 +93,8 @@ def override_decision(
     # status-notification module: fire only on an actual transition, so
     # re-saving the same status twice doesn't spam the user
     if payload.status != previous_status:
-        owner = db.query(models.User).filter(models.User.id == v.user_id).first()
-        background_tasks.add_task(notify_service.notify_status_change, db, v, owner, payload.status)
-        background_tasks.add_task(webhooks_service.dispatch_event, db, "verification.status_changed", v)
+        background_tasks.add_task(notify_service.notify_status_change, v.id, v.user_id, payload.status)
+        background_tasks.add_task(webhooks_service.dispatch_event, "verification.status_changed", v.id)
 
     return v
 

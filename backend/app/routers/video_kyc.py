@@ -102,9 +102,8 @@ def complete_entry(
     db.commit()
 
     if payload.decision != previous_status:
-        owner = db.query(models.User).filter(models.User.id == verification.user_id).first()
-        background_tasks.add_task(notify_service.notify_status_change, db, verification, owner, payload.decision)
-        background_tasks.add_task(webhooks_service.dispatch_event, db, "verification.status_changed", verification)
+        background_tasks.add_task(notify_service.notify_status_change, verification.id, verification.user_id, payload.decision)
+        background_tasks.add_task(webhooks_service.dispatch_event, "verification.status_changed", verification.id)
 
     return entry
 
