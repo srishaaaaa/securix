@@ -4,6 +4,7 @@ import uuid
 import json
 import base64
 import hashlib
+import threading
 from datetime import datetime, timedelta
 from typing import List
 
@@ -38,6 +39,19 @@ VALID_DOC_TYPES = {"aadhaar", "pan", "passport", "driving_license"}
 # compare the selfie against the document photo without re-decoding files
 _doc_face_cache: dict[str, "object"] = {}
 
+# Image-heavy endpoints are plain `def` so FastAPI runs them in its
+# threadpool: a slow OCR/forgery pass then no longer blocks the event loop
+# (and with it /api/health, which the host uses to decide whether the
+# server is alive). This semaphore keeps them one at a time, as they
+# effectively were when they blocked the loop, so two large uploads can't
+# double peak memory on a small instance.
+_image_processing_semaphore = threading.Semaphore(1)
+
+
+def image_processing_slot():
+    with _image_processing_semaphore:
+        yield
+
 
 def _save_bytes(data: bytes, prefix: str) -> str:
     fname = f"{prefix}_{uuid.uuid4().hex}.jpg"
@@ -48,17 +62,18 @@ def _save_bytes(data: bytes, prefix: str) -> str:
 
 
 @router.post("/document", response_model=schemas.VerificationOut)
-async def upload_document(
+def upload_document(
     document_type: str = Form(...),
     file: UploadFile = File(...),
     phone_number: str = Form(None),  # optional, feeds Module 3's fraud network
     current_user: models.User = Depends(auth_utils.get_current_user),
     db: Session = Depends(get_db),
+    _slot: None = Depends(image_processing_slot),
 ):
     if document_type not in VALID_DOC_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported document type.")
 
-    raw = await file.read()
+    raw = file.file.read()
     if len(raw) == 0:
         raise HTTPException(status_code=400, detail="Empty file upload.")
 
@@ -151,7 +166,9 @@ async def upload_document(
     # cache a face crop from the document photo (if any) for later matching
     detected, crop, _ = face_service.detect_face(raw)
     if detected:
-        _doc_face_cache[verification.id] = crop
+        # copy: crop is a view that would otherwise keep the whole
+        # full-resolution grayscale page alive in the cache
+        _doc_face_cache[verification.id] = crop.copy()
 
     detail = f"{document_type} uploaded, OCR confidence {ocr_conf:.1f}, format_valid={fields['format_valid']}"
     if document_type == "aadhaar":
@@ -168,18 +185,19 @@ async def upload_document(
 
 
 @router.post("/face/{verification_id}", response_model=schemas.VerificationOut)
-async def verify_face(
+def verify_face(
     verification_id: str,
     frames: List[UploadFile] = File(...),
     current_user: models.User = Depends(auth_utils.get_current_user),
     db: Session = Depends(get_db),
+    _slot: None = Depends(image_processing_slot),
 ):
     verification = _get_owned_verification(verification_id, current_user, db)
 
     if len(frames) < 1:
         raise HTTPException(status_code=400, detail="At least one capture frame is required.")
 
-    frame_bytes = [await f.read() for f in frames]
+    frame_bytes = [f.file.read() for f in frames]
     if any(len(fb) == 0 for fb in frame_bytes):
         raise HTTPException(status_code=400, detail="One or more captured frames were empty.")
 
@@ -644,12 +662,13 @@ def verify_step_up_otp(
 
 
 @router.post("/{verification_id}/step-up/selfie", response_model=schemas.StepUpResultOut)
-async def submit_step_up_selfie(
+def submit_step_up_selfie(
     verification_id: str,
     background_tasks: BackgroundTasks,
     frames: List[UploadFile] = File(...),
     current_user: models.User = Depends(auth_utils.get_current_user),
     db: Session = Depends(get_db),
+    _slot: None = Depends(image_processing_slot),
 ):
     """The "repeat selfie" alternative to OTP - re-runs liveness + face
     match at a stricter threshold than the original step-1 check. Reads
@@ -661,7 +680,7 @@ async def submit_step_up_selfie(
 
     if len(frames) < 1:
         raise HTTPException(status_code=400, detail="At least one capture frame is required.")
-    frame_bytes = [await f.read() for f in frames]
+    frame_bytes = [f.file.read() for f in frames]
     if any(len(fb) == 0 for fb in frame_bytes):
         raise HTTPException(status_code=400, detail="One or more captured frames were empty.")
 
@@ -776,6 +795,7 @@ def full_report(
     verification_id: str,
     current_user: models.User = Depends(auth_utils.get_current_user),
     db: Session = Depends(get_db),
+    _slot: None = Depends(image_processing_slot),
 ):
     v = _get_owned_verification(verification_id, current_user, db)
 

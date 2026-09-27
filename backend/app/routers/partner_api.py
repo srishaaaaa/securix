@@ -33,25 +33,26 @@ from ..services import risk as risk_service
 from ..services import forgery as forgery_service
 from ..services import webhooks as webhooks_service
 from ..services import notify as notify_service
-from .kyc import VALID_DOC_TYPES
+from .kyc import VALID_DOC_TYPES, image_processing_slot
 
 router = APIRouter(prefix="/api/v1", tags=["partner-api"])
 
 
 @router.post("/verifications", response_model=schemas.PartnerVerificationOut)
-async def create_verification(
+def create_verification(
     background_tasks: BackgroundTasks,
     document_type: str = Form(...),
     document: UploadFile = File(...),
     selfie: UploadFile = File(...),
     api_key: models.ApiKey = Depends(auth_utils.require_api_key),
     db: Session = Depends(get_db),
+    _slot: None = Depends(image_processing_slot),
 ):
     if document_type not in VALID_DOC_TYPES:
         raise HTTPException(status_code=400, detail="Unsupported document type.")
 
-    doc_raw = await document.read()
-    selfie_raw = await selfie.read()
+    doc_raw = document.file.read()
+    selfie_raw = selfie.file.read()
     if not doc_raw or not selfie_raw:
         raise HTTPException(status_code=400, detail="Both 'document' and 'selfie' files are required.")
 

@@ -10,6 +10,8 @@ import cv2
 import numpy as np
 from PIL import Image
 
+from .forgery import _strip_mean_var
+
 MIN_WIDTH = 600
 MIN_HEIGHT = 400
 BLUR_THRESHOLD = 60.0       # Laplacian variance below this = too blurry
@@ -22,7 +24,8 @@ def check_quality(image: Image.Image) -> dict:
     gray = cv2.cvtColor(rgb, cv2.COLOR_RGB2GRAY)
 
     width, height = image.size
-    blur_score = float(cv2.Laplacian(gray, cv2.CV_64F).var())
+    del rgb
+    _, blur_score = _strip_mean_var(gray, lambda g: cv2.Laplacian(g, cv2.CV_64F))
     brightness = float(gray.mean())
 
     resolution_ok = width >= MIN_WIDTH and height >= MIN_HEIGHT

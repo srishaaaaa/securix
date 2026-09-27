@@ -12,6 +12,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
         libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
+# glibc allocator tuning for a 512 MB instance: cap per-thread arenas (image
+# endpoints run in worker threads) and hand large freed buffers straight
+# back to the OS instead of keeping them cached after each document scan.
+ENV MALLOC_ARENA_MAX=2 \
+    MALLOC_MMAP_THRESHOLD_=131072 \
+    MALLOC_TRIM_THRESHOLD_=131072
+
 WORKDIR /app
 
 COPY requirements.txt .

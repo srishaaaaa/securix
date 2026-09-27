@@ -71,15 +71,25 @@ def _pan_structural_check(pan: str) -> bool:
     return bool(PAN_RE.fullmatch(pan))
 
 
+# row-strip height used to keep full-size temporaries small on large photos
+_STRIP_ROWS = 256
+
+
 def preprocess_for_ocr(image: Image.Image) -> Image.Image:
     gray = ImageOps.grayscale(image)
     gray = gray.filter(ImageFilter.SHARPEN)
     # simple contrast stretch
     arr = np.array(gray).astype(np.float32)
     lo, hi = np.percentile(arr, 2), np.percentile(arr, 98)
-    if hi > lo:
-        arr = np.clip((arr - lo) * 255.0 / (hi - lo), 0, 255)
-    return Image.fromarray(arr.astype(np.uint8))
+    # same per-pixel stretch, applied in row strips to avoid several
+    # full-size float32 temporaries on large photos
+    out = np.empty(arr.shape, dtype=np.uint8)
+    for y0 in range(0, arr.shape[0], _STRIP_ROWS):
+        strip = arr[y0:y0 + _STRIP_ROWS]
+        if hi > lo:
+            strip = np.clip((strip - lo) * 255.0 / (hi - lo), 0, 255)
+        out[y0:y0 + _STRIP_ROWS] = strip.astype(np.uint8)
+    return Image.fromarray(out)
 
 
 def extract_text_and_confidence(image: Image.Image) -> tuple[str, float]:
@@ -175,11 +185,19 @@ def authenticity_score(image: Image.Image, ocr_confidence: float, format_valid: 
     original.save(tmp, "JPEG", quality=90)
     tmp.seek(0)
     resaved = Image.open(tmp)
+    resaved.load()
 
-    arr1 = np.asarray(original).astype(np.int16)
-    arr2 = np.asarray(resaved).astype(np.int16)
-    diff = np.abs(arr1 - arr2)
-    ela_score = float(diff.mean())  # low = consistent compression history, high = suspicious local edits
+    # mean |original - resaved| over every pixel/channel, summed in row
+    # strips so a large phone photo never needs full-size int16 copies
+    # (several hundred MB for 12MP) - same value as the whole-image mean
+    width, height = original.size
+    total = 0
+    for y0 in range(0, height, _STRIP_ROWS):
+        box = (0, y0, width, min(y0 + _STRIP_ROWS, height))
+        arr1 = np.asarray(original.crop(box)).astype(np.int16)
+        arr2 = np.asarray(resaved.crop(box)).astype(np.int16)
+        total += int(np.abs(arr1 - arr2).sum(dtype=np.int64))
+    ela_score = float(total / (width * height * 3))  # low = consistent compression history, high = suspicious local edits
 
     score = 60.0
     score += (ocr_confidence - 50) * 0.3

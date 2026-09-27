@@ -30,6 +30,33 @@ def _pil_to_bgr(image: Image.Image) -> np.ndarray:
     return cv2.cvtColor(rgb, cv2.COLOR_RGB2BGR)
 
 
+_STRIP_ROWS = 256
+
+
+def _strip_mean_var(gray: np.ndarray, fn) -> tuple[float, float]:
+    """Mean and (population) variance of fn(gray) over the whole image,
+    computed strip by strip so a large photo never needs a full-size
+    float64 copy. fn must be a 3x3 filter: each strip carries one real
+    neighbouring row above/below, so every output pixel is exactly what
+    running fn on the whole image would give."""
+    h = gray.shape[0]
+    n, mean, m2 = 0, 0.0, 0.0
+    for y0 in range(0, h, _STRIP_ROWS):
+        y1 = min(y0 + _STRIP_ROWS, h)
+        top, bottom = (1 if y0 > 0 else 0), (1 if y1 < h else 0)
+        out = np.asarray(fn(gray[y0 - top:y1 + bottom]), dtype=np.float64)[top:top + (y1 - y0)]
+        cn = out.size
+        cmean = float(out.mean())
+        cm2 = float(np.square(out - cmean).sum())
+        # Chan et al. parallel combination of running mean/M2
+        delta = cmean - mean
+        total = n + cn
+        mean += delta * cn / total
+        m2 += cm2 + delta * delta * n * cn / total
+        n = total
+    return mean, (m2 / n if n else 0.0)
+
+
 def _analyze_edge_patterns(gray: np.ndarray) -> dict:
     score = 0.0
     indicators = []
@@ -44,9 +71,9 @@ def _analyze_edge_patterns(gray: np.ndarray) -> dict:
         score += 0.2
         indicators.append("High edge density - possible over-sharpening")
 
-    sobel_x = cv2.Sobel(gray, cv2.CV_64F, 1, 0, ksize=3)
-    sobel_y = cv2.Sobel(gray, cv2.CV_64F, 0, 1, ksize=3)
-    direction_std = float(np.std(np.arctan2(sobel_y, sobel_x)))
+    _, direction_var = _strip_mean_var(gray, lambda g: np.arctan2(
+        cv2.Sobel(g, cv2.CV_64F, 0, 1, ksize=3), cv2.Sobel(g, cv2.CV_64F, 1, 0, ksize=3)))
+    direction_std = float(np.sqrt(direction_var))
     if direction_std < 0.5:
         score += 0.2
         indicators.append("Uniform edge directions - possible manipulation")
@@ -100,7 +127,7 @@ def _analyze_noise_patterns(gray: np.ndarray) -> dict:
     score = 0.0
     indicators = []
 
-    laplacian_var = float(cv2.Laplacian(gray, cv2.CV_64F).var())
+    _, laplacian_var = _strip_mean_var(gray, lambda g: cv2.Laplacian(g, cv2.CV_64F))
     if laplacian_var < 10:
         score += 0.3
         indicators.append("Very low noise level - possible smoothing")
@@ -109,9 +136,9 @@ def _analyze_noise_patterns(gray: np.ndarray) -> dict:
         indicators.append("High noise level - possible compression artifacts")
 
     kernel = np.ones((3, 3), np.float32) / 9
-    smoothed = cv2.filter2D(gray, -1, kernel)
-    noise = gray.astype(np.float32) - smoothed.astype(np.float32)
-    noise_var, noise_std = float(np.var(noise)), float(np.std(noise))
+    _, noise_var = _strip_mean_var(
+        gray, lambda g: g.astype(np.float32) - cv2.filter2D(g, -1, kernel).astype(np.float32))
+    noise_std = float(np.sqrt(noise_var))
     if noise_var > 0 and noise_std < noise_var * 0.1:
         score += 0.2
         indicators.append("Unnaturally uniform noise pattern")
@@ -274,15 +301,28 @@ def generate_ela_heatmap(image: Image.Image, quality: int = 90) -> str:
     buf.seek(0)
     resaved = Image.open(buf).convert("RGB")
 
-    arr1 = np.asarray(original).astype(np.int16)
-    arr2 = np.asarray(resaved).astype(np.int16)
-    diff = np.abs(arr1 - arr2).sum(axis=2)  # H x W
+    # per-pixel error summed over channels (max 3*255, fits uint16), built
+    # in row strips to avoid full-size int16/int64/float64 copies
+    width, height = original.size
+    diff = np.empty((height, width), dtype=np.uint16)  # H x W
+    for y0 in range(0, height, _STRIP_ROWS):
+        box = (0, y0, width, min(y0 + _STRIP_ROWS, height))
+        arr1 = np.asarray(original.crop(box)).astype(np.int16)
+        arr2 = np.asarray(resaved.crop(box)).astype(np.int16)
+        diff[box[1]:box[3]] = np.abs(arr1 - arr2).sum(axis=2)
+    del original, resaved
 
     max_val = diff.max() if diff.max() > 0 else 1
-    amplified = np.clip((diff / max_val) * 255.0, 0, 255).astype(np.uint8)
+    amplified = np.empty((height, width), dtype=np.uint8)
+    for y0 in range(0, height, _STRIP_ROWS):
+        rows = slice(y0, min(y0 + _STRIP_ROWS, height))
+        amplified[rows] = np.clip((diff[rows] / max_val) * 255.0, 0, 255).astype(np.uint8)
+    del diff
 
     heatmap = cv2.applyColorMap(amplified, cv2.COLORMAP_JET)
+    del amplified
     heatmap_rgb = cv2.cvtColor(heatmap, cv2.COLOR_BGR2RGB)
+    del heatmap
 
     out = io.BytesIO()
     Image.fromarray(heatmap_rgb).save(out, "PNG")

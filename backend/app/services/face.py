@@ -17,7 +17,14 @@ from typing import Optional
 import cv2
 import numpy as np
 
-_face_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_frontalface_default.xml")
+_FACE_CASCADE_PATH = cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+_face_cascade = cv2.CascadeClassifier(_FACE_CASCADE_PATH)
+# OpenCV keeps scratch buffers inside a classifier sized to the largest image
+# it has scanned (~100 MB after a 12MP document photo) and never frees them.
+# Images above this size get a throwaway classifier (same model file, same
+# detections) so that memory is released afterwards; webcam-sized frames
+# keep reusing the shared one.
+_LARGE_IMAGE_PIXELS = 2_000_000
 _eye_cascade = cv2.CascadeClassifier(cv2.data.haarcascades + "haarcascade_eye.xml")
 
 
@@ -34,7 +41,8 @@ def detect_face(image_bytes: bytes):
     if result is None:
         return None, None, None
     gray, color = result
-    faces = _face_cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
+    cascade = _face_cascade if gray.size <= _LARGE_IMAGE_PIXELS else cv2.CascadeClassifier(_FACE_CASCADE_PATH)
+    faces = cascade.detectMultiScale(gray, scaleFactor=1.1, minNeighbors=5, minSize=(60, 60))
     if len(faces) == 0:
         return False, None, color
     # take the largest detected face
