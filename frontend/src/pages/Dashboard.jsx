@@ -10,7 +10,8 @@ import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import StatusBadge from "../components/StatusBadge";
 import TrustGauge from "../components/TrustGauge";
-import { LitCard, MaskLines, PageShell, Reveal, SysLabel, staggerChild, staggerParent } from "../components/ui/motion";
+import { LitCard, MaskLines, PageShell, Reveal, SysLabel } from "../components/ui/motion";
+import { staggerChild, staggerParent } from "../components/ui/tokens";
 
 /* ------------------------------------------------------------------ */
 /* Aadhaar Secure QR + Risk-Based Step-Up — compact summary presenters */

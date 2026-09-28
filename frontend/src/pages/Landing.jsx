@@ -8,7 +8,8 @@ import TrustGauge from "../components/TrustGauge";
 import SignalBars from "../components/SignalBars";
 import Stage3D from "../components/three/Stage3D";
 import { Logo } from "../components/Navbar";
-import { EASE, LitCard, Magnetic, MaskLines, PageShell, Reveal, SysLabel, WordReveal } from "../components/ui/motion";
+import { LitCard, Magnetic, MaskLines, PageShell, Reveal, SysLabel, WordReveal } from "../components/ui/motion";
+import { EASE } from "../components/ui/tokens";
 import { FaceMeshVisual, IdCardVisual, IdentityFallback, LivenessDemo, NetworkVisual } from "../components/story/visuals";
 import {
   ArrowRight, ScanFace, FileSearch, Fingerprint, ShieldAlert,

@@ -29,7 +29,8 @@ function cardTexture(label) {
     g.beginPath();
     for (let x = 0; x <= c.width; x += 8) {
       const y = 90 + k * 22 + Math.sin(x / 48 + k * 0.6) * 10;
-      x === 0 ? g.moveTo(x, y) : g.lineTo(x, y);
+      if (x === 0) g.moveTo(x, y);
+      else g.lineTo(x, y);
     }
     g.stroke();
   }

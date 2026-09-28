@@ -7,7 +7,7 @@ import { dustField, makePointMaterial } from "./geometry";
 const Z_BY_KIND = { verification: 0, device: 1.0, phone: -1.0, document: 0.5 };
 
 /** 2D force-layout positions (from the page's simulate()) -> 3D space. */
-export function to3D(p, kind, i, size) {
+function to3D(p, kind, i, size) {
   const cx = size / 2;
   const cy = size * 0.36;
   const z = (Z_BY_KIND[kind] ?? 0) * (i % 2 ? 1 : -0.6);

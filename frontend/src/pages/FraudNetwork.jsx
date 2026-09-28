@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import { ArrowLeft, ShieldAlert, ShieldCheck, Smartphone, Phone, FileText, Loader2, X, RotateCcw, ZoomIn, ZoomOut, Crosshair } from "lucide-react";

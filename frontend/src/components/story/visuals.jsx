@@ -20,7 +20,7 @@ function faceContour(n = 48) {
   return pts;
 }
 
-export function faceLandmarks() {
+function faceLandmarks() {
   const pts = [];
   for (let i = 0; i < 17; i++) {
     const t = Math.PI * 0.06 + (i / 16) * Math.PI * 0.88;

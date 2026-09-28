@@ -1,7 +1,7 @@
 import { useEffect, useRef } from "react";
 import { animate, motion, useInView, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 
-export const EASE = [0.22, 1, 0.36, 1];
+import { EASE } from "./tokens";
 
 /**
  * Route entrance transition. App.jsx (and its <Routes>) is intentionally
@@ -65,16 +65,6 @@ export function MaskLines({ lines, className = "", lineClassName = "", delay = 0
     </motion.span>
   );
 }
-
-/** Staggered list container + item. */
-export const staggerParent = (stagger = 0.06, delay = 0) => ({
-  hidden: {},
-  show: { transition: { staggerChildren: stagger, delayChildren: delay } },
-});
-export const staggerChild = {
-  hidden: { opacity: 0, y: 14, filter: "blur(4px)" },
-  show: { opacity: 1, y: 0, filter: "blur(0px)", transition: { duration: 0.55, ease: EASE } },
-};
 
 /**
  * Card whose border lights up toward the pointer. Pointer position is

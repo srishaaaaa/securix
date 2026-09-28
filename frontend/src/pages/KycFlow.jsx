@@ -15,7 +15,8 @@ import StepUpPanel from "../components/StepUpPanel";
 import SignalBars from "../components/SignalBars";
 import Stage3D from "../components/three/Stage3D";
 import { DocumentFallback, LivenessGuide } from "../components/story/visuals";
-import { MaskLines, PageShell, SysLabel, staggerChild, staggerParent } from "../components/ui/motion";
+import { MaskLines, PageShell, SysLabel } from "../components/ui/motion";
+import { staggerChild, staggerParent } from "../components/ui/tokens";
 
 const STEPS = ["Document", "Face + liveness", "Challenge", "Analysis", "Decision"];
 
