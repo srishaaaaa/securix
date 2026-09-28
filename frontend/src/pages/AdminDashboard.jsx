@@ -136,18 +136,18 @@ export default function AdminDashboard() {
 
       {/* operations counters (derived from stats.by_status / stats.by_risk_band) */}
       <div className="relative mb-3 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
-        <StatCard label="Total verifications" value={stats?.total_verifications ?? "—"} Icon={Activity} color="#9db0ff" edge />
-        <StatCard label="Approved" value={stats ? stats.by_status?.approved ?? 0 : "—"} Icon={CheckCircle2} color="#35d99a" />
-        <StatCard label="Review" value={stats ? stats.by_status?.under_review ?? 0 : "—"} Icon={Clock} color="#f3ad4b" />
-        <StatCard label="Rejected" value={stats ? stats.by_status?.rejected ?? 0 : "—"} Icon={XCircle} color="#ff5468" />
-        <StatCard label="High risk" value={stats ? stats.by_risk_band?.high ?? 0 : "—"} Icon={ShieldAlert} color="#ff5468" />
+        <StatCard label="Total verifications" value={stats?.total_verifications ?? "—"} Icon={Activity} color="#3d3dff" edge />
+        <StatCard label="Approved" value={stats ? stats.by_status?.approved ?? 0 : "—"} Icon={CheckCircle2} color="#047857" />
+        <StatCard label="Review" value={stats ? stats.by_status?.under_review ?? 0 : "—"} Icon={Clock} color="#c26a00" />
+        <StatCard label="Rejected" value={stats ? stats.by_status?.rejected ?? 0 : "—"} Icon={XCircle} color="#d61f45" />
+        <StatCard label="High risk" value={stats ? stats.by_risk_band?.high ?? 0 : "—"} Icon={ShieldAlert} color="#d61f45" />
       </div>
 
       {/* stat cards */}
       <div className="relative mb-5 grid grid-cols-3 gap-3 sm:gap-4">
-        <StatCard label="Total users" value={stats?.total_users ?? "—"} Icon={Users} color="#9db0ff" />
-        <StatCard label="Avg. risk score" value={stats?.average_risk_score ?? "—"} Icon={Gauge} color="#f3ad4b" />
-        <StatCard label="Fraud flags" value={stats?.fraud_flag_count ?? "—"} Icon={ShieldAlert} color="#ff5468" />
+        <StatCard label="Total users" value={stats?.total_users ?? "—"} Icon={Users} color="#3d3dff" />
+        <StatCard label="Avg. risk score" value={stats?.average_risk_score ?? "—"} Icon={Gauge} color="#c26a00" />
+        <StatCard label="Fraud flags" value={stats?.fraud_flag_count ?? "—"} Icon={ShieldAlert} color="#d61f45" />
       </div>
 
       {/* charts */}
@@ -162,10 +162,10 @@ export default function AdminDashboard() {
               <PieChart>
                 <Pie data={bandData} dataKey="value" nameKey="name" innerRadius={50} outerRadius={74} paddingAngle={3} strokeWidth={0}>
                   {bandData.map((entry) => (
-                    <Cell key={entry.name} fill={BAND_COLORS[entry.name] || "#737b91"} stroke="none" />
+                    <Cell key={entry.name} fill={BAND_COLORS[entry.name] || "#8a91a4"} stroke="none" />
                   ))}
                 </Pie>
-                <Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: "#eef0f6" }} />
+                <Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: "#07080d" }} />
               </PieChart>
             </ResponsiveContainer>
             <div className="space-y-3">
@@ -188,13 +188,13 @@ export default function AdminDashboard() {
           </div>
           <ResponsiveContainer width="100%" height={170}>
             <BarChart data={statusData}>
-              <CartesianGrid strokeDasharray="2 6" stroke="rgba(255,255,255,0.06)" vertical={false} />
-              <XAxis dataKey="name" tick={{ fill: "#737b91", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
-              <YAxis tick={{ fill: "#737b91", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} allowDecimals={false} width={28} />
-              <Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: "#eef0f6" }} cursor={{ fill: "rgba(255,255,255,0.03)" }} />
+              <CartesianGrid strokeDasharray="2 6" stroke="rgba(16,20,40,0.06)" vertical={false} />
+              <XAxis dataKey="name" tick={{ fill: "#8a91a4", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fill: "#8a91a4", fontSize: 10, fontFamily: "JetBrains Mono" }} axisLine={false} tickLine={false} allowDecimals={false} width={28} />
+              <Tooltip contentStyle={TOOLTIP_STYLE} itemStyle={{ color: "#07080d" }} cursor={{ fill: "rgba(16,20,40,0.03)" }} />
               <Bar dataKey="value" radius={[8, 8, 2, 2]} maxBarSize={48}>
                 {statusData.map((entry) => (
-                  <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || "#737b91"} />
+                  <Cell key={entry.name} fill={STATUS_COLORS[entry.name] || "#8a91a4"} />
                 ))}
               </Bar>
             </BarChart>
@@ -284,7 +284,7 @@ export default function AdminDashboard() {
                           <td className="px-4 py-3.5">
                             <RiskCell score={v.risk_score} band={v.risk_band} />
                           </td>
-                          <td className="px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: BAND_COLORS[v.risk_band] || "#737b91" }}>
+                          <td className="px-4 py-3.5 font-mono text-[11px] uppercase tracking-[0.12em]" style={{ color: BAND_COLORS[v.risk_band] || "#8a91a4" }}>
                             {v.risk_band || "—"}
                           </td>
                           <td className="px-4 py-3.5"><StatusBadge status={v.status} size="sm" /></td>
@@ -321,7 +321,7 @@ export default function AdminDashboard() {
                     </button>
                     <div className="mt-3 flex flex-wrap items-center gap-2">
                       <StatusBadge status={v.status} size="sm" />
-                      <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: BAND_COLORS[v.risk_band] || "#737b91" }}>
+                      <span className="font-mono text-[10px] uppercase tracking-[0.12em]" style={{ color: BAND_COLORS[v.risk_band] || "#8a91a4" }}>
                         {v.risk_band || "—"}
                       </span>
                       <FlagCells v={v} />
@@ -386,10 +386,10 @@ export default function AdminDashboard() {
                         <td className="px-5 py-3">
                           <div className="flex justify-end gap-1.5">
                             {r.status !== "in_progress" && (
-                              <ActionIcon title="Start review" onClick={() => advanceReview(r.id, "in_progress")} color="#f3ad4b" Icon={Clock} />
+                              <ActionIcon title="Start review" onClick={() => advanceReview(r.id, "in_progress")} color="#c26a00" Icon={Clock} />
                             )}
                             {r.status !== "completed" && (
-                              <ActionIcon title="Mark completed" onClick={() => advanceReview(r.id, "completed")} color="#35d99a" Icon={Check} />
+                              <ActionIcon title="Mark completed" onClick={() => advanceReview(r.id, "completed")} color="#047857" Icon={Check} />
                             )}
                           </div>
                         </td>
@@ -436,12 +436,12 @@ export default function AdminDashboard() {
                         <td className="px-5 py-3">
                           <div className="flex justify-end gap-1.5">
                             {q.status === "waiting" && (
-                              <ActionIcon title="Assign to me / start call" onClick={() => assignVideoKyc(q.id)} color="#9db0ff" Icon={Video} />
+                              <ActionIcon title="Assign to me / start call" onClick={() => assignVideoKyc(q.id)} color="#3d3dff" Icon={Video} />
                             )}
                             {q.status !== "completed" && q.status !== "cancelled" && (
                               <>
-                                <ActionIcon title="Approve after call" onClick={() => completeVideoKyc(q.id, "approved")} color="#35d99a" Icon={Check} />
-                                <ActionIcon title="Reject after call" onClick={() => completeVideoKyc(q.id, "rejected")} color="#ff5468" Icon={X} />
+                                <ActionIcon title="Approve after call" onClick={() => completeVideoKyc(q.id, "approved")} color="#047857" Icon={Check} />
+                                <ActionIcon title="Reject after call" onClick={() => completeVideoKyc(q.id, "rejected")} color="#d61f45" Icon={X} />
                               </>
                             )}
                           </div>
@@ -517,7 +517,7 @@ export default function AdminDashboard() {
                           <td className="py-2.5 text-right">
                             {k.is_active && (
                               <span className="inline-flex">
-                                <ActionIcon title="Revoke" onClick={() => api.revokeApiKey(k.id).then(refreshIntegrations)} color="#ff5468" Icon={Trash2} />
+                                <ActionIcon title="Revoke" onClick={() => api.revokeApiKey(k.id).then(refreshIntegrations)} color="#d61f45" Icon={Trash2} />
                               </span>
                             )}
                           </td>
@@ -599,7 +599,7 @@ export default function AdminDashboard() {
                           <td className="py-2.5 text-right">
                             {w.is_active && (
                               <span className="inline-flex">
-                                <ActionIcon title="Revoke" onClick={() => api.revokeWebhook(w.id).then(refreshIntegrations)} color="#ff5468" Icon={Trash2} />
+                                <ActionIcon title="Revoke" onClick={() => api.revokeWebhook(w.id).then(refreshIntegrations)} color="#d61f45" Icon={Trash2} />
                               </span>
                             )}
                           </td>
@@ -661,12 +661,13 @@ export default function AdminDashboard() {
 }
 
 const TOOLTIP_STYLE = {
-  background: "rgba(14,16,22,0.95)",
-  border: "1px solid rgba(255,255,255,0.08)",
+  background: "rgba(255,255,255,0.97)",
+  boxShadow: "0 12px 30px -12px rgba(16,20,40,0.25)",
+  border: "1px solid rgba(16,20,40,0.08)",
   borderRadius: 12,
   fontSize: 12,
   fontFamily: "JetBrains Mono",
-  color: "#eef0f6",
+  color: "#07080d",
 };
 
 function StatCard({ label, value, Icon, color, edge = false }) {
@@ -717,7 +718,7 @@ function ActionIcon({ title, onClick, color, Icon }) {
 }
 
 function RiskCell({ score, band }) {
-  const color = BAND_COLORS[band] || "#737b91";
+  const color = BAND_COLORS[band] || "#8a91a4";
   const pct = Math.max(0, Math.min(100, score ?? 0));
   return (
     <div className="flex items-center gap-2.5">
@@ -751,11 +752,11 @@ function FlagCells({ v }) {
 function RowActions({ v, decide, queueForReview, navigate, align = "end" }) {
   return (
     <div className={`flex gap-1.5 ${align === "end" ? "justify-end" : "justify-start"}`}>
-      <ActionIcon title="Approve" onClick={() => decide(v.id, "approved")} color="#35d99a" Icon={Check} />
-      <ActionIcon title="Under review" onClick={() => decide(v.id, "under_review")} color="#f3ad4b" Icon={Clock} />
-      <ActionIcon title="Reject" onClick={() => decide(v.id, "rejected")} color="#ff5468" Icon={X} />
-      <ActionIcon title="Queue for manual review" onClick={() => queueForReview(v.id)} color="#9db0ff" Icon={UserCog} />
-      <ActionIcon title="View fraud network" onClick={() => navigate(`/fraud-network/${v.id}`)} color="#b9a4ff" Icon={Network} />
+      <ActionIcon title="Approve" onClick={() => decide(v.id, "approved")} color="#047857" Icon={Check} />
+      <ActionIcon title="Under review" onClick={() => decide(v.id, "under_review")} color="#c26a00" Icon={Clock} />
+      <ActionIcon title="Reject" onClick={() => decide(v.id, "rejected")} color="#d61f45" Icon={X} />
+      <ActionIcon title="Queue for manual review" onClick={() => queueForReview(v.id)} color="#3d3dff" Icon={UserCog} />
+      <ActionIcon title="View fraud network" onClick={() => navigate(`/fraud-network/${v.id}`)} color="#7c3aed" Icon={Network} />
     </div>
   );
 }

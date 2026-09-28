@@ -7,6 +7,7 @@ const SCENES = {
   identity: lazy(() => import("./IdentityCore")),
   document: lazy(() => import("./DocumentScanner")),
   network: lazy(() => import("./NetworkGraph")),
+  world: lazy(() => import("./WorldScene")),
 };
 
 class SceneBoundary extends Component {

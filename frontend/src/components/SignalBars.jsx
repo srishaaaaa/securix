@@ -4,9 +4,9 @@ import { motion, useReducedMotion } from "framer-motion";
 const SEGMENTS = 32;
 
 function toneFor(v) {
-  if (v >= 70) return { bar: "#35d99a", text: "text-signal-emerald" };
-  if (v >= 40) return { bar: "#f3ad4b", text: "text-signal-amber" };
-  return { bar: "#ff5468", text: "text-signal-crimson" };
+  if (v >= 70) return { bar: "#047857", text: "text-signal-emerald" };
+  if (v >= 40) return { bar: "#c26a00", text: "text-signal-amber" };
+  return { bar: "#d61f45", text: "text-signal-crimson" };
 }
 
 /**
@@ -55,7 +55,7 @@ export default function SignalBars({ rows, onFocusChange, className = "" }) {
                   whileInView={{ opacity: i < lit ? 1 : 0.12, scaleY: i < lit ? 1 : 0.55 }}
                   viewport={{ once: true }}
                   transition={{ duration: 0.25, delay: reduce ? 0 : idx * 0.08 + i * 0.012 }}
-                  style={{ background: i < lit ? tone.bar : "rgba(255,255,255,0.5)" }}
+                  style={{ background: i < lit ? tone.bar : "rgba(16,20,40,0.5)" }}
                 />
               ))}
             </span>

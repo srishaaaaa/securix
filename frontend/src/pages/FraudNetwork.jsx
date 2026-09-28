@@ -52,7 +52,7 @@ export default function FraudNetwork() {
     <PageShell className="relative">
       <div className="relative mx-auto h-[calc(100svh-4.5rem)] min-h-[560px] max-w-[1800px] px-3 pb-3 sm:h-[calc(100svh-5rem)] sm:px-5 sm:pb-5">
         <div className="relative h-full overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-void-950/70">
-          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_45%,rgba(100,120,255,0.1),transparent_70%)]" />
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(50%_50%_at_50%_45%,rgba(61,61,255,0.1),transparent_70%)]" />
           <div className="pointer-events-none absolute inset-0 grid-overlay opacity-30" />
 
           {/* graph stage */}
@@ -83,7 +83,7 @@ export default function FraudNetwork() {
                         <motion.line
                           key={i}
                           x1={s.x} y1={s.y} x2={t.x} y2={t.y}
-                          stroke="rgba(255,255,255,0.14)" strokeWidth={1.5}
+                          stroke="rgba(16,20,40,0.14)" strokeWidth={1.5}
                           initial={{ pathLength: 0, opacity: 0 }}
                           animate={{ pathLength: 1, opacity: 1 }}
                           transition={{ duration: 0.6, delay: i * 0.03 }}

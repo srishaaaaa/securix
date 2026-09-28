@@ -84,9 +84,9 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
   // brighten links touching the focused node
   useEffect(() => {
     const col = edgeGeo.getAttribute("color");
-    const base = new THREE.Color("#3a4260");
-    const risk = new THREE.Color("#ff5468");
-    const focus = new THREE.Color("#c7d2ff");
+    const base = new THREE.Color("#b4bbd0");
+    const risk = new THREE.Color("#d61f45");
+    const focus = new THREE.Color("#4338ca");
     edges.forEach((e, i) => {
       let c = base;
       if (graph.flagged && (e.source === anchorId || e.target === anchorId)) c = risk.clone().multiplyScalar(0.8);
@@ -106,12 +106,12 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
     const seeds = new Float32Array(n);
     for (let i = 0; i < n; i++) seeds[i] = Math.random();
     g.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-    const mat = makePointMaterial({ color: graph.flagged ? "#ff8a98" : "#9db0ff", scanColor: "#ffffff", size: 26, opacity: 0.9 });
+    const mat = makePointMaterial({ color: graph.flagged ? "#d61f45" : "#4f46e5", scanColor: "#07080d", size: 26, opacity: 0.9 });
     return { g, mat, perEdge, offsets: Array.from({ length: n }, () => Math.random()) };
   }, [edges, tier, graph.flagged]);
 
   const dust = useMemo(() => dustField(tier === "phone" ? 220 : 480, 14), [tier]);
-  const dustMat = useMemo(() => makePointMaterial({ color: "#56608f", scanColor: "#56608f", size: 14, opacity: 0.4 }), []);
+  const dustMat = useMemo(() => makePointMaterial({ color: "#a5b4fc", scanColor: "#a5b4fc", size: 14, opacity: 0.4 }), []);
 
   useFrame((state, delta) => {
     const t = state.clock.elapsedTime;
@@ -171,7 +171,7 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
   return (
     <>
       <ambientLight intensity={0.5} />
-      <pointLight position={[4, 5, 6]} intensity={40} color="#9db0ff" />
+      <pointLight position={[4, 5, 6]} intensity={40} color="#4f46e5" />
       <pointLight position={[-6, -3, 4]} intensity={25} color="#8d6bff" />
 
       <points geometry={dust} material={dustMat} />
@@ -219,13 +219,13 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
             {(n.is_anchor || isFocus) && (
               <mesh scale={n.is_anchor ? 2.2 : 1.9}>
                 <sphereGeometry args={[r, 24, 24]} />
-                <meshBasicMaterial color={color} transparent opacity={0.1} depthWrite={false} blending={THREE.AdditiveBlending} />
+                <meshBasicMaterial color={color} transparent opacity={0.1} depthWrite={false} blending={THREE.NormalBlending} />
               </mesh>
             )}
             {n.is_anchor && (
               <mesh rotation={[Math.PI / 2.4, 0, 0]}>
                 <torusGeometry args={[r * 2.6, 0.008, 8, 96]} />
-                <meshBasicMaterial color="#ffffff" transparent opacity={0.45} />
+                <meshBasicMaterial color="#07080d" transparent opacity={0.45} />
               </mesh>
             )}
             {isFocus && (
