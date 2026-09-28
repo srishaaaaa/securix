@@ -14,11 +14,12 @@ export function to3D(p, kind, i, size) {
   return new THREE.Vector3((p.x - cx) / 46, -(p.y - cy) / 46, z);
 }
 
-function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHover, onSelect, tier }) {
+function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHover, onSelect, tier, command }) {
   const controls = useRef();
   const nodeRefs = useRef({});
   const born = useRef(null);
   const focusMove = useRef({ pending: false, until: 0, target: new THREE.Vector3() });
+  const desiredPos = useRef(null);
   const { camera } = useThree();
 
   const layout = useMemo(() => {
@@ -41,6 +42,30 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
     focusMove.current.target.copy(selectedId && layout[selectedId] ? layout[selectedId] : new THREE.Vector3());
     focusMove.current.pending = true;
   }, [selectedId, layout]);
+
+  // control-panel commands: reset / zoom in / zoom out / focus anchor
+  useEffect(() => {
+    if (!command || !controls.current) return;
+    const target = controls.current.target.clone();
+    const dir = camera.position.clone().sub(target);
+    const len = dir.length();
+    if (command.type === "zoom-in" || command.type === "zoom-out") {
+      const next = THREE.MathUtils.clamp(len * (command.type === "zoom-in" ? 0.72 : 1.35), 3, 22);
+      desiredPos.current = target.clone().add(dir.normalize().multiplyScalar(next));
+    } else if (command.type === "reset") {
+      focusMove.current.target.set(0, 0, 0);
+      focusMove.current.pending = true;
+      desiredPos.current = new THREE.Vector3(0, 1.2, tier === "phone" ? 11.5 : 9);
+    } else if (command.type === "focus") {
+      const anchor = graph.nodes.find((n) => n.is_anchor);
+      if (anchor && layout[anchor.id]) {
+        focusMove.current.target.copy(layout[anchor.id]);
+        focusMove.current.pending = true;
+        desiredPos.current = layout[anchor.id].clone().add(new THREE.Vector3(0, 0.8, tier === "phone" ? 7 : 5.5));
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [command]);
   const focusId = hoveredId || selectedId;
 
   const edgeGeo = useMemo(() => {
@@ -130,7 +155,11 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
       controls.current.target.z = THREE.MathUtils.damp(controls.current.target.z, target.z, 4, dt);
       controls.current.update();
     }
-    if (age < 2.2) {
+    if (desiredPos.current) {
+      camera.position.lerp(desiredPos.current, 1 - Math.exp(-5 * dt));
+      if (camera.position.distanceTo(desiredPos.current) < 0.02) desiredPos.current = null;
+      controls.current?.update();
+    } else if (age < 2.2) {
       // intro dolly-in
       const z = THREE.MathUtils.lerp(tier === "phone" ? 16 : 13, tier === "phone" ? 11.5 : 9, 1 - Math.pow(1 - Math.min(age / 2.2, 1), 3));
       camera.position.setLength(z);
@@ -228,7 +257,7 @@ function Graph({ graph, positions, size, kindColor, hoveredId, selectedId, onHov
   );
 }
 
-export default function NetworkGraph({ tier, budget, graph, positions, size, kindColor, hoveredId, selectedId, onHover, onSelect }) {
+export default function NetworkGraph({ tier, budget, graph, positions, size, kindColor, hoveredId, selectedId, onHover, onSelect, command }) {
   return (
     <Canvas
       className="!h-full !w-full touch-none"
@@ -247,6 +276,7 @@ export default function NetworkGraph({ tier, budget, graph, positions, size, kin
         onHover={onHover}
         onSelect={onSelect}
         tier={tier}
+        command={command}
       />
     </Canvas>
   );

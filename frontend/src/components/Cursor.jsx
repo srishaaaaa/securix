@@ -30,6 +30,7 @@ export default function Cursor() {
       }
       const interactive = e.target.closest?.("a, button, [role='button'], input, select, textarea, label, canvas");
       ring.current?.classList.toggle("is-hover", !!interactive);
+      ring.current?.classList.toggle("is-3d", e.target.tagName === "CANVAS");
     };
     const onLeave = () => {
       visible = false;

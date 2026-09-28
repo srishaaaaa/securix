@@ -11,7 +11,7 @@ import { makePointMaterial, faceLattice, fibonacciSphere, dustField } from "./ge
  * Pointer position (read inside the frame loop - never React state)
  * steers rotation, lighting and camera depth.
  */
-function Core({ budget, tier }) {
+function Core({ budget, tier, stage = 0 }) {
   const root = useRef();
   const shell = useRef();
   const face = useRef();
@@ -19,6 +19,8 @@ function Core({ budget, tier }) {
   const fragments = useRef();
   const scanRing = useRef();
   const { camera } = useThree();
+  const verifiedColor = useRef(new THREE.Color("#35d99a"));
+  const scanColor = useRef(new THREE.Color("#ffffff"));
 
   const baseZ = tier === "phone" ? 6.6 : tier === "laptop" ? 5.4 : 5.0;
 
@@ -119,6 +121,18 @@ function Core({ budget, tier }) {
       m.uniforms.uScan.value = scanY;
     }
     data.dustMat.uniforms.uTime.value = t;
+
+    // pipeline state: the scan light shifts to verification green on the
+    // final "identity verified" state, and the orbit rings brighten
+    const verified = stage >= 5;
+    const targetScan = verified ? verifiedColor.current : scanColor.current;
+    data.shellMat.uniforms.uScanColor.value.lerp(targetScan, 0.06);
+    data.faceMat.uniforms.uScanColor.value.lerp(verified ? verifiedColor.current : new THREE.Color("#35d99a"), 0.06);
+    if (rings.current) {
+      rings.current.children.forEach((r) => {
+        r.material.opacity = THREE.MathUtils.damp(r.material.opacity, verified ? 0.42 : 0.2, 3, dt);
+      });
+    }
     if (scanRing.current) {
       const rr = Math.sqrt(Math.max(0.0001, 1.72 * 1.72 - scanY * scanY));
       scanRing.current.position.y = scanY;
@@ -169,7 +183,7 @@ function Core({ budget, tier }) {
   );
 }
 
-export default function IdentityCore({ tier, budget, active }) {
+export default function IdentityCore({ tier, budget, active, stage }) {
   return (
     <Canvas
       className="!h-full !w-full"
@@ -180,7 +194,7 @@ export default function IdentityCore({ tier, budget, active }) {
       eventSource={typeof document !== "undefined" ? document.body : undefined}
       eventPrefix="client"
     >
-      <Core tier={tier} budget={budget} />
+      <Core tier={tier} budget={budget} stage={stage} />
     </Canvas>
   );
 }

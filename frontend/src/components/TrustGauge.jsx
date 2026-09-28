@@ -128,6 +128,23 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
             <circle cx={c} cy={c} r={radius - stroke * 2.2} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="1.5 5" />
           </g>
 
+          {/* trust core: concentric inner ring + counter-orbiting signal markers */}
+          <circle cx={c} cy={c} r={radius - stroke * 2.2} fill="none" stroke={color} strokeOpacity="0.12" strokeWidth="1" />
+          <g className="animate-spinSlower" style={{ transformOrigin: `${c}px ${c}px`, animationDirection: "reverse" }}>
+            {[0, 120, 240].map((deg) => {
+              const rr = radius - stroke * 2.2;
+              const a = (deg * Math.PI) / 180;
+              return <circle key={deg} cx={c + rr * Math.cos(a)} cy={c + rr * Math.sin(a)} r={Math.max(1.5, size * 0.009)} fill={color} opacity="0.8" />;
+            })}
+          </g>
+          <g className="animate-spinSlow" style={{ transformOrigin: `${c}px ${c}px` }}>
+            {[30, 95, 170, 215, 290, 335].map((deg, i) => {
+              const rr = radius - stroke * (1.4 + (i % 3) * 0.9);
+              const a = (deg * Math.PI) / 180;
+              return <circle key={deg} cx={c + rr * Math.cos(a)} cy={c + rr * Math.sin(a)} r={0.9} fill="#eef0f6" opacity={0.25 + (i % 3) * 0.15} />;
+            })}
+          </g>
+
           {/* orbiting head marker */}
           {animated > 0 && (
             <g>

@@ -47,7 +47,7 @@ function Iris({ className = "" }) {
  */
 export default function AuthLayout({ eyebrow, lines, sub, children }) {
   return (
-    <PageShell className="relative">
+    <PageShell className="relative overflow-x-clip">
       <div className="mx-auto grid min-h-[calc(100svh-5rem)] max-w-7xl grid-cols-1 items-center gap-10 px-5 py-10 sm:px-8 lg:grid-cols-[1.1fr_0.9fr] lg:gap-16 lg:py-16">
         <div className="relative">
           <div className="pointer-events-none absolute -left-32 top-1/2 hidden w-[600px] -translate-y-1/2 opacity-40 lg:block">

@@ -1,9 +1,9 @@
 import { Fragment, useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
 import {
-  Users, ShieldAlert, Gauge, ListChecks, ChevronDown, Check, X, Clock, ScrollText, Flag, UserCog, Network,
-  Plug, Key, Copy, Trash2, Bell, Video,
+  Users, ShieldAlert, Gauge, ChevronDown, Check, X, Clock, ScrollText, Flag, UserCog, Network,
+  Plug, Key, Copy, Trash2, Bell, Video, CheckCircle2, XCircle, Activity, ArrowUpRight,
 } from "lucide-react";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from "recharts";
 import { api } from "../api/client";
@@ -123,18 +123,29 @@ export default function AdminDashboard() {
 
       <div className="relative mb-10 flex flex-col justify-between gap-6 sm:mb-12 lg:flex-row lg:items-end">
         <div>
-          <SysLabel live>Admin console · live</SysLabel>
+          <div className="flex flex-wrap gap-x-5 gap-y-2">
+            <SysLabel live>SECURIX / Security operations</SysLabel>
+            <SysLabel tone="muted">Risk engine / active</SysLabel>
+          </div>
           <h1 className="mt-4 font-display text-huge font-semibold uppercase text-ink-50">
-            <MaskLines lines={["Fraud intelligence", <span key="c" className="text-ink-500">control room.</span>]} delay={0.1} />
+            <MaskLines lines={["Security", <span key="c" className="text-ink-500">operations.</span>]} delay={0.1} />
           </h1>
         </div>
         <p className="max-w-sm text-sm text-ink-300">Fraud monitoring, risk breakdown, and manual review queue.</p>
       </div>
 
+      {/* operations counters (derived from stats.by_status / stats.by_risk_band) */}
+      <div className="relative mb-3 grid grid-cols-2 gap-3 sm:gap-4 md:grid-cols-5">
+        <StatCard label="Total verifications" value={stats?.total_verifications ?? "—"} Icon={Activity} color="#9db0ff" edge />
+        <StatCard label="Approved" value={stats ? stats.by_status?.approved ?? 0 : "—"} Icon={CheckCircle2} color="#35d99a" />
+        <StatCard label="Review" value={stats ? stats.by_status?.under_review ?? 0 : "—"} Icon={Clock} color="#f3ad4b" />
+        <StatCard label="Rejected" value={stats ? stats.by_status?.rejected ?? 0 : "—"} Icon={XCircle} color="#ff5468" />
+        <StatCard label="High risk" value={stats ? stats.by_risk_band?.high ?? 0 : "—"} Icon={ShieldAlert} color="#ff5468" />
+      </div>
+
       {/* stat cards */}
-      <div className="relative mb-5 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
+      <div className="relative mb-5 grid grid-cols-3 gap-3 sm:gap-4">
         <StatCard label="Total users" value={stats?.total_users ?? "—"} Icon={Users} color="#9db0ff" />
-        <StatCard label="Verifications" value={stats?.total_verifications ?? "—"} Icon={ListChecks} color="#9db0ff" />
         <StatCard label="Avg. risk score" value={stats?.average_risk_score ?? "—"} Icon={Gauge} color="#f3ad4b" />
         <StatCard label="Fraud flags" value={stats?.fraud_flag_count ?? "—"} Icon={ShieldAlert} color="#ff5468" />
       </div>
@@ -256,8 +267,11 @@ export default function AdminDashboard() {
                   <tbody>
                     {verifications.map((v) => (
                       <Fragment key={v.id}>
-                        <tr
-                          className={`cursor-pointer border-t border-white/[0.04] transition-colors hover:bg-white/[0.025] ${selected === v.id ? "bg-white/[0.03]" : ""}`}
+                        <motion.tr
+                          initial={{ opacity: 0, y: 8 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          transition={{ duration: 0.4, delay: Math.min(verifications.indexOf(v), 12) * 0.04 }}
+                          className={`group cursor-pointer border-t border-white/[0.04] transition-colors hover:bg-white/[0.025] ${selected === v.id ? "bg-white/[0.03]" : ""}`}
                           onClick={() => setSelected(selected === v.id ? null : v.id)}
                         >
                           <td className="px-5 py-3.5 capitalize text-ink-300">
@@ -278,7 +292,7 @@ export default function AdminDashboard() {
                           <td className="px-5 py-3.5" onClick={(e) => e.stopPropagation()}>
                             <RowActions v={v} decide={decide} queueForReview={queueForReview} navigate={navigate} />
                           </td>
-                        </tr>
+                        </motion.tr>
                         <AnimatePresence initial={false}>
                           {selected === v.id && (
                             <tr>
@@ -655,9 +669,9 @@ const TOOLTIP_STYLE = {
   color: "#eef0f6",
 };
 
-function StatCard({ label, value, Icon, color }) {
+function StatCard({ label, value, Icon, color, edge = false }) {
   return (
-    <LitCard className="glass-panel relative overflow-hidden rounded-[1.5rem] p-4 sm:p-6">
+    <LitCard className={`${edge ? "glass-4 edge-light" : "glass-panel"} relative overflow-hidden rounded-[1.5rem] p-4 sm:p-6`}>
       <div className="pointer-events-none absolute -right-6 -top-6 h-24 w-24 rounded-full blur-2xl" style={{ background: `${color}18` }} />
       <div className="relative flex items-center justify-between">
         <span className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-ink-500">{label}</span>
@@ -775,6 +789,11 @@ function RowDetail({ v }) {
           <p className="col-span-2 px-1 text-[11px] text-signal-amber md:col-span-6">{v.forgery_indicators}</p>
         )}
         {v.fraud_notes && <p className="col-span-2 px-1 text-[11px] text-ink-300 md:col-span-6">{v.fraud_notes}</p>}
+        <div className="col-span-2 px-1 pt-1 md:col-span-6">
+          <Link to={`/verification-progress/${v.id}`} className="btn btn-ghost btn-sm">
+            Open report <ArrowUpRight className="btn-arrow h-3.5 w-3.5" />
+          </Link>
+        </div>
       </div>
     </motion.div>
   );

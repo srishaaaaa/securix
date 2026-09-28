@@ -1,5 +1,5 @@
 import { useEffect, useRef } from "react";
-import { animate, motion, useInView, useReducedMotion } from "framer-motion";
+import { animate, motion, useInView, useMotionValue, useReducedMotion, useSpring } from "framer-motion";
 
 export const EASE = [0.22, 1, 0.36, 1];
 
@@ -8,11 +8,12 @@ export const EASE = [0.22, 1, 0.36, 1];
  * untouched, so each page fades/rises/unblurs in on mount instead of
  * cross-fading at the router level.
  */
-export function PageShell({ children, className = "" }) {
+export function PageShell({ children, className = "", style }) {
   const reduce = useReducedMotion();
   return (
     <motion.div
       className={className}
+      style={style}
       initial={reduce ? { opacity: 0 } : { opacity: 0, y: 18, filter: "blur(8px)" }}
       animate={reduce ? { opacity: 1 } : { opacity: 1, y: 0, filter: "blur(0px)" }}
       transition={{ duration: 0.6, ease: EASE }}
@@ -175,5 +176,87 @@ export function PageHeading({ index, eyebrow, title, sub, right, className = "" 
       </div>
       {right && <div className="flex-shrink-0">{right}</div>}
     </div>
+  );
+}
+
+/**
+ * Magnetic wrapper for major CTAs: on fine-pointer desktops the child
+ * drifts slightly toward the cursor and springs back on leave. Motion
+ * values only - no React re-renders. Inert on touch / reduced motion.
+ */
+export function Magnetic({ children, strength = 0.28, className = "" }) {
+  const ref = useRef(null);
+  const reduce = useReducedMotion();
+  const x = useSpring(useMotionValue(0), { stiffness: 220, damping: 18, mass: 0.4 });
+  const y = useSpring(useMotionValue(0), { stiffness: 220, damping: 18, mass: 0.4 });
+  const fine = typeof window !== "undefined" && window.matchMedia?.("(hover: hover) and (pointer: fine)").matches;
+  if (reduce || !fine) return <span className={`inline-flex ${className}`}>{children}</span>;
+  const onMove = (e) => {
+    const r = ref.current.getBoundingClientRect();
+    x.set((e.clientX - (r.left + r.width / 2)) * strength);
+    y.set((e.clientY - (r.top + r.height / 2)) * strength);
+  };
+  const reset = () => {
+    x.set(0);
+    y.set(0);
+  };
+  return (
+    <motion.span ref={ref} onPointerMove={onMove} onPointerLeave={reset} style={{ x, y }} className={`inline-flex ${className}`}>
+      {children}
+    </motion.span>
+  );
+}
+
+/**
+ * Very small perspective tilt toward the pointer (max ~3deg). Written to
+ * transforms via motion values; disabled on touch and reduced motion.
+ */
+export function Tilt({ children, className = "", max = 3 }) {
+  const ref = useRef(null);
+  const reduce = useReducedMotion();
+  const rx = useSpring(useMotionValue(0), { stiffness: 160, damping: 20 });
+  const ry = useSpring(useMotionValue(0), { stiffness: 160, damping: 20 });
+  const onMove = (e) => {
+    if (reduce || e.pointerType !== "mouse") return;
+    const r = ref.current.getBoundingClientRect();
+    ry.set(((e.clientX - r.left) / r.width - 0.5) * 2 * max);
+    rx.set(-((e.clientY - r.top) / r.height - 0.5) * 2 * max);
+  };
+  const reset = () => {
+    rx.set(0);
+    ry.set(0);
+  };
+  return (
+    <motion.div
+      ref={ref}
+      onPointerMove={onMove}
+      onPointerLeave={reset}
+      style={{ rotateX: rx, rotateY: ry, transformPerspective: 1200 }}
+      className={className}
+    >
+      {children}
+    </motion.div>
+  );
+}
+
+/** Word-by-word reveal: vertical mask + blur-to-sharp + slight 3D lift. */
+export function WordReveal({ text, className = "", delay = 0, stagger = 0.06 }) {
+  const reduce = useReducedMotion();
+  return (
+    <span className={`inline ${className}`} aria-label={text}>
+      {text.split(" ").map((w, i) => (
+        <span key={i} aria-hidden="true" className="inline-block overflow-hidden pb-[0.08em] align-bottom" style={{ perspective: 600 }}>
+          <motion.span
+            className="inline-block"
+            initial={reduce ? { opacity: 0 } : { y: "100%", opacity: 0, rotateX: -50, filter: "blur(8px)" }}
+            animate={reduce ? { opacity: 1 } : { y: "0%", opacity: 1, rotateX: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.9, ease: EASE, delay: delay + i * stagger }}
+          >
+            {w}
+            {i < text.split(" ").length - 1 ? " " : ""}
+          </motion.span>
+        </span>
+      ))}
+    </span>
   );
 }

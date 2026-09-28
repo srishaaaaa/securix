@@ -12,6 +12,7 @@ import ScanFrame from "../components/ScanFrame";
 import TrustGauge from "../components/TrustGauge";
 import StatusBadge from "../components/StatusBadge";
 import StepUpPanel from "../components/StepUpPanel";
+import SignalBars from "../components/SignalBars";
 import Stage3D from "../components/three/Stage3D";
 import { DocumentFallback, LivenessGuide } from "../components/story/visuals";
 import { MaskLines, PageShell, SysLabel, staggerChild, staggerParent } from "../components/ui/motion";
@@ -249,7 +250,7 @@ export default function KycFlow() {
   };
 
   return (
-    <PageShell className="relative mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8 sm:pt-12">
+    <PageShell className="relative mx-auto max-w-6xl px-4 pb-24 pt-8 sm:px-8 sm:pt-12" style={{ paddingBottom: "max(6rem, env(safe-area-inset-bottom))" }}>
       <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] grid-overlay opacity-40" />
 
       <div className="relative mb-10 sm:mb-14">
@@ -408,7 +409,7 @@ export default function KycFlow() {
             />
           </div>
 
-          <div className="glass-panel flex flex-col rounded-[1.75rem] p-5 sm:p-7">
+          <div className="glass-4 flex flex-col rounded-[1.75rem] p-5 sm:p-7">
             <span className="eyebrow">02 · Biometrics</span>
             <h2 className="mt-4 font-display text-2xl font-semibold text-ink-50">Face verification & liveness check</h2>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-300">
@@ -483,7 +484,7 @@ export default function KycFlow() {
             />
           </div>
 
-          <div className="glass-panel flex flex-col rounded-[1.75rem] p-5 sm:p-7">
+          <div className="glass-4 flex flex-col rounded-[1.75rem] p-5 sm:p-7">
             <span className="eyebrow">03 · Liveness challenge</span>
             <h2 className="mt-4 font-display text-2xl font-semibold text-ink-50">One more check — liveness challenge</h2>
             <p className="mt-1.5 text-sm leading-relaxed text-ink-300">
@@ -541,7 +542,19 @@ export default function KycFlow() {
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_20%_0%,rgba(100,120,255,0.12),transparent_70%)]" />
           <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
             <div className="flex justify-center">
-              <ScanFrame size={300} active={finalizing || !finalizeError} />
+              <div className="relative aspect-square w-[min(78vw,340px)]">
+                <Stage3D
+                  scene="identity"
+                  className="absolute inset-0"
+                  sceneProps={{ stage: !finalizing && typeof verification?.risk_score === "number" ? 5 : 2 }}
+                  fallback={<ScanFrame size={300} active={finalizing || !finalizeError} />}
+                />
+                <div className="pointer-events-none absolute inset-x-0 bottom-2 flex justify-center">
+                  <SysLabel live tone={!finalizing && typeof verification?.risk_score === "number" ? "emerald" : "accent"}>
+                    {!finalizing && typeof verification?.risk_score === "number" ? "Analysis / complete" : "Risk engine / active"}
+                  </SysLabel>
+                </div>
+              </div>
             </div>
             <div>
               <SysLabel live>Analysis</SysLabel>
@@ -586,7 +599,7 @@ export default function KycFlow() {
           <DecisionHero verification={verification} />
 
           <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[auto_1fr]">
-            <div className="glass-panel flex flex-col items-center justify-center rounded-[1.75rem] px-8 py-8 sm:px-12">
+            <div className={`glass-3 edge-light ${verification.status === "approved" ? "edge-emerald" : verification.status === "rejected" ? "edge-crimson" : "edge-amber"} flex flex-col items-center justify-center rounded-[1.75rem] px-8 py-8 sm:px-12`}>
               <TrustGauge riskScore={verification.risk_score} band={verification.risk_band} size={220} />
               <div className="mt-5">
                 <StatusBadge status={verification.status} />
@@ -595,12 +608,15 @@ export default function KycFlow() {
 
             <div className="glass-panel rounded-[1.75rem] p-5 sm:p-7">
               <span className="eyebrow">Signals</span>
-              <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-                <Metric label="OCR confidence" value={`${Math.round(verification.ocr_confidence)}%`} />
-                <Metric label="Face match" value={`${Math.round(verification.face_match_score)}%`} />
-                <Metric label="Liveness" value={`${Math.round(verification.liveness_score)}%`} />
-                <Metric label="Doc authenticity" value={`${Math.round(verification.document_authenticity_score)}%`} />
-              </div>
+              <SignalBars
+                className="mt-3"
+                rows={[
+                  { key: "ocr", label: "OCR confidence", value: verification.ocr_confidence, display: `${Math.round(verification.ocr_confidence)}%` },
+                  { key: "face", label: "Face match", value: verification.face_match_score, display: `${Math.round(verification.face_match_score)}%` },
+                  { key: "live", label: "Liveness", value: verification.liveness_score, display: `${Math.round(verification.liveness_score)}%` },
+                  { key: "auth", label: "Doc authenticity", value: verification.document_authenticity_score, display: `${Math.round(verification.document_authenticity_score)}%` },
+                ]}
+              />
               <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
                 <Metric
                   label={`Challenge: ${challengeType ? challengeType.replace("_", " ") : "—"}`}
@@ -694,6 +710,12 @@ function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frame
             return <circle key={i} cx={200 + Math.cos(a) * 82} cy={144 + Math.sin(a) * 108} r="1.4" fill="#35d99a" opacity={i / 24 <= progress / 100 ? 1 : 0.2} />;
           })}
         <path d="M194 144h12M200 138v12" stroke="rgba(238,240,246,0.35)" />
+        {ready && !capturing &&
+          [[172, 118], [228, 118], [200, 150], [182, 178], [218, 178], [160, 100], [240, 100], [200, 206]].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="1.3" fill="#9db0ff" opacity="0.55">
+              <animate attributeName="opacity" values="0.15;0.7;0.15" dur={`${2 + (i % 3) * 0.6}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
       </svg>
 
       {["left-4 top-4 border-l-2 border-t-2", "right-4 top-4 border-r-2 border-t-2", "bottom-4 left-4 border-b-2 border-l-2", "bottom-4 right-4 border-b-2 border-r-2"].map((pos) => (
@@ -709,7 +731,9 @@ function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frame
           <span className={`h-1.5 w-1.5 rounded-full ${ready ? "animate-blink bg-signal-crimson" : "bg-ink-700"}`} />
           {ready ? "Live" : "Offline"}
         </span>
-        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink-300 sm:block">{title}</span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink-300 sm:block">
+          {title} <span className="text-ink-700">· Biometric core / {ready ? "active" : "standby"}</span>
+        </span>
       </div>
 
       {!ready && (
@@ -785,7 +809,7 @@ function DecisionHero({ verification }) {
       : { lines: ["Additional review", "required."], tone: "text-signal-amber", glow: "rgba(243,173,75,0.14)", Icon: Clock };
   const { Icon } = cfg;
   return (
-    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.07] px-5 py-10 sm:px-10 sm:py-14">
+    <div className={`edge-light ${verification.status === "approved" ? "edge-emerald" : verification.status === "rejected" ? "edge-crimson" : "edge-amber"} relative overflow-hidden rounded-[1.75rem] border border-white/[0.07] px-5 py-10 sm:px-10 sm:py-14`}>
       <div className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(70% 90% at 15% 0%, ${cfg.glow}, transparent 70%)` }} />
       <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
         <div>

@@ -150,8 +150,31 @@ function ModuleCard({ index, icon: Icon, title, description, state, summary, def
 /* Forensic image analysis (ELA heatmap)                               */
 /* ------------------------------------------------------------------ */
 
+const FORENSIC_TABS = ["ELA", "EXIF", "Copy-move", "QR", "Authenticity", "Forgery"];
+
+function ForensicRows({ rows, notes }) {
+  return (
+    <div className="p-4">
+      <dl className="divide-y divide-white/[0.05]">
+        {rows.map(([k, v]) => (
+          <div key={k} className="flex items-center justify-between gap-3 py-2.5 text-xs">
+            <dt className="font-mono text-[10px] uppercase tracking-[0.14em] text-ink-500">{k}</dt>
+            <dd className="truncate text-right font-mono text-ink-100">{String(v)}</dd>
+          </div>
+        ))}
+      </dl>
+      {notes?.length > 0 && (
+        <ul className="mt-3 space-y-1 text-xs text-signal-amber">
+          {notes.map((n, i) => <li key={i}>• {n}</li>)}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function ForensicPanel({ forgery }) {
   const [zoom, setZoom] = useState(false);
+  const [tab, setTab] = useState("ELA");
 
   useEffect(() => {
     if (!zoom) return;
@@ -169,49 +192,113 @@ function ForensicPanel({ forgery }) {
           <Maximize2 className="h-3.5 w-3.5" /> Expand
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr]">
-        <button onClick={() => setZoom(true)} className="group relative block overflow-hidden bg-black" aria-label="Expand forgery heatmap">
-          <img src={src} alt="Forgery heatmap" className="max-h-72 w-full object-contain transition duration-700 group-hover:scale-[1.03]" />
-          <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-6 text-left text-[11px] text-ink-300">
-            Compression-error heatmap (brighter = more suspicious)
-          </span>
-        </button>
-        <div className="space-y-3 p-4">
-          <div>
-            <p className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-500">Error level scale</p>
-            <div className="h-2 rounded-full bg-[linear-gradient(90deg,#00007f,#0000ff,#00ffff,#ffff00,#ff0000,#7f0000)]" />
-            <div className="mt-1 flex justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-ink-700">
-              <span>consistent</span>
-              <span>suspicious</span>
-            </div>
-          </div>
-          <dl className="space-y-2 text-xs">
-            <div className="flex justify-between gap-3">
-              <dt className="text-ink-500">EXIF metadata</dt>
-              <dd className="text-ink-100">{forgery.metadata?.exif_present ? "Present" : "Stripped"}</dd>
-            </div>
-            {forgery.metadata?.software_tag && (
-              <div className="flex justify-between gap-3">
-                <dt className="text-ink-500">Software tag</dt>
-                <dd className="truncate font-mono text-ink-100">{forgery.metadata.software_tag}</dd>
-              </div>
-            )}
-            <div className="flex justify-between gap-3">
-              <dt className="text-ink-500">Copy-move</dt>
-              <dd className="text-ink-100">
-                {forgery.copy_move?.copy_move_score ?? 0}%
-                {typeof forgery.copy_move?.duplicate_regions === "number" && (
-                  <span className="text-ink-500"> · {forgery.copy_move.duplicate_regions} regions</span>
-                )}
-              </dd>
-            </div>
-            <div className="flex justify-between gap-3">
-              <dt className="text-ink-500">QR code</dt>
-              <dd className="text-ink-100">{forgery.qr?.qr_present ? (forgery.qr.qr_valid ? "Valid" : "Unreadable") : "None found"}</dd>
-            </div>
-          </dl>
-        </div>
+      {/* forensic tabs */}
+      <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-white/[0.06] px-3 py-2" role="tablist" aria-label="Forensic analysis">
+        {FORENSIC_TABS.map((t) => (
+          <button
+            key={t}
+            role="tab"
+            aria-selected={tab === t}
+            onClick={() => setTab(t)}
+            className={`relative whitespace-nowrap rounded-full px-3 py-1.5 font-mono text-[9.5px] uppercase tracking-[0.16em] transition-colors ${
+              tab === t ? "text-void-900" : "text-ink-500 hover:text-ink-100"
+            }`}
+          >
+            {tab === t && <motion.span layoutId={`ftab-${forgery.forgery_score}`} className="absolute inset-0 rounded-full bg-ink-50" transition={{ type: "spring", stiffness: 380, damping: 32 }} />}
+            <span className="relative">{t}</span>
+          </button>
+        ))}
       </div>
+
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={tab}
+          initial={{ opacity: 0, y: 8, filter: "blur(4px)" }}
+          animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+          exit={{ opacity: 0, y: -6, filter: "blur(4px)" }}
+          transition={{ duration: 0.25 }}
+        >
+          {tab === "ELA" && (
+            <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr]">
+              <button onClick={() => setZoom(true)} className="group relative block overflow-hidden bg-black" aria-label="Expand forgery heatmap">
+                <img src={src} alt="Forgery heatmap" className="max-h-72 w-full object-contain transition duration-700 group-hover:scale-[1.03]" />
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-6 text-left text-[11px] text-ink-300">
+                  Compression-error heatmap (brighter = more suspicious)
+                </span>
+              </button>
+              <div className="space-y-4 p-4">
+                <div>
+                  <p className="mb-1.5 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-500">Error level scale</p>
+                  <div className="h-2 rounded-full bg-[linear-gradient(90deg,#00007f,#0000ff,#00ffff,#ffff00,#ff0000,#7f0000)]" />
+                  <div className="mt-1 flex justify-between font-mono text-[9px] uppercase tracking-[0.12em] text-ink-700">
+                    <span>consistent</span>
+                    <span>suspicious</span>
+                  </div>
+                </div>
+                <p className="text-xs leading-relaxed text-ink-500">
+                  Error-level analysis re-compresses the image and maps where the error differs — edited regions tend to
+                  carry a different compression history than the rest of the document.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {tab === "EXIF" && (
+            <ForensicRows
+              rows={[
+                ["EXIF metadata", forgery.metadata?.exif_present ? "Present" : "Stripped"],
+                ["Software tag", forgery.metadata?.software_tag || "—"],
+              ]}
+              notes={forgery.metadata?.indicators}
+            />
+          )}
+
+          {tab === "Copy-move" && (
+            <ForensicRows
+              rows={[
+                ["Copy-move score", `${forgery.copy_move?.copy_move_score ?? 0}%`],
+                ["Duplicate regions", forgery.copy_move?.duplicate_regions ?? "—"],
+              ]}
+              notes={forgery.copy_move?.note ? [forgery.copy_move.note] : []}
+            />
+          )}
+
+          {tab === "QR" && (
+            <ForensicRows
+              rows={[
+                ["QR code", forgery.qr?.qr_present ? (forgery.qr.qr_valid ? "Valid" : "Unreadable") : "None found"],
+                ["Decoded length", forgery.qr?.qr_data_length ?? "—"],
+              ]}
+            />
+          )}
+
+          {tab === "Authenticity" && (
+            <ForensicRows rows={[["Verdict", forgery.authenticity_verdict || "—"]]} notes={forgery.indicators} />
+          )}
+
+          {tab === "Forgery" && (
+            <div className="space-y-4 p-4">
+              <Meter
+                label="Forgery risk score"
+                value={forgery.forgery_score}
+                colorClass={forgery.forgery_score >= 60 ? "bg-signal-crimson" : forgery.forgery_score >= 30 ? "bg-signal-amber" : "bg-signal-emerald"}
+              />
+              {forgery.breakdown && Object.keys(forgery.breakdown).length > 0 && (
+                <div className="space-y-3">
+                  {Object.entries(forgery.breakdown).map(([k, v]) => (
+                    <Meter
+                      key={k}
+                      label={k.replaceAll("_", " ")}
+                      value={Math.round(v * 100)}
+                      colorClass={v >= 0.6 ? "bg-signal-crimson" : v >= 0.3 ? "bg-signal-amber" : "bg-accent-soft"}
+                    />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      </AnimatePresence>
 
       {createPortal(
       <AnimatePresence>

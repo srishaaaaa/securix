@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { ArrowLeft, ShieldAlert, ShieldCheck, Smartphone, Phone, FileText, Loader2, X } from "lucide-react";
+import { ArrowLeft, ShieldAlert, ShieldCheck, Smartphone, Phone, FileText, Loader2, X, RotateCcw, ZoomIn, ZoomOut, Crosshair } from "lucide-react";
 import { api } from "../api/client";
 import Stage3D from "../components/three/Stage3D";
 import { PageShell, SysLabel } from "../components/ui/motion";
@@ -37,6 +37,8 @@ export default function FraudNetwork() {
   }, [graph]);
 
   const [hoveredId, setHoveredId] = useState(null);
+  const [command, setCommand] = useState(null);
+  const send = (type) => setCommand({ type, n: Date.now() });
   const [selectedId, setSelectedId] = useState(null);
   const selectedNode = graph?.nodes.find((n) => n.id === selectedId) || null;
   const neighbours = selectedNode
@@ -68,6 +70,7 @@ export default function FraudNetwork() {
                 selectedId,
                 onHover: setHoveredId,
                 onSelect: setSelectedId,
+                command,
               }}
               fallback={
                 <div className="absolute inset-0 flex items-center justify-center p-6 pt-40 sm:p-16 sm:pt-32">
@@ -139,9 +142,41 @@ export default function FraudNetwork() {
                     <ShieldCheck className="h-3.5 w-3.5" /> {graph.linked_count} linked verifications — within normal range
                   </span>
                 )}
-                <div className="flex gap-5 font-mono text-[10px] uppercase tracking-[0.16em] text-ink-500">
-                  <span><span className="font-display text-base text-ink-50">{graph.nodes.length}</span> nodes</span>
-                  <span><span className="font-display text-base text-ink-50">{graph.edges.length}</span> links</span>
+                <div className="glass-3 w-full rounded-2xl p-3 sm:w-auto">
+                  <div className="grid grid-cols-3 gap-4 px-2 pb-3 pt-1">
+                    {[
+                      ["Nodes", graph.nodes.length, "text-ink-50"],
+                      ["Connections", graph.edges.length, "text-ink-50"],
+                      ["Risk", graph.flagged ? "Elevated" : "Normal", graph.flagged ? "text-signal-crimson" : "text-signal-emerald"],
+                    ].map(([k, v, c]) => (
+                      <div key={k}>
+                        <p className={`font-display text-lg font-semibold ${c}`}>{v}</p>
+                        <p className="font-mono text-[9px] uppercase tracking-[0.16em] text-ink-500">{k}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-1.5 border-t border-white/[0.06] pt-3">
+                    {[
+                      ["reset", "Reset view", RotateCcw],
+                      ["zoom-in", "Zoom in", ZoomIn],
+                      ["zoom-out", "Zoom out", ZoomOut],
+                      ["focus", "Focus anchor", Crosshair],
+                    ].map(([type, label, Icon]) => (
+                      <button
+                        key={type}
+                        onClick={() => {
+                          if (type === "reset" || type === "focus") setSelectedId(null);
+                          send(type);
+                        }}
+                        title={label}
+                        aria-label={label}
+                        className="flex h-9 flex-1 items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] px-3 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-300 transition hover:border-white/20 hover:bg-white/[0.04] hover:text-ink-50"
+                      >
+                        <Icon className="h-3.5 w-3.5" />
+                        {(type === "reset" || type === "focus") && <span className="hidden whitespace-nowrap lg:inline">{type}</span>}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </div>
             )}

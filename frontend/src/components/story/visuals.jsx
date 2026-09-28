@@ -209,7 +209,7 @@ const DEMO = [
   ["smile", "Smile"],
   ["raise_eyebrows", "Raise eyebrows"],
 ];
-const PHASES = ["waiting", "scanning", "detecting", "confirmed"];
+const PHASES = ["waiting", "capturing", "analyzing", "verified"];
 
 export function LivenessDemo({ active = true }) {
   const reduce = useReducedMotion();
@@ -220,15 +220,16 @@ export function LivenessDemo({ active = true }) {
     return () => clearInterval(id);
   }, [active, reduce]);
   const challengeIdx = Math.floor(k / PHASES.length) % DEMO.length;
-  const phase = reduce ? "confirmed" : PHASES[k % PHASES.length];
+  const phase = reduce ? "verified" : PHASES[k % PHASES.length];
   const [challenge, label] = DEMO[challengeIdx];
-  const phaseTone = { waiting: "text-ink-500", scanning: "text-accent-soft", detecting: "text-violet-soft", confirmed: "text-signal-emerald" }[phase];
+  const phaseTone = { waiting: "text-ink-500", capturing: "text-accent-soft", analyzing: "text-violet-soft", verified: "text-signal-emerald" }[phase];
+  const guidePhase = { waiting: "waiting", capturing: "scanning", analyzing: "detecting", verified: "confirmed" }[phase];
 
   return (
     <div className="relative flex flex-col items-center">
       <div className="relative aspect-[200/240] w-[min(68vw,300px)]">
-        <LivenessGuide challenge={challenge} phase={phase} className="h-full w-full" />
-        {phase === "scanning" && !reduce && (
+        <LivenessGuide challenge={challenge} phase={guidePhase} className="h-full w-full" />
+        {phase === "capturing" && !reduce && (
           <div className="absolute inset-x-[12%] top-0 h-px animate-scanY bg-gradient-to-r from-transparent via-ink-50 to-transparent" />
         )}
       </div>
@@ -247,7 +248,7 @@ export function LivenessDemo({ active = true }) {
           </motion.span>
         </AnimatePresence>
         <span className={`font-mono text-[11px] uppercase tracking-[0.24em] transition-colors ${phaseTone}`}>
-          {phase === "confirmed" ? "✓ Confirmed" : `${phase}…`}
+          {phase === "verified" ? "✓ Verified" : `${phase}…`}
         </span>
       </div>
       <div className="mt-5 flex gap-1.5">
@@ -315,51 +316,60 @@ export function IdCardVisual({ className = "", scanning = true }) {
 /* ================================================================== */
 
 const NET_NODES = [
-  { id: "v", x: 300, y: 200, r: 18, label: "Verification", kind: "core" },
-  { id: "d", x: 300, y: 70, r: 11, label: "Device", kind: "device" },
-  { id: "p", x: 120, y: 200, r: 11, label: "Phone", kind: "phone" },
-  { id: "doc", x: 480, y: 200, r: 11, label: "Document", kind: "document" },
-  { id: "i", x: 300, y: 330, r: 11, label: "Identity", kind: "identity" },
-  { id: "v2", x: 470, y: 78, r: 7, label: "Linked verification", kind: "linked" },
-  { id: "v3", x: 560, y: 290, r: 7, label: "Linked verification", kind: "linked" },
-  { id: "v4", x: 60, y: 96, r: 7, label: "Linked verification", kind: "linked" },
-  { id: "v5", x: 150, y: 330, r: 6, label: "Linked verification", kind: "linked" },
-  { id: "v6", x: 420, y: 350, r: 6, label: "Linked verification", kind: "linked" },
+  { id: "person", x: 300, y: 200, r: 18, label: "Person", kind: "core" },
+  { id: "device", x: 300, y: 64, r: 11, label: "Device", kind: "device" },
+  { id: "phone", x: 118, y: 150, r: 11, label: "Phone", kind: "phone" },
+  { id: "document", x: 482, y: 150, r: 11, label: "Document", kind: "document" },
+  { id: "email", x: 160, y: 330, r: 11, label: "Email", kind: "email" },
+  { id: "identity", x: 440, y: 330, r: 11, label: "Identity", kind: "identity" },
+  { id: "l1", x: 470, y: 50, r: 7, label: "Linked verification", kind: "linked" },
+  { id: "l2", x: 575, y: 250, r: 7, label: "Linked verification", kind: "linked" },
+  { id: "l3", x: 40, y: 72, r: 7, label: "Linked verification", kind: "linked" },
+  { id: "l4", x: 40, y: 262, r: 6, label: "Linked verification", kind: "linked" },
+  { id: "l5", x: 300, y: 382, r: 6, label: "Linked verification", kind: "linked" },
 ];
 const NET_EDGES = [
-  ["v", "d"], ["v", "p"], ["v", "doc"], ["v", "i"],
-  ["d", "v2"], ["doc", "v2", "risk"], ["doc", "v3", "risk"], ["p", "v4"], ["p", "v5"], ["i", "v6"], ["i", "v5"],
+  ["person", "device"], ["person", "phone"], ["person", "document"], ["person", "email"], ["person", "identity"],
+  ["device", "l1"], ["document", "l1", "risk"], ["document", "l2", "risk"], ["phone", "l3"], ["phone", "l4"],
+  ["email", "l4"], ["email", "l5"], ["identity", "l5"], ["identity", "l2"],
 ];
-const NET_COLOR = { core: "#eef0f6", device: "#f3ad4b", phone: "#b9a4ff", document: "#ff5468", identity: "#9db0ff", linked: "#737b91" };
+const NET_COLOR = { core: "#eef0f6", device: "#f3ad4b", phone: "#b9a4ff", document: "#ff5468", email: "#7dd3fc", identity: "#9db0ff", linked: "#737b91" };
 
+/**
+ * Landing "network intelligence" illustration. Hover (or tap) a node: it
+ * becomes prominent, its neighbours light up and unrelated nodes fade.
+ */
 export function NetworkVisual({ className = "" }) {
   const reduce = useReducedMotion();
-  const [hover, setHover] = useState(null);
+  const [focus, setFocus] = useState(null);
   const byId = Object.fromEntries(NET_NODES.map((n) => [n.id, n]));
-  const touches = (e) => hover && (e[0] === hover || e[1] === hover);
+  const neighbours = new Set(focus ? NET_EDGES.filter((e) => e[0] === focus || e[1] === focus).flatMap((e) => [e[0], e[1]]) : []);
+  const nodeDim = (id) => focus && !neighbours.has(id);
+  const edgeOn = (e) => focus && (e[0] === focus || e[1] === focus);
 
   return (
-    <svg viewBox="0 0 600 400" className={className} fill="none" role="img" aria-label="Illustration of an identity network linking a verification to devices, phones and documents">
+    <svg viewBox="0 0 600 400" className={className} fill="none" role="img" aria-label="Illustration of an identity network linking a person to devices, phones, documents and emails">
       {NET_EDGES.map((e, i) => {
         const a = byId[e[0]];
         const b = byId[e[1]];
         const risk = e[2] === "risk";
         const path = `M${a.x} ${a.y} L${b.x} ${b.y}`;
+        const faded = focus && !edgeOn(e);
         return (
-          <g key={i}>
+          <g key={i} style={{ opacity: faded ? 0.12 : 1, transition: "opacity .4s ease" }}>
             <motion.path
               d={path}
-              stroke={risk ? "#ff5468" : touches(e) ? "#c7d2ff" : "rgba(157,176,255,0.22)"}
-              strokeWidth={risk ? 1.6 : 1}
-              strokeDasharray={risk ? "0" : "3 5"}
+              stroke={risk ? "#ff5468" : edgeOn(e) ? "#c7d2ff" : "rgba(157,176,255,0.22)"}
+              strokeWidth={risk || edgeOn(e) ? 1.6 : 1}
+              strokeDasharray={risk || edgeOn(e) ? "0" : "3 5"}
               initial={{ pathLength: 0 }}
               whileInView={{ pathLength: 1 }}
               viewport={{ once: true }}
-              transition={{ duration: 1, delay: 0.2 + i * 0.07 }}
+              transition={{ duration: 1, delay: 0.2 + i * 0.06 }}
             />
             {!reduce && (
               <circle r={risk ? 2.6 : 2} fill={risk ? "#ff8a98" : "#9db0ff"}>
-                <animateMotion dur={`${2.4 + (i % 4) * 0.5}s`} repeatCount="indefinite" path={path} />
+                <animateMotion dur={`${2.8 + (i % 4) * 0.6}s`} repeatCount="indefinite" path={path} />
               </circle>
             )}
           </g>
@@ -367,34 +377,29 @@ export function NetworkVisual({ className = "" }) {
       })}
       {NET_NODES.map((n, i) => {
         const c = NET_COLOR[n.kind];
-        const on = hover === n.id;
+        const on = focus === n.id;
         return (
           <motion.g
             key={n.id}
             initial={{ scale: 0, opacity: 0 }}
             whileInView={{ scale: 1, opacity: 1 }}
             viewport={{ once: true }}
-            transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.1 + i * 0.06 }}
-            style={{ transformOrigin: `${n.x}px ${n.y}px`, cursor: "default" }}
-            onMouseEnter={() => setHover(n.id)}
-            onMouseLeave={() => setHover(null)}
+            transition={{ type: "spring", stiffness: 220, damping: 16, delay: 0.1 + i * 0.05 }}
+            style={{ transformOrigin: `${n.x}px ${n.y}px`, cursor: "pointer" }}
+            onMouseEnter={() => setFocus(n.id)}
+            onMouseLeave={() => setFocus(null)}
+            onClick={() => setFocus(on ? null : n.id)}
           >
-            <circle cx={n.x} cy={n.y} r={n.r * 2.4} fill={c} opacity={on || n.kind === "core" ? 0.12 : 0.04} />
-            <circle cx={n.x} cy={n.y} r={n.r} fill="#07080c" stroke={c} strokeWidth={n.kind === "core" ? 2 : 1.3} />
-            <circle cx={n.x} cy={n.y} r={n.r * 0.4} fill={c} />
-            {n.kind !== "linked" && (
-              <text
-                x={n.x}
-                y={n.y + n.r + 18}
-                textAnchor="middle"
-                fill={on ? "#eef0f6" : "#a9b0c3"}
-                fontFamily="JetBrains Mono"
-                fontSize="10"
-                letterSpacing="2"
-              >
-                {n.label.toUpperCase()}
-              </text>
-            )}
+            <g style={{ opacity: nodeDim(n.id) ? 0.2 : 1, transition: "opacity .4s ease" }}>
+              <circle cx={n.x} cy={n.y} r={n.r * (on ? 3.2 : 2.4)} fill={c} opacity={on || n.kind === "core" ? 0.14 : 0.04} style={{ transition: "r .4s ease" }} />
+              <circle cx={n.x} cy={n.y} r={on ? n.r * 1.25 : n.r} fill="#07080c" stroke={c} strokeWidth={n.kind === "core" || on ? 2 : 1.3} />
+              <circle cx={n.x} cy={n.y} r={n.r * 0.4} fill={c} />
+              {n.kind !== "linked" && (
+                <text x={n.x} y={n.y + n.r + 18} textAnchor="middle" fill={on ? "#eef0f6" : "#a9b0c3"} fontFamily="JetBrains Mono" fontSize="10" letterSpacing="2">
+                  {n.label.toUpperCase()}
+                </text>
+              )}
+            </g>
           </motion.g>
         );
       })}

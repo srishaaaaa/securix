@@ -1,13 +1,14 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   AnimatePresence, motion, useMotionValue, useMotionValueEvent, useReducedMotion, useScroll, useTransform,
 } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 import TrustGauge from "../components/TrustGauge";
+import SignalBars from "../components/SignalBars";
 import Stage3D from "../components/three/Stage3D";
 import { Logo } from "../components/Navbar";
-import { EASE, LitCard, MaskLines, PageShell, Reveal, SysLabel } from "../components/ui/motion";
+import { EASE, LitCard, Magnetic, MaskLines, PageShell, Reveal, SysLabel, WordReveal } from "../components/ui/motion";
 import { FaceMeshVisual, IdCardVisual, IdentityFallback, LivenessDemo, NetworkVisual } from "../components/story/visuals";
 import {
   ArrowRight, ScanFace, FileSearch, Fingerprint, ShieldAlert,
@@ -71,8 +72,29 @@ function StickyScene({ vh = 260, phoneVh, id, children }) {
       className="relative [height:var(--h-phone)] sm:[height:var(--h)]"
       style={{ "--h": `${vh}vh`, "--h-phone": `${phoneVh || vh}vh` }}
     >
-      <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">{children(scrollYProgress)}</div>
+      <SceneFrame p={scrollYProgress}>{children(scrollYProgress)}</SceneFrame>
     </section>
+  );
+}
+
+/**
+ * Cinematic in/out for pinned scenes: the frame opens from an inset
+ * rounded clip as it arrives, and recedes (scale + blur + fade) as the
+ * next scene takes over.
+ */
+function SceneFrame({ p, children }) {
+  const inset = useTransform(p, [0, 0.1], [9, 0]);
+  const radius = useTransform(p, [0, 0.1], [36, 0]);
+  const clip = useTransform([inset, radius], ([i, r]) => `inset(${i}% ${i * 0.6}% ${i}% ${i * 0.6}% round ${r}px)`);
+  const scale = useTransform(p, [0.86, 1], [1, 0.93]);
+  const opacity = useTransform(p, [0.88, 1], [1, 0.15]);
+  const blur = useTransform(p, [0.88, 1], ["blur(0px)", "blur(10px)"]);
+  return (
+    <div className="sticky top-0 h-[100svh] overflow-hidden">
+      <motion.div style={{ clipPath: clip, scale, opacity, filter: blur }} className="flex h-full items-center bg-void-900/40">
+        {children}
+      </motion.div>
+    </div>
   );
 }
 
@@ -243,7 +265,19 @@ function SceneDocument({ p }) {
             </motion.div>
           ))}
         </div>
-        <div className="mt-6 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
+        <div className="mt-5 flex flex-wrap gap-1.5">
+          {["OCR", "Format", "Authenticity", "QR", "Forensic"].map((t, i) => (
+            <span
+              key={t}
+              className={`rounded-full border px-2.5 py-1 font-mono text-[9px] uppercase tracking-[0.16em] transition-all duration-500 ${
+                stage >= i + 2 ? "border-signal-emerald/40 bg-signal-emerald/10 text-signal-emerald" : "border-white/10 text-ink-700"
+              }`}
+            >
+              {stage >= i + 2 ? "✓ " : ""}{t}
+            </span>
+          ))}
+        </div>
+        <div className="mt-4 flex items-center justify-between font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">
           <span>{DOC_STAGES[Math.max(0, Math.min(stage - 1, DOC_STAGES.length - 1))]}</span>
           <span ref={pctRef} className="tabular-nums text-ink-300">{`${String(Math.round(Math.max(0, Math.min(100, pct.get())))).padStart(3, "0")}%`}</span>
         </div>
@@ -316,6 +350,30 @@ function SceneFace({ p }) {
 }
 
 /* ------------------------------------------------------------------ */
+/* Hero: illustrative pipeline states cycled on the identity core.     */
+/* (A labelled demo sequence - never a real verification result.)      */
+/* ------------------------------------------------------------------ */
+
+const HERO_STATES = ["Scanning identity", "Document detected", "Biometrics analyzed", "Liveness verified", "Risk analyzed", "Identity verified"];
+const ORBITS = [
+  { n: "01", label: "Identity", cls: "left-[8%] top-[18%]" },
+  { n: "02", label: "Biometric", cls: "right-[20%] top-[12%]" },
+  { n: "03", label: "Trust", cls: "right-[16%] bottom-[28%]" },
+  { n: "04", label: "Fraud", cls: "left-[14%] bottom-[18%]" },
+];
+
+function useHeroState() {
+  const reduce = useReducedMotion();
+  const [i, setI] = useState(reduce ? HERO_STATES.length - 1 : 0);
+  useEffect(() => {
+    if (reduce) return;
+    const id = setInterval(() => setI((v) => (v + 1) % HERO_STATES.length), 1800);
+    return () => clearInterval(id);
+  }, [reduce]);
+  return i;
+}
+
+/* ------------------------------------------------------------------ */
 /* Page                                                                */
 /* ------------------------------------------------------------------ */
 
@@ -327,6 +385,9 @@ export default function Landing() {
   const heroTextO = useTransform(heroP, [0, 0.7], [1, 0]);
   const heroCanvasScale = useTransform(heroP, [0, 1], [1, 1.18]);
   const heroCanvasO = useTransform(heroP, [0, 0.9], [1, 0.2]);
+  const heroCanvasY = useTransform(heroP, [0, 1], [0, 80]);
+  const heroState = useHeroState();
+  const done = heroState === HERO_STATES.length - 1;
 
   return (
     <PageShell className="relative -mt-[66px] overflow-x-clip sm:-mt-[72px]">
@@ -334,14 +395,51 @@ export default function Landing() {
       <section ref={heroRef} className="relative flex min-h-[100svh] flex-col overflow-hidden">
         <div className="pointer-events-none absolute inset-0 grid-overlay opacity-50" />
         <motion.div
-          style={{ scale: heroCanvasScale, opacity: heroCanvasO }}
+          style={{ scale: heroCanvasScale, opacity: heroCanvasO, y: heroCanvasY }}
           className="absolute inset-x-0 top-0 h-[62svh] sm:h-[70svh] lg:inset-y-0 lg:left-auto lg:right-[-6%] lg:h-full lg:w-[62%]"
         >
           <Stage3D
             scene="identity"
             className="h-full w-full"
+            sceneProps={{ stage: heroState }}
             fallback={<IdentityFallback className="h-full w-full p-6 opacity-90" />}
           />
+          {/* orbit labels */}
+          <div className="pointer-events-none absolute inset-0 hidden lg:block">
+            {ORBITS.map((o, k) => (
+              <motion.div
+                key={o.n}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1.2 + k * 0.15, duration: 0.8 }}
+                className={`absolute ${o.cls} flex items-center gap-2`}
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-accent-soft/80 shadow-[0_0_10px_rgba(157,176,255,0.8)]" />
+                <span className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-ink-500">
+                  Orbit {o.n} <span className="text-ink-300">/ {o.label}</span>
+                </span>
+              </motion.div>
+            ))}
+          </div>
+          {/* pipeline state (demo sequence) */}
+          <div className="pointer-events-none absolute left-1/2 top-[15%] w-max -translate-x-1/2 sm:top-[14%] lg:bottom-[12%] lg:left-auto lg:right-[22%] lg:top-auto lg:translate-x-0">
+            <div className="glass-2 flex items-center gap-3 rounded-full px-4 py-2">
+              <span className="relative flex h-2 w-2">
+                <span className={`absolute inline-flex h-full w-full animate-ping rounded-full opacity-60 ${done ? "bg-signal-emerald" : "bg-accent-soft"}`} />
+                <span className={`relative inline-flex h-2 w-2 rounded-full ${done ? "bg-signal-emerald" : "bg-accent-soft"}`} />
+              </span>
+              <motion.span
+                key={heroState}
+                initial={{ opacity: 0.2, y: 6 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.35, ease: EASE }}
+                className={`min-w-[17ch] font-mono text-[10px] uppercase tracking-[0.2em] ${done ? "text-signal-emerald" : "text-ink-100"}`}
+              >
+                {HERO_STATES[heroState]}
+              </motion.span>
+              <span className="font-mono text-[9px] text-ink-700">{String(heroState + 1).padStart(2, "0")}/06</span>
+            </div>
+          </div>
           <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-void-900 to-transparent lg:hidden" />
         </motion.div>
 
@@ -350,19 +448,28 @@ export default function Landing() {
           className="relative z-10 mx-auto flex w-full max-w-7xl flex-1 flex-col justify-end px-5 pb-10 pt-[46svh] sm:px-8 sm:pt-[52svh] lg:justify-center lg:pb-16 lg:pt-32"
         >
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.6 }}>
-            <SysLabel live>AI-powered digital KYC · SECURIX 2.0</SysLabel>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
+              <SysLabel live>SECURIX / Identity engine</SysLabel>
+              <SysLabel tone="muted" className="hidden sm:inline-flex">System status / online</SysLabel>
+            </div>
           </motion.div>
 
-          <h1 className="mt-5 max-w-[14ch] font-display text-giant font-semibold uppercase text-ink-50">
-            <MaskLines lines={["Digital", "identity,"]} delay={0.35} />
-            <MaskLines lines={[<span key="v" className="text-gradient">verified.</span>]} delay={0.53} />
+          <h1 className="mt-5 max-w-[13ch] font-display text-[clamp(2.5rem,7vw,6.6rem)] font-semibold uppercase leading-[0.9] tracking-[-0.045em] text-ink-50">
+            <MaskLines lines={["Identity", "is more than"]} delay={0.35} />
+            <MaskLines lines={[<span key="v" className="text-gradient">a document.</span>]} delay={0.53} />
           </h1>
+
+          <div className="mt-6 flex flex-col gap-1 font-display text-lg font-medium uppercase tracking-tight sm:text-2xl">
+            <WordReveal text="Verify the person." delay={0.8} className="text-ink-50" />
+            <WordReveal text="Understand the signal." delay={0.95} className="text-ink-500" />
+            <WordReveal text="Stop the fraud." delay={1.1} className="text-accent-soft" />
+          </div>
 
           <motion.p
             initial={{ opacity: 0, y: 14, filter: "blur(6px)" }}
             animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ delay: 0.85, duration: 0.8, ease: EASE }}
-            className="mt-6 max-w-md text-[15px] leading-relaxed text-ink-300 sm:text-lg"
+            transition={{ delay: 1.2, duration: 0.8, ease: EASE }}
+            className="mt-5 max-w-md text-sm leading-relaxed text-ink-300 sm:text-base"
           >
             AI-powered identity verification built to detect fraud before it becomes a problem — document OCR,
             biometric face matching, liveness and risk scoring in one pipeline.
@@ -371,21 +478,25 @@ export default function Landing() {
           <motion.div
             initial={{ opacity: 0, y: 14 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.0, duration: 0.7, ease: EASE }}
+            transition={{ delay: 1.3, duration: 0.7, ease: EASE }}
             className="mt-8 flex flex-col gap-3 xs:flex-row xs:items-center"
           >
-            <Link
-              to={user ? (user.role === "admin" ? "/admin" : "/verify") : "/register"}
-              className="btn btn-light btn-lg w-full xs:w-auto"
-            >
-              {user ? "Go to console" : "Start verification"}
-              <ArrowRight className="btn-arrow h-4 w-4" />
-            </Link>
-            <a href="#story" className="btn btn-ghost btn-lg w-full xs:w-auto">
-              Explore Securix <ArrowDown className="h-4 w-4" />
-            </a>
+            <Magnetic className="w-full xs:w-auto">
+              <Link
+                to={user ? (user.role === "admin" ? "/admin" : "/verify") : "/register"}
+                className="btn btn-light btn-lg w-full xs:w-auto"
+              >
+                {user ? "Go to console" : "Start verification"}
+                <ArrowRight className="btn-arrow h-4 w-4" />
+              </Link>
+            </Magnetic>
+            <Magnetic className="w-full xs:w-auto" strength={0.2}>
+              <a href="#story" className="btn btn-ghost btn-lg w-full xs:w-auto">
+                Explore Securix <ArrowDown className="h-4 w-4" />
+              </a>
+            </Magnetic>
           </motion.div>
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.2 }} className="mt-5">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 1.5 }} className="mt-5">
             <Link to="/login" className="text-sm text-ink-500 underline-offset-4 transition hover:text-ink-100 hover:underline">
               I already have an account
             </Link>
@@ -465,8 +576,10 @@ export default function Landing() {
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal-amber" /> Shared device</span>
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-violet-soft" /> Shared phone</span>
             <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-signal-crimson" /> Shared document #</span>
+            <span className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-sky-300" /> Shared email</span>
             <span className="flex items-center gap-2"><span className="h-px w-5 bg-signal-crimson" /> High-risk link</span>
           </div>
+          <p className="mt-4 text-center font-mono text-[9.5px] uppercase tracking-[0.2em] text-ink-700">Hover or tap a node · illustrative</p>
         </div>
       </section>
 
@@ -491,10 +604,56 @@ export default function Landing() {
             </div>
           </Reveal>
           <Reveal delay={0.15} className="flex justify-center">
-            <div className="glass-panel relative rounded-[2rem] px-10 py-10 sm:px-14">
+            <div className="glass-3 edge-light edge-emerald relative rounded-[2rem] px-8 py-8 sm:px-12 sm:py-10">
               <TrustGauge riskScore={18} band="low" size={230} label="Sample trust score" />
+              <SignalBars
+                className="mt-8 w-[min(78vw,380px)]"
+                rows={[
+                  { key: "doc", label: "Document", value: 91 },
+                  { key: "face", label: "Face", value: 86 },
+                  { key: "live", label: "Liveness", value: 94 },
+                  { key: "dev", label: "Device", value: 78 },
+                  { key: "net", label: "Fraud signal", value: 82 },
+                ]}
+              />
+              <p className="mt-3 text-center font-mono text-[9px] uppercase tracking-[0.2em] text-ink-700">Illustrative sample</p>
             </div>
           </Reveal>
+        </div>
+      </section>
+
+      {/* ========================= DECISION ========================== */}
+      <section className="relative overflow-hidden border-y border-white/[0.05] py-24 sm:py-32">
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(55%_60%_at_50%_40%,rgba(53,217,154,0.10),transparent_70%)]" />
+        <div className="relative mx-auto max-w-7xl px-5 sm:px-8">
+          <Reveal>
+            <SceneIndex n="07" label="Decision" />
+          </Reveal>
+          <h2 className="mt-6 font-display text-giant font-semibold uppercase text-signal-emerald">
+            <MaskLines lines={["Identity", "verified."]} inView />
+          </h2>
+          <Reveal delay={0.1}>
+            <p className="mt-6 max-w-lg text-sm leading-relaxed text-ink-300 sm:text-base">
+              Every verification ends in one of four outcomes — decided by the risk engine, explained in the report, and
+              overridable by an admin.
+            </p>
+          </Reveal>
+          <div className="mt-12 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { t: "Approved", d: "Low risk — instant approval.", c: "text-signal-emerald", e: "edge-emerald" },
+              { t: "Step-up", d: "Second factor: OTP, repeat selfie or video KYC.", c: "text-accent-soft", e: "" },
+              { t: "Review", d: "Borderline — routed to a human analyst.", c: "text-signal-amber", e: "edge-amber" },
+              { t: "Rejected", d: "High risk or tampering — declined.", c: "text-signal-crimson", e: "edge-crimson" },
+            ].map((o, i) => (
+              <Reveal key={o.t} delay={i * 0.08}>
+                <div className={`glass-2 edge-light ${o.e} h-full rounded-[1.4rem] p-6`}>
+                  <span className="font-mono text-[10px] text-ink-700">0{i + 1}</span>
+                  <p className={`mt-6 font-display text-2xl font-semibold uppercase ${o.c}`}>{o.t}</p>
+                  <p className="mt-2 text-sm text-ink-300">{o.d}</p>
+                </div>
+              </Reveal>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -582,10 +741,12 @@ export default function Landing() {
             <p className="mx-auto mt-5 max-w-md text-ink-300">
               Registration takes a minute. Full verification — document, face and decision — takes about two.
             </p>
-            <Link to={user ? "/verify" : "/register"} className="btn btn-light btn-lg mt-9">
-              {user ? "Start verification" : "Create free account"}
-              <ArrowRight className="btn-arrow h-4 w-4" />
-            </Link>
+            <Magnetic className="mt-9">
+              <Link to={user ? "/verify" : "/register"} className="btn btn-light btn-lg">
+                {user ? "Start verification" : "Create free account"}
+                <ArrowRight className="btn-arrow h-4 w-4" />
+              </Link>
+            </Magnetic>
           </div>
         </Reveal>
         <footer className="mt-16 flex flex-col items-center justify-between gap-4 border-t border-white/[0.06] pt-8 sm:flex-row">
