@@ -156,7 +156,7 @@ function check(N) {
   return out;
 }
 
-const COLORS = ["#8fa2ff", "#c7d2ff", "#9db0ff", "#8fa2ff", "#b9a4ff", "#35d99a"];
+const COLORS = ["#3d3dff", "#14161f", "#4338ca", "#3d3dff", "#7c3aed", "#047857"];
 
 function Field({ tier }) {
   const pts = useRef();
@@ -172,11 +172,11 @@ function Field({ tier }) {
     const seeds = new Float32Array(N);
     for (let i = 0; i < N; i++) seeds[i] = rand(i, 24);
     geo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-    const mat = makePointMaterial({ color: COLORS[0], scanColor: "#ffffff", size: tier === "phone" ? 16 : 24, opacity: 1.15 });
-    return { shapes, geo, pos, mat, colors: COLORS.map((c) => new THREE.Color(c)) };
+    const mat = makePointMaterial({ color: COLORS[0], scanColor: "#3d3dff", size: tier === "phone" ? 17 : 30, opacity: 1.7 });
+    return { shapes, geo, pos, mat, baseOpacity: mat.uniforms.uOpacity.value, colors: COLORS.map((c) => new THREE.Color(c)) };
   }, [N, tier]);
 
-  const state = useRef({ stage: 0, side: 1, sections: [], lastScan: 0 });
+  const state = useRef({ stage: 0, side: 1, sections: [], lastScan: 0, fade: 0 });
 
   useFrame((st, delta) => {
     const dt = Math.min(delta, 0.05);
@@ -192,6 +192,7 @@ function Field({ tier }) {
     const mid = window.innerHeight / 2;
     let target = 0;
     let side = 0;
+    let off = false;
     for (const el of S.sections) {
       const r = el.getBoundingClientRect();
       if (r.top <= mid && r.bottom > mid) {
@@ -202,10 +203,13 @@ function Field({ tier }) {
         const m = THREE.MathUtils.smoothstep(f, 0.7, 1);
         target = idx + (next - idx) * m;
         side = el.dataset.side === "left" ? -1 : el.dataset.side === "right" ? 1 : 0;
+        off = el.dataset.worldOff !== undefined;
         break;
       }
     }
     S.stage = THREE.MathUtils.damp(S.stage, target, 4, dt);
+    S.fade = THREE.MathUtils.damp(S.fade, off ? 0 : 1, 3.5, dt);
+    data.mat.uniforms.uOpacity.value = data.baseOpacity * S.fade;
     S.side = THREE.MathUtils.damp(S.side, side, 3, dt);
 
     // morph between the two neighbouring shapes

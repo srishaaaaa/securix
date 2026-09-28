@@ -14,12 +14,12 @@ export function Logo({ className = "h-8 w-8" }) {
     <span className={`relative inline-flex items-center justify-center ${className}`}>
       <svg viewBox="0 0 32 32" className="h-full w-full" fill="none">
         <circle cx="16" cy="16" r="14.5" stroke={`url(#${gid})`} strokeWidth="1.2" />
-        <circle cx="16" cy="16" r="9.5" stroke="rgba(238,240,246,0.35)" strokeWidth="1" strokeDasharray="2 2.6" />
+        <circle cx="16" cy="16" r="9.5" stroke="rgba(7,8,13,0.35)" strokeWidth="1" strokeDasharray="2 2.6" />
         <circle cx="16" cy="16" r="4.2" fill={`url(#${gid})`} />
-        <path d="M16 1.5v4M16 26.5v4M1.5 16h4M26.5 16h4" stroke="rgba(238,240,246,0.5)" strokeWidth="1" />
+        <path d="M16 1.5v4M16 26.5v4M1.5 16h4M26.5 16h4" stroke="rgba(7,8,13,0.5)" strokeWidth="1" />
         <defs>
           <linearGradient id={gid} x1="0" y1="0" x2="32" y2="32">
-            <stop stopColor="#9db0ff" />
+            <stop stopColor="#3d3dff" />
             <stop offset="1" stopColor="#8d6bff" />
           </linearGradient>
         </defs>
@@ -274,7 +274,7 @@ function AppNav() {
               >
                 <Icon className="h-4 w-4" />
                 {label}
-                {on && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_10px_#6478ff]" />}
+                {on && <span className="ml-auto h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_10px_#3d3dff]" />}
               </Link>
             );
           })}

@@ -19,8 +19,8 @@ function Core({ budget, tier, stage = 0 }) {
   const fragments = useRef();
   const scanRing = useRef();
   const { camera } = useThree();
-  const verifiedColor = useRef(new THREE.Color("#35d99a"));
-  const scanColor = useRef(new THREE.Color("#ffffff"));
+  const verifiedColor = useRef(new THREE.Color("#047857"));
+  const scanColor = useRef(new THREE.Color("#3d3dff"));
 
   const baseZ = tier === "phone" ? 6.6 : tier === "laptop" ? 5.4 : 5.0;
 
@@ -29,12 +29,12 @@ function Core({ budget, tier, stage = 0 }) {
     const { points: faceGeo, lines: faceLines, landmarks } = faceLattice(tier === "phone" ? 30 : 40);
     const dust = dustField(Math.round(520 * budget.particles), 9);
 
-    const shellMat = makePointMaterial({ color: "#8fa2ff", scanColor: "#ffffff", size: 20, opacity: 0.55 });
-    const faceMat = makePointMaterial({ color: "#b9c6ff", scanColor: "#35d99a", size: 18, opacity: 0.8 });
-    const landmarkMat = makePointMaterial({ color: "#ffffff", scanColor: "#35d99a", size: 42, opacity: 1 });
-    const dustMat = makePointMaterial({ color: "#6f7ecf", scanColor: "#6f7ecf", size: 14, opacity: 0.35 });
+    const shellMat = makePointMaterial({ color: "#6366f1", scanColor: "#3d3dff", size: 18, opacity: 0.75 });
+    const faceMat = makePointMaterial({ color: "#1e1b4b", scanColor: "#3d3dff", size: 20, opacity: 1 });
+    const landmarkMat = makePointMaterial({ color: "#3d3dff", scanColor: "#1e1b4b", size: 44, opacity: 1.2 });
+    const dustMat = makePointMaterial({ color: "#a5b4fc", scanColor: "#a5b4fc", size: 14, opacity: 0.35 });
 
-    const faceLineMat = new THREE.LineBasicMaterial({ color: "#8fa2ff", transparent: true, opacity: 0.13, depthWrite: false, blending: THREE.AdditiveBlending });
+    const faceLineMat = new THREE.LineBasicMaterial({ color: "#312e81", transparent: true, opacity: 0.42, depthWrite: false, blending: THREE.NormalBlending });
     const faceLineObj = new THREE.LineSegments(faceLines, faceLineMat);
 
     // orbit rings
@@ -51,16 +51,16 @@ function Core({ budget, tier, stage = 0 }) {
       ringGroup.add(l);
       return l;
     };
-    mkRing(2.05, "#9db0ff", 0.28, false, [0.35, 0, 0.18]);
-    mkRing(2.32, "#9db0ff", 0.22, true, [-0.5, 0.2, -0.3]);
-    mkRing(2.62, "#35d99a", 0.14, false, [1.25, 0, 0.1]);
-    mkRing(2.95, "#b9a4ff", 0.12, true, [0.1, 0, -0.62]);
+    mkRing(2.05, "#4f46e5", 0.28, false, [0.35, 0, 0.18]);
+    mkRing(2.32, "#4f46e5", 0.22, true, [-0.5, 0.2, -0.3]);
+    mkRing(2.62, "#047857", 0.14, false, [1.25, 0, 0.1]);
+    mkRing(2.95, "#7c3aed", 0.12, true, [0.1, 0, -0.62]);
 
     // scan ring - horizontal, radius follows the sphere cross-section
     const scanGeo = new THREE.BufferGeometry().setFromPoints(
       new THREE.EllipseCurve(0, 0, 1, 1, 0, Math.PI * 2).getPoints(160).map((p) => new THREE.Vector3(p.x, 0, p.y))
     );
-    const scanObj = new THREE.LineLoop(scanGeo, new THREE.LineBasicMaterial({ color: "#ffffff", transparent: true, opacity: 0.55, depthWrite: false }));
+    const scanObj = new THREE.LineLoop(scanGeo, new THREE.LineBasicMaterial({ color: "#3d3dff", transparent: true, opacity: 0.6, depthWrite: false }));
 
     // identity fragments: small ID-card outlines + data chips orbiting
     const fragGroup = new THREE.Group();
@@ -77,7 +77,7 @@ function Core({ budget, tier, stage = 0 }) {
       s.quadraticCurveTo(-w / 2, -h / 2, -w / 2 + r, -h / 2);
       return new THREE.BufferGeometry().setFromPoints(s.getPoints(6));
     };
-    const fragMat = new THREE.LineBasicMaterial({ color: "#c7d2ff", transparent: true, opacity: 0.5, depthWrite: false });
+    const fragMat = new THREE.LineBasicMaterial({ color: "#4338ca", transparent: true, opacity: 0.5, depthWrite: false });
     const fillMat = new THREE.MeshBasicMaterial({ color: "#6478ff", transparent: true, opacity: 0.07, side: THREE.DoubleSide, depthWrite: false });
     const count = tier === "phone" ? 4 : 6;
     for (let i = 0; i < count; i++) {
@@ -127,7 +127,7 @@ function Core({ budget, tier, stage = 0 }) {
     const verified = stage >= 5;
     const targetScan = verified ? verifiedColor.current : scanColor.current;
     data.shellMat.uniforms.uScanColor.value.lerp(targetScan, 0.06);
-    data.faceMat.uniforms.uScanColor.value.lerp(verified ? verifiedColor.current : new THREE.Color("#35d99a"), 0.06);
+    data.faceMat.uniforms.uScanColor.value.lerp(verified ? verifiedColor.current : scanColor.current, 0.06);
     if (rings.current) {
       rings.current.children.forEach((r) => {
         r.material.opacity = THREE.MathUtils.damp(r.material.opacity, verified ? 0.42 : 0.2, 3, dt);

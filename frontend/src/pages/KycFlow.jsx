@@ -691,7 +691,7 @@ const stepMotion = {
 function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frames, title, verifying = false }) {
   const frame = Math.round((progress / 100) * frames);
   return (
-    <div className="relative w-full overflow-hidden rounded-[1.75rem] bg-void-950 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
+    <div className="relative w-full overflow-hidden rounded-[1.75rem] bg-[#0b0c14] ring-1 ring-black/10" style={{ aspectRatio: "4/3" }}>
       <video ref={videoRef} className="h-full w-full scale-x-[-1] object-cover" muted playsInline />
 
       {/* vignette + face guide */}
@@ -722,25 +722,25 @@ function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frame
       {["left-4 top-4 border-l-2 border-t-2", "right-4 top-4 border-r-2 border-t-2", "bottom-4 left-4 border-b-2 border-l-2", "bottom-4 right-4 border-b-2 border-r-2"].map((pos) => (
         <div
           key={pos}
-          className={`pointer-events-none absolute h-7 w-7 rounded-[5px] transition-colors duration-500 ${capturing ? "border-signal-emerald" : "border-ink-50/70"} ${pos}`}
+          className={`pointer-events-none absolute h-7 w-7 rounded-[5px] transition-colors duration-500 ${capturing ? "border-signal-emerald" : "border-[#eef0f6]/70"} ${pos}`}
         />
       ))}
 
       {/* top bar */}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-5 pt-5 sm:px-6">
-        <span className="flex items-center gap-2 rounded-full bg-void-950/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-100 backdrop-blur">
-          <span className={`h-1.5 w-1.5 rounded-full ${ready ? "animate-blink bg-signal-crimson" : "bg-ink-700"}`} />
+        <span className="flex items-center gap-2 rounded-full bg-[#0b0c14]/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-[#eef0f6] backdrop-blur">
+          <span className={`h-1.5 w-1.5 rounded-full ${ready ? "animate-blink bg-signal-crimson" : "bg-[#5b6175]"}`} />
           {ready ? "Live" : "Offline"}
         </span>
-        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink-300 sm:block">
-          {title} <span className="text-ink-700">· Biometric core / {ready ? "active" : "standby"}</span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-[#b8bdcc] sm:block">
+          {title} <span className="text-[#5b6175]">· Biometric core / {ready ? "active" : "standby"}</span>
         </span>
       </div>
 
       {!ready && (
-        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-void-900/85">
-          <Camera className="h-8 w-8 text-ink-500" />
-          <p className="max-w-[240px] text-center text-xs text-ink-500">Camera preview will appear here</p>
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-[#0b0c14]/85">
+          <Camera className="h-8 w-8 text-[#f5f6fa]0" />
+          <p className="max-w-[240px] text-center text-xs text-[#f5f6fa]0">Camera preview will appear here</p>
         </div>
       )}
 
@@ -748,25 +748,25 @@ function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frame
       {capturing && <div className="pointer-events-none absolute inset-x-[18%] top-0 h-px animate-scanY bg-gradient-to-r from-transparent via-signal-emerald to-transparent" />}
 
       {/* bottom status */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-void-950/90 to-transparent px-5 pb-5 pt-12 sm:px-6" aria-live="polite">
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-[#0b0c14]/90 to-transparent px-5 pb-5 pt-12 sm:px-6" aria-live="polite">
         {capturing ? (
           <div className="flex items-end justify-between gap-4">
             <div>
               <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-signal-emerald">
                 {verifying ? "Verifying motion…" : "Capturing"}
               </p>
-              <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-ink-50 sm:text-4xl">
-                {String(frame).padStart(2, "0")} <span className="text-ink-500">/ {String(frames).padStart(2, "0")}</span>
+              <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-[#f5f6fa] sm:text-4xl">
+                {String(frame).padStart(2, "0")} <span className="text-[#f5f6fa]0">/ {String(frames).padStart(2, "0")}</span>
               </p>
             </div>
             <div className="flex gap-1.5 pb-2">
               {Array.from({ length: frames }).map((_, i) => (
-                <span key={i} className={`h-1.5 w-6 rounded-full transition-colors duration-300 sm:w-8 ${i < frame ? "bg-signal-emerald" : "bg-white/15"}`} />
+                <span key={i} className={`h-1.5 w-6 rounded-full transition-colors duration-300 sm:w-8 ${i < frame ? "bg-signal-emerald" : "bg-[#ffffff]/20"}`} />
               ))}
             </div>
           </div>
         ) : ready ? (
-          <p className="text-center font-display text-base font-semibold uppercase tracking-tight text-ink-50 sm:text-lg">
+          <p className="text-center font-display text-base font-semibold uppercase tracking-tight text-[#f5f6fa] sm:text-lg">
             Position your face inside the frame
           </p>
         ) : null}

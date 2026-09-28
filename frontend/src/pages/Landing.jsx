@@ -145,7 +145,7 @@ function HorizontalStrip() {
     >
       <div className="flex items-start justify-between">
         <span className={`font-display text-[clamp(3.5rem,7vw,6.5rem)] font-bold leading-none ${dark ? "text-paper/15" : "text-ink-50/10"}`}>{n}</span>
-        <Icon className={`h-7 w-7 ${dark ? "text-accent-strong" : "text-accent-soft"}`} />
+        <Icon className={`h-7 w-7 ${dark ? "text-[#8f90ff]" : "text-accent"}`} />
       </div>
       <div>
         <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${dark ? "text-paper/50" : "text-ink-500"}`}>{tag}</span>
@@ -206,8 +206,38 @@ export default function Landing() {
 
       <div className="relative z-10">
         {/* =========================== HERO =========================== */}
-        <section data-world="0" data-next="1" data-side="right" className="relative flex min-h-[100svh] flex-col">
-          <div className="mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-end px-5 pb-10 pt-[44svh] sm:px-10 lg:justify-center lg:pt-28">
+        <section data-world="1" data-next="1" data-side="right" data-world-off className="relative flex min-h-[100svh] flex-col">
+          {/* hero visual: the 3D identity-core mask (face mesh, orbit rings, ID fragments) */}
+          <div className="pointer-events-none absolute inset-x-0 top-0 h-[58svh] sm:h-[64svh] lg:inset-y-0 lg:left-auto lg:right-[-4%] lg:h-full lg:w-[58%]">
+            <Stage3D
+              scene="identity"
+              className="h-full w-full"
+              sceneProps={{ stage: heroState }}
+              fallback={<IdentityFallback className="h-full w-full p-6 opacity-90" />}
+            />
+            <div className="absolute inset-0 hidden lg:block">
+              {[
+                { n: "01", label: "Identity", cls: "left-[10%] top-[20%]" },
+                { n: "02", label: "Biometric", cls: "right-[22%] top-[12%]" },
+                { n: "03", label: "Trust", cls: "right-[16%] bottom-[30%]" },
+                { n: "04", label: "Fraud", cls: "left-[16%] bottom-[20%]" },
+              ].map((o, k) => (
+                <motion.div
+                  key={o.n}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.2 + k * 0.15, duration: 0.8 }}
+                  className={`absolute ${o.cls} flex items-center gap-2`}
+                >
+                  <span className="h-1.5 w-1.5 rounded-full bg-accent shadow-[0_0_10px_rgba(61,61,255,0.6)]" />
+                  <span className="font-mono text-[9.5px] uppercase tracking-[0.22em] text-ink-500">
+                    Orbit {o.n} <span className="text-ink-50">/ {o.label}</span>
+                  </span>
+                </motion.div>
+              ))}
+            </div>
+          </div>
+          <div className="relative mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-end px-5 pb-10 pt-[46svh] sm:px-10 lg:justify-center lg:pt-28">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.6 }}>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
                 <SysLabel live>SECURIX / Identity engine</SysLabel>

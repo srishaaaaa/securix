@@ -3,7 +3,8 @@
 @tailwind utilities;
 
 /* ------------------------------------------------------------------ */
-/* SECURIX 2.0 - base environment                                      */
+/* SECURIX 4 - light premium environment                               */
+/* White/silver surfaces, near-black type, one electric-indigo accent. */
 /* ------------------------------------------------------------------ */
 
 * { box-sizing: border-box; }
@@ -13,50 +14,49 @@ html, body, #root { min-height: 100%; }
 html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
 
 body {
-  background-color: #07080c;
-  color: #eef0f6;
+  background-color: #f5f6fa;
+  color: #14161f;
   font-family: 'Inter', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
-  /* ambient light sources: a cool key light top-left, a violet rim top-right,
-     a faint floor bounce - the page reads as a lit room, not a flat fill */
+  /* studio lighting: soft cool key light, faint lilac rim, silver floor */
   background-image:
-    radial-gradient(70vw 50vh at 8% -8%, rgba(100,120,255,0.10), transparent 62%),
-    radial-gradient(55vw 45vh at 100% 0%, rgba(141,107,255,0.07), transparent 60%),
-    radial-gradient(80vw 50vh at 50% 115%, rgba(100,120,255,0.05), transparent 65%);
+    radial-gradient(70vw 50vh at 8% -8%, rgba(61,61,255,0.07), transparent 62%),
+    radial-gradient(55vw 45vh at 100% 0%, rgba(124,58,237,0.05), transparent 60%),
+    linear-gradient(180deg, #f7f8fb 0%, #eef0f5 100%);
   background-attachment: fixed;
 }
 
-/* film grain - fixed, non-interactive, very low opacity */
+/* paper grain - fixed, non-interactive, barely there */
 body::before {
   content: "";
   position: fixed;
   inset: -50%;
   z-index: 1;
   pointer-events: none;
-  opacity: 0.055;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 1  0 0 0 0 1  0 0 0 0 1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='160' height='160'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0.1  0 0 0 0.9 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
 }
 
 #root { position: relative; z-index: 2; }
 
-::selection { background: rgba(100,120,255,0.35); color: #fff; }
+::selection { background: rgba(61,61,255,0.18); color: #07080d; }
 
 /* thin, quiet scrollbar */
-html { scrollbar-width: thin; scrollbar-color: #262b37 transparent; }
+html { scrollbar-width: thin; scrollbar-color: #c3c9d8 transparent; }
 ::-webkit-scrollbar { width: 6px; height: 6px; }
 ::-webkit-scrollbar-track { background: transparent; }
-::-webkit-scrollbar-thumb { background: linear-gradient(#262b37, #1b1f29); border-radius: 8px; }
-::-webkit-scrollbar-thumb:hover { background: #6478ff; }
+::-webkit-scrollbar-thumb { background: #c3c9d8; border-radius: 8px; }
+::-webkit-scrollbar-thumb:hover { background: #3d3dff; }
 
 .font-display { font-family: 'Space Grotesk', sans-serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; font-feature-settings: "zero" 1; }
 
-input, select, textarea { color-scheme: dark; }
+input, select, textarea { color-scheme: light; }
 
 button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible, [tabindex]:focus-visible {
-  outline: 2px solid #9db0ff;
+  outline: 2px solid #3d3dff;
   outline-offset: 3px;
 }
 
@@ -65,37 +65,36 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 /* ------------------------------------------------------------------ */
 
 @layer components {
-  /* Primary translucent panel: thin top-edge highlight, soft depth, blur. */
+  /* Primary panel: white frosted card, hairline border, soft studio shadow. */
   .glass-panel {
     position: relative;
-    background:
-      linear-gradient(160deg, rgba(255,255,255,0.045), rgba(255,255,255,0) 34%),
-      linear-gradient(180deg, rgba(20,23,31,0.78), rgba(12,14,19,0.82));
-    border: 1px solid rgba(255,255,255,0.07);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.05) inset, 0 30px 70px -34px rgba(0,0,0,0.9);
-    backdrop-filter: blur(18px) saturate(120%);
-    -webkit-backdrop-filter: blur(18px) saturate(120%);
+    background: linear-gradient(180deg, rgba(255,255,255,0.92), rgba(250,251,253,0.88));
+    border: 1px solid rgba(16,20,40,0.08);
+    box-shadow: 0 1px 0 #fff inset, 0 1px 2px rgba(16,20,40,0.04), 0 24px 60px -32px rgba(16,20,40,0.22);
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
   }
 
-  /* Lighter-weight surface for nested blocks. */
   .surface {
-    background: rgba(255,255,255,0.025);
-    border: 1px solid rgba(255,255,255,0.06);
+    background: rgba(255,255,255,0.7);
+    border: 1px solid rgba(16,20,40,0.07);
   }
 
-  /* Edge-lit card: border illuminates toward the pointer on hover
-     (driven by --mx/--my, set by the LitCard component). */
-  .lit-card {
-    position: relative;
-    isolation: isolate;
+  /* dark "island" for camera / scanner / heatmap moments */
+  .ink-panel {
+    background: radial-gradient(120% 90% at 20% 0%, #1b1d33 0%, #0b0c14 60%);
+    border: 1px solid rgba(16,20,40,0.25);
+    color: #eef0f6;
   }
+
+  .lit-card { position: relative; isolation: isolate; }
   .lit-card::before {
     content: "";
     position: absolute;
     inset: -1px;
     border-radius: inherit;
     padding: 1px;
-    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(157,176,255,0.55), transparent 55%);
+    background: radial-gradient(260px circle at var(--mx, 50%) var(--my, 0%), rgba(61,61,255,0.55), transparent 55%);
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
@@ -112,10 +111,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     line-height: 1rem;
     letter-spacing: 0.2em;
     text-transform: uppercase;
-    color: #737b91;
+    color: #6d7488;
   }
 
-  .hairline { border-color: rgba(255,255,255,0.07); }
+  .hairline { border-color: rgba(16,20,40,0.08); }
 
   /* ---------------- buttons ---------------- */
   .btn {
@@ -140,45 +139,47 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .btn svg { transition: transform .35s cubic-bezier(.22,1,.36,1); }
   .btn:not(:disabled):hover .btn-arrow { transform: translateX(3px); }
 
-  /* light sweep */
   .btn::after {
     content: "";
     position: absolute;
     inset: 0;
-    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.28) 45%, transparent 70%);
+    background: linear-gradient(110deg, transparent 20%, rgba(255,255,255,0.35) 45%, transparent 70%);
     transform: translateX(-120%);
     transition: transform .8s cubic-bezier(.22,1,.36,1);
     pointer-events: none;
   }
   .btn:not(:disabled):hover::after { transform: translateX(120%); }
 
+  /* electric-indigo accent button */
   .btn-primary {
     color: #fff;
-    background: linear-gradient(100deg, #6478ff 0%, #7d70ff 60%, #8d6bff 100%);
-    box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 12px 30px -14px rgba(100,120,255,0.7);
+    background: linear-gradient(100deg, #3d3dff 0%, #5b3df5 60%, #7c3aed 100%);
+    box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 12px 28px -12px rgba(61,61,255,0.6);
   }
-  .btn-primary:not(:disabled):hover { box-shadow: 0 1px 0 rgba(255,255,255,0.25) inset, 0 18px 40px -14px rgba(100,120,255,0.8); }
+  .btn-primary:not(:disabled):hover { box-shadow: 0 1px 0 rgba(255,255,255,0.3) inset, 0 18px 40px -14px rgba(61,61,255,0.7); }
 
+  /* the main CTA: solid ink (black) pill */
   .btn-light {
-    color: #07080c;
-    background: #eef0f6;
-    box-shadow: 0 12px 30px -16px rgba(255,255,255,0.35);
+    color: #fff;
+    background: #07080d;
+    box-shadow: 0 14px 30px -14px rgba(7,8,13,0.55);
   }
-  .btn-light::after { background: linear-gradient(110deg, transparent 20%, rgba(100,120,255,0.25) 45%, transparent 70%); }
+  .btn-light::after { background: linear-gradient(110deg, transparent 20%, rgba(61,61,255,0.45) 45%, transparent 70%); }
+  .btn-light:not(:disabled):hover { background: #14161f; }
 
   .btn-ghost {
-    color: #eef0f6;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.1);
+    color: #14161f;
+    background: rgba(255,255,255,0.75);
+    border: 1px solid rgba(16,20,40,0.12);
   }
-  .btn-ghost:not(:disabled):hover { border-color: rgba(255,255,255,0.22); background: rgba(255,255,255,0.05); }
+  .btn-ghost:not(:disabled):hover { border-color: rgba(16,20,40,0.28); background: #fff; }
 
   .btn-accent-ghost {
-    color: #9db0ff;
-    background: rgba(100,120,255,0.08);
-    border: 1px solid rgba(100,120,255,0.3);
+    color: #3d3dff;
+    background: rgba(61,61,255,0.06);
+    border: 1px solid rgba(61,61,255,0.28);
   }
-  .btn-accent-ghost:not(:disabled):hover { background: rgba(100,120,255,0.14); border-color: rgba(100,120,255,0.5); }
+  .btn-accent-ghost:not(:disabled):hover { background: rgba(61,61,255,0.1); border-color: rgba(61,61,255,0.5); }
 
   .btn-sm { padding: .5rem .95rem; font-size: .78rem; }
   .btn-lg { padding: 1rem 1.7rem; font-size: .92rem; }
@@ -187,17 +188,17 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   .field {
     width: 100%;
     border-radius: .9rem;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.08);
+    background: #fff;
+    border: 1px solid rgba(16,20,40,0.12);
     padding: .85rem 1rem;
     font-size: .9rem;
-    color: #eef0f6;
+    color: #07080d;
     outline: none;
     transition: border-color .25s ease, box-shadow .25s ease, background-color .25s ease;
   }
-  .field::placeholder { color: #434a5d; }
-  .field:hover { border-color: rgba(255,255,255,0.14); }
-  .field:focus { border-color: rgba(100,120,255,0.6); background: rgba(100,120,255,0.04); box-shadow: 0 0 0 4px rgba(100,120,255,0.12); }
+  .field::placeholder { color: #a0a6b6; }
+  .field:hover { border-color: rgba(16,20,40,0.22); }
+  .field:focus { border-color: #3d3dff; box-shadow: 0 0 0 4px rgba(61,61,255,0.12); }
   .field:focus-visible { outline: none; }
 
   .field-label {
@@ -207,7 +208,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     font-size: .64rem;
     letter-spacing: .18em;
     text-transform: uppercase;
-    color: #737b91;
+    color: #6d7488;
   }
 
   /* ---------------- alerts ---------------- */
@@ -218,23 +219,24 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
     border-radius: .9rem;
     padding: .8rem 1rem;
     font-size: .85rem;
-    color: #ff8a98;
-    background: rgba(255,84,104,0.08);
-    border: 1px solid rgba(255,84,104,0.22);
+    color: #b3163a;
+    background: rgba(214,31,69,0.06);
+    border: 1px solid rgba(214,31,69,0.25);
     animation: shake .45s cubic-bezier(.36,.07,.19,.97) both;
   }
 
   /* ---------------- typography ---------------- */
   .text-gradient {
-    background: linear-gradient(100deg, #eef0f6 0%, #9db0ff 45%, #b9a4ff 100%);
+    background: linear-gradient(100deg, #07080d 0%, #3d3dff 45%, #7c3aed 100%);
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
   }
   .text-outline {
     color: transparent;
-    -webkit-text-stroke: 1px rgba(238,240,246,0.28);
+    -webkit-text-stroke: 1.5px rgba(7,8,13,0.55);
   }
+  .text-neon { color: #3d3dff; }
 }
 
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
@@ -248,8 +250,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .grid-overlay {
   background-image:
-    linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.035) 1px, transparent 1px);
+    linear-gradient(rgba(16,20,40,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,20,40,0.05) 1px, transparent 1px);
   background-size: 56px 56px;
   mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 100%);
   -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, black 30%, transparent 100%);
@@ -257,8 +259,8 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 
 .perspective-grid {
   background-image:
-    linear-gradient(rgba(157,176,255,0.12) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(157,176,255,0.12) 1px, transparent 1px);
+    linear-gradient(rgba(61,61,255,0.14) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(61,61,255,0.14) 1px, transparent 1px);
   background-size: 34px 34px;
   transform: perspective(500px) rotateX(58deg);
   transform-origin: 50% 100%;
@@ -266,10 +268,10 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   -webkit-mask-image: linear-gradient(to top, black, transparent 85%);
 }
 
-.text-glow { text-shadow: 0 0 28px rgba(100,120,255,0.45); }
+.text-glow { text-shadow: 0 0 28px rgba(61,61,255,0.25); }
 
 .shimmer-text {
-  background: linear-gradient(110deg, #a9b0c3 20%, #ffffff 40%, #a9b0c3 60%);
+  background: linear-gradient(110deg, #6d7488 20%, #07080d 40%, #6d7488 60%);
   background-size: 200% 100%;
   -webkit-background-clip: text;
   background-clip: text;
@@ -278,7 +280,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 
 .skeleton {
-  background: linear-gradient(100deg, rgba(255,255,255,0.03) 30%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 70%);
+  background: linear-gradient(100deg, rgba(16,20,40,0.04) 30%, rgba(16,20,40,0.09) 50%, rgba(16,20,40,0.04) 70%);
   background-size: 200% 100%;
   animation: shimmer 1.6s linear infinite;
 }
@@ -286,7 +288,6 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 .no-scrollbar { scrollbar-width: none; }
 .no-scrollbar::-webkit-scrollbar { display: none; }
 
-/* subtle mask used by marquee / fading edges */
 .fade-x {
   mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
   -webkit-mask-image: linear-gradient(90deg, transparent, black 10%, black 90%, transparent);
@@ -301,19 +302,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   border-radius: 999px;
   will-change: transform;
 }
-.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #eef0f6; mix-blend-mode: difference; }
+.cursor-dot { width: 6px; height: 6px; margin: -3px 0 0 -3px; background: #fff; mix-blend-mode: difference; }
 .cursor-ring {
   width: 34px; height: 34px; margin: -17px 0 0 -17px;
-  border: 1px solid rgba(157,176,255,0.55);
+  border: 1px solid rgba(61,61,255,0.5);
   transition: width .3s cubic-bezier(.22,1,.36,1), height .3s cubic-bezier(.22,1,.36,1), margin .3s cubic-bezier(.22,1,.36,1), background-color .3s ease, border-color .3s ease, opacity .3s ease;
 }
 .cursor-ring.is-hover {
   width: 58px; height: 58px; margin: -29px 0 0 -29px;
-  background: rgba(100,120,255,0.08);
-  border-color: rgba(157,176,255,0.8);
+  background: rgba(61,61,255,0.06);
+  border-color: rgba(61,61,255,0.8);
 }
 .cursor-ring.is-hidden, .cursor-dot.is-hidden { opacity: 0; }
-.cursor-ring.is-3d { width: 72px; height: 72px; margin: -36px 0 0 -36px; border-style: dashed; border-color: rgba(157,176,255,0.9); background: transparent; }
+.cursor-ring.is-3d { width: 72px; height: 72px; margin: -36px 0 0 -36px; border-style: dashed; border-color: rgba(61,61,255,0.9); background: transparent; }
 
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
@@ -324,46 +325,38 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   }
 }
 
-/* print: the "Download report" button prints the forensic report */
 @media print {
   body { background: #fff !important; color: #111 !important; }
-  body::before, header, .no-print { display: none !important; }
-  .glass-panel, .surface { background: #fff !important; border-color: #ddd !important; box-shadow: none !important; backdrop-filter: none !important; }
-  .text-ink-100, .text-ink-300, .text-ink-500 { color: #222 !important; }
+  body::before, header, aside.app-sidebar, .no-print { display: none !important; }
+  body.app-shell main { padding-left: 0 !important; }
+  .glass-panel, .surface, .glass-3, .glass-4 { background: #fff !important; border-color: #ddd !important; box-shadow: none !important; backdrop-filter: none !important; }
 }
 
-
 /* ------------------------------------------------------------------ */
-/* SECURIX 3 - glass hierarchy                                         */
-/* L1 transparent · L2 soft glass · L3 elevated · L4 focus             */
+/* Glass hierarchy (light)                                              */
+/* L1 transparent · L2 soft frost · L3 elevated card · L4 focus        */
 /* ------------------------------------------------------------------ */
 .glass-1 {
-  background: rgba(255,255,255,0.015);
-  border: 1px solid rgba(255,255,255,0.05);
+  background: rgba(255,255,255,0.4);
+  border: 1px solid rgba(16,20,40,0.06);
 }
 .glass-2 {
-  background: linear-gradient(180deg, rgba(20,23,31,0.55), rgba(12,14,19,0.6));
-  border: 1px solid rgba(255,255,255,0.07);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
+  background: rgba(255,255,255,0.72);
+  border: 1px solid rgba(16,20,40,0.08);
+  backdrop-filter: blur(12px) saturate(140%);
+  -webkit-backdrop-filter: blur(12px) saturate(140%);
 }
 .glass-3 {
-  background:
-    linear-gradient(160deg, rgba(255,255,255,0.06), rgba(255,255,255,0) 32%),
-    linear-gradient(180deg, rgba(24,28,38,0.82), rgba(13,15,21,0.88));
-  border: 1px solid rgba(255,255,255,0.09);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.07) inset, 0 40px 90px -40px rgba(0,0,0,0.95);
-  backdrop-filter: blur(22px) saturate(130%);
-  -webkit-backdrop-filter: blur(22px) saturate(130%);
+  background: linear-gradient(180deg, #ffffff, #fafbfd);
+  border: 1px solid rgba(16,20,40,0.09);
+  box-shadow: 0 1px 0 #fff inset, 0 2px 4px rgba(16,20,40,0.04), 0 36px 80px -40px rgba(16,20,40,0.3);
 }
 .glass-4 {
   background:
-    radial-gradient(120% 80% at 0% 0%, rgba(100,120,255,0.10), transparent 60%),
-    linear-gradient(180deg, rgba(26,30,42,0.9), rgba(14,16,22,0.92));
-  border: 1px solid rgba(157,176,255,0.22);
-  box-shadow: 0 1px 0 rgba(255,255,255,0.09) inset, 0 0 0 1px rgba(100,120,255,0.06), 0 50px 110px -40px rgba(0,0,0,1);
-  backdrop-filter: blur(26px) saturate(140%);
-  -webkit-backdrop-filter: blur(26px) saturate(140%);
+    radial-gradient(120% 80% at 0% 0%, rgba(61,61,255,0.06), transparent 60%),
+    linear-gradient(180deg, #ffffff, #fbfbff);
+  border: 1px solid rgba(61,61,255,0.22);
+  box-shadow: 0 1px 0 #fff inset, 0 0 0 4px rgba(61,61,255,0.04), 0 40px 90px -40px rgba(30,30,120,0.35);
 }
 
 /* animated edge light: a faint highlight travels around the border */
@@ -375,7 +368,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   inset: -1px;
   border-radius: inherit;
   padding: 1px;
-  background: conic-gradient(from var(--edge-a), transparent 0deg, transparent 290deg, var(--edge-c, rgba(157,176,255,0.75)) 330deg, transparent 360deg);
+  background: conic-gradient(from var(--edge-a), transparent 0deg, transparent 290deg, var(--edge-c, rgba(61,61,255,0.8)) 330deg, transparent 360deg);
   -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
@@ -383,13 +376,13 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   pointer-events: none;
   z-index: 2;
 }
-.edge-emerald { --edge-c: rgba(53,217,154,0.8); }
-.edge-amber { --edge-c: rgba(243,173,75,0.8); }
-.edge-crimson { --edge-c: rgba(255,84,104,0.8); }
+.edge-emerald { --edge-c: rgba(4,120,87,0.8); }
+.edge-amber { --edge-c: rgba(194,106,0,0.8); }
+.edge-crimson { --edge-c: rgba(214,31,69,0.8); }
 @keyframes edgeSpin { to { --edge-a: 360deg; } }
 
 /* ------------------------------------------------------------------ */
-/* atmosphere (components/Atmosphere.jsx)                              */
+/* Atmosphere (components/Atmosphere.jsx) - studio light               */
 /* ------------------------------------------------------------------ */
 .atmo { position: fixed; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
 .atmo-light {
@@ -397,19 +390,19 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   width: 70vmax; height: 70vmax;
   border-radius: 50%;
   filter: blur(80px);
-  opacity: .5;
+  opacity: .7;
   will-change: transform;
 }
-.atmo-light.a { left: -25vmax; top: -30vmax; background: radial-gradient(circle, rgba(100,120,255,0.16), transparent 65%); animation: drift1 38s ease-in-out infinite alternate; }
-.atmo-light.b { right: -30vmax; top: 10vh; background: radial-gradient(circle, rgba(141,107,255,0.11), transparent 65%); animation: drift2 46s ease-in-out infinite alternate; }
-.atmo-light.c { left: 20vw; bottom: -45vmax; background: radial-gradient(circle, rgba(100,120,255,0.08), transparent 65%); animation: drift1 52s ease-in-out infinite alternate-reverse; }
+.atmo-light.a { left: -25vmax; top: -30vmax; background: radial-gradient(circle, rgba(61,61,255,0.08), transparent 65%); animation: drift1 38s ease-in-out infinite alternate; }
+.atmo-light.b { right: -30vmax; top: 10vh; background: radial-gradient(circle, rgba(124,58,237,0.06), transparent 65%); animation: drift2 46s ease-in-out infinite alternate; }
+.atmo-light.c { left: 20vw; bottom: -45vmax; background: radial-gradient(circle, rgba(14,165,233,0.05), transparent 65%); animation: drift1 52s ease-in-out infinite alternate-reverse; }
 @keyframes drift1 { to { transform: translate3d(12vw, 8vh, 0) scale(1.1); } }
 @keyframes drift2 { to { transform: translate3d(-10vw, 14vh, 0) scale(0.95); } }
 .atmo-grid {
   position: absolute; inset: 0;
   background-image:
-    linear-gradient(rgba(255,255,255,0.022) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255,255,255,0.022) 1px, transparent 1px);
+    linear-gradient(rgba(16,20,40,0.035) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(16,20,40,0.035) 1px, transparent 1px);
   background-size: 72px 72px;
   mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 20%, transparent 80%);
   -webkit-mask-image: radial-gradient(ellipse 80% 70% at 50% 30%, black 20%, transparent 80%);
@@ -418,7 +411,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   position: absolute;
   width: 2px; height: 2px;
   border-radius: 50%;
-  background: rgba(199,210,255,0.7);
+  background: rgba(61,61,255,0.45);
   animation: float-up linear infinite;
   will-change: transform, opacity;
 }
@@ -430,7 +423,7 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 }
 .atmo-scan {
   position: absolute; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, rgba(157,176,255,0.25), transparent);
+  background: linear-gradient(90deg, transparent, rgba(61,61,255,0.18), transparent);
   top: -2px;
   animation: atmo-scan 14s cubic-bezier(.45,0,.55,1) infinite;
 }
@@ -440,11 +433,27 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
   100% { transform: translateY(100vh); opacity: 0; }
 }
 
+/* ------------------------------------------------------------------ */
+/* App shell: dashboard-first layout with a fixed left sidebar on the  */
+/* signed-in routes (Navbar toggles body.app-shell).                   */
+/* ------------------------------------------------------------------ */
+@media (min-width: 1024px) {
+  body.app-shell main { padding-left: 17rem; }
+}
+body.app-shell main { padding-bottom: 5.5rem; }
+/* dashboard-first: app page titles are compact so data sits above the fold */
+body.app-shell main h1.font-display { font-size: clamp(2rem, 3.6vw, 3.4rem) !important; line-height: 0.95 !important; }
+@media (min-width: 1024px) {
+  body.app-shell main { padding-bottom: 0; }
+}
+
+/* landing: the fixed 3D world renders between the body and the app root */
+body.has-world #root > div { background: transparent; }
+
 /* safe-area helpers (phones with notches / home indicators) */
 .pb-safe { padding-bottom: max(1rem, env(safe-area-inset-bottom)); }
 .pt-safe { padding-top: max(0.75rem, env(safe-area-inset-top)); }
 
-/* motion tokens */
 :root {
   --t-fast: 200ms;
   --t-normal: 400ms;
@@ -456,28 +465,4 @@ button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible
 @media (prefers-reduced-motion: reduce) {
   .atmo-particle, .atmo-scan { display: none; }
   .edge-light::after { animation: none; }
-}
-
-/* ------------------------------------------------------------------ */
-/* SECURIX 4 structure on the dark theme                               */
-/* ------------------------------------------------------------------ */
-
-/* landing: the fixed 3D world renders between the body and the app root */
-body.has-world #root > div { background: transparent; }
-
-/* dashboard-first app shell: fixed sidebar on laptop/desktop,
-   bottom tab bar on phones (Navbar toggles body.app-shell) */
-@media (min-width: 1024px) {
-  body.app-shell main { padding-left: 17rem; }
-}
-body.app-shell main { padding-bottom: 5.5rem; }
-@media (min-width: 1024px) {
-  body.app-shell main { padding-bottom: 0; }
-}
-/* compact page titles inside the app so data sits above the fold */
-body.app-shell main h1.font-display { font-size: clamp(2rem, 3.6vw, 3.4rem) !important; line-height: 0.95 !important; }
-
-@media print {
-  aside.app-sidebar { display: none !important; }
-  body.app-shell main { padding-left: 0 !important; }
 }
