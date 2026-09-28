@@ -109,16 +109,18 @@ function HorizontalStrip() {
   const [dist, setDist] = useState(0);
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
   const x = useTransform(scrollYProgress, [0.05, 0.95], [0, -dist]);
-  const pinned = tier !== "phone" && !reduce;
+  // pinned (vertical scroll drives the cards sideways) on every screen size,
+  // so the strip responds to normal up/down scrolling on phones too
+  const pinned = !reduce;
 
   useLayoutEffect(() => {
     const measure = () => {
-      if (track.current) setDist(Math.max(0, track.current.scrollWidth - window.innerWidth + 80));
+      if (track.current) setDist(Math.max(0, track.current.scrollWidth - window.innerWidth + (tier === "phone" ? 40 : 80)));
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
-  }, [pinned]);
+  }, [pinned, tier]);
 
   const cards = [
     ...PIPELINE.map((p, i) => ({ key: p.n, n: p.n, title: p.title, desc: p.desc, Icon: p.Icon, dark: i % 2 === 1, tag: "Pipeline" })),
@@ -168,7 +170,7 @@ function HorizontalStrip() {
   return (
     <section ref={ref} data-world="5" data-side="right" className="relative bg-void-900" style={{ height: `${Math.max(220, 100 + dist / 8)}vh` }}>
       <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden">
-        <motion.div ref={track} style={{ x }} className="flex items-center gap-6 pl-[6vw]">
+        <motion.div ref={track} style={{ x }} className="flex items-center gap-4 pl-5 sm:gap-6 sm:pl-[6vw]">
           {intro}
           {cardEls}
         </motion.div>
