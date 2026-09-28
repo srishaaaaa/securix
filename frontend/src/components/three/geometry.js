@@ -44,7 +44,7 @@ export function makePointMaterial({ color, scanColor, size = 20, opacity = 1 }) 
     fragmentShader: FRAG,
     transparent: true,
     depthWrite: false,
-    blending: THREE.NormalBlending,
+    blending: THREE.AdditiveBlending,
     uniforms: {
       uTime: { value: 0 },
       uScan: { value: 99 },

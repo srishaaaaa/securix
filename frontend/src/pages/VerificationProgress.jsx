@@ -222,7 +222,7 @@ function ForensicPanel({ forgery }) {
             <div className="grid grid-cols-1 md:grid-cols-[1.4fr_1fr]">
               <button onClick={() => setZoom(true)} className="group relative block overflow-hidden bg-black" aria-label="Expand forgery heatmap">
                 <img src={src} alt="Forgery heatmap" className="max-h-72 w-full object-contain transition duration-700 group-hover:scale-[1.03]" />
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-6 text-left text-[11px] text-[#c9cedb]">
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent px-3 pb-2.5 pt-6 text-left text-[11px] text-ink-300">
                   Compression-error heatmap (brighter = more suspicious)
                 </span>
               </button>
@@ -424,9 +424,9 @@ export default function VerificationProgress() {
           <div className="flex items-center gap-5">
             <div className="relative h-20 w-20 flex-shrink-0">
               <svg viewBox="0 0 64 64" className="h-20 w-20 -rotate-90">
-                <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(16,20,40,0.07)" strokeWidth="4" />
+                <circle cx="32" cy="32" r="27" fill="none" stroke="rgba(255,255,255,0.07)" strokeWidth="4" />
                 <motion.circle
-                  cx="32" cy="32" r="27" fill="none" stroke="#3d3dff" strokeWidth="4" strokeLinecap="round"
+                  cx="32" cy="32" r="27" fill="none" stroke="#9db0ff" strokeWidth="4" strokeLinecap="round"
                   strokeDasharray={2 * Math.PI * 27}
                   initial={{ strokeDashoffset: 2 * Math.PI * 27 }}
                   animate={{ strokeDashoffset: 2 * Math.PI * 27 * (1 - progressPct / 100) }}

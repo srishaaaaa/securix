@@ -8,35 +8,35 @@ function Iris({ className = "" }) {
     <svg viewBox="0 0 400 400" className={className} fill="none" aria-hidden="true">
       <defs>
         <radialGradient id="iris-core" cx="50%" cy="50%" r="50%">
-          <stop offset="0" stopColor="#3d3dff" stopOpacity="0.9" />
+          <stop offset="0" stopColor="#9db0ff" stopOpacity="0.9" />
           <stop offset="0.35" stopColor="#6478ff" stopOpacity="0.35" />
           <stop offset="1" stopColor="#6478ff" stopOpacity="0" />
         </radialGradient>
       </defs>
-      <circle cx="200" cy="200" r="190" stroke="rgba(16,20,40,0.06)" />
+      <circle cx="200" cy="200" r="190" stroke="rgba(255,255,255,0.06)" />
       <g className={reduce ? "" : "animate-spinSlower"} style={{ transformOrigin: "200px 200px" }}>
         {Array.from({ length: 120 }).map((_, i) => {
           const a = (i / 120) * Math.PI * 2;
           const r0 = i % 10 === 0 ? 162 : 170;
           return (
             <line key={i} x1={200 + Math.cos(a) * r0} y1={200 + Math.sin(a) * r0} x2={200 + Math.cos(a) * 178} y2={200 + Math.sin(a) * 178}
-              stroke={i % 10 === 0 ? "rgba(7,8,13,0.5)" : "rgba(7,8,13,0.14)"} />
+              stroke={i % 10 === 0 ? "rgba(238,240,246,0.5)" : "rgba(238,240,246,0.14)"} />
           );
         })}
       </g>
       <g className={reduce ? "" : "animate-spinSlow"} style={{ transformOrigin: "200px 200px", animationDirection: "reverse" }}>
-        <circle cx="200" cy="200" r="140" stroke="rgba(61,61,255,0.3)" strokeDasharray="2 7" />
-        <path d="M200 60 A140 140 0 0 1 340 200" stroke="#3d3dff" strokeOpacity="0.8" strokeLinecap="round" />
+        <circle cx="200" cy="200" r="140" stroke="rgba(157,176,255,0.3)" strokeDasharray="2 7" />
+        <path d="M200 60 A140 140 0 0 1 340 200" stroke="#9db0ff" strokeOpacity="0.8" strokeLinecap="round" />
       </g>
-      <circle cx="200" cy="200" r="104" stroke="rgba(124,58,237,0.18)" />
+      <circle cx="200" cy="200" r="104" stroke="rgba(185,164,255,0.18)" />
       {Array.from({ length: 36 }).map((_, i) => {
         const a = (i / 36) * Math.PI * 2;
-        return <line key={i} x1={200 + Math.cos(a) * 36} y1={200 + Math.sin(a) * 36} x2={200 + Math.cos(a) * 100} y2={200 + Math.sin(a) * 100} stroke="rgba(61,61,255,0.1)" />;
+        return <line key={i} x1={200 + Math.cos(a) * 36} y1={200 + Math.sin(a) * 36} x2={200 + Math.cos(a) * 100} y2={200 + Math.sin(a) * 100} stroke="rgba(157,176,255,0.1)" />;
       })}
       <circle cx="200" cy="200" r="100" fill="url(#iris-core)" opacity="0.5" />
-      <circle cx="200" cy="200" r="34" fill="#ffffff" stroke="rgba(7,8,13,0.4)" />
-      <circle cx="200" cy="200" r="6" fill="#07080d" />
-      <path d="M200 8v26M200 366v26M8 200h26M366 200h26" stroke="rgba(7,8,13,0.35)" />
+      <circle cx="200" cy="200" r="34" fill="#07080c" stroke="rgba(238,240,246,0.4)" />
+      <circle cx="200" cy="200" r="6" fill="#eef0f6" />
+      <path d="M200 8v26M200 366v26M8 200h26M366 200h26" stroke="rgba(238,240,246,0.35)" />
     </svg>
   );
 }

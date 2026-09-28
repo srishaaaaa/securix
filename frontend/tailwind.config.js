@@ -3,38 +3,36 @@
 // SECURIX 2.0 design tokens. A near-black graphite environment with soft
 // white type, one electric indigo accent and three signal colours. Glow is
 // reserved for meaning (a live state, a decision), never decoration.
-// SECURIX 4 - light premium. "void" stays the background scale and "ink"
-// the text scale, so every component flips with the tokens.
 const palette = {
   void: {
-    950: "#ffffff",
-    900: "#f5f6fa", // page
-    850: "#f0f2f7",
-    800: "#e9ecf3",
-    700: "#e2e6ef",
-    600: "#d5dae6",
-    500: "#c3c9d8",
+    950: "#040508",
+    900: "#07080c", // page
+    850: "#0a0c11",
+    800: "#0e1016", // graphite
+    700: "#14171f", // surface
+    600: "#1b1f29", // elevated
+    500: "#262b37", // hairline / track
   },
   accent: {
-    soft: "#4f46e5",
-    DEFAULT: "#3d3dff", // electric indigo - the one "neon" accent
-    strong: "#2a2ad9",
+    soft: "#9db0ff",
+    DEFAULT: "#6478ff",
+    strong: "#4a5cf0",
   },
   violet: {
-    DEFAULT: "#7c3aed",
-    soft: "#7c3aed",
+    DEFAULT: "#8d6bff",
+    soft: "#b9a4ff",
   },
   signal: {
-    amber: "#c26a00",
-    emerald: "#047857",
-    crimson: "#d61f45",
+    amber: "#f3ad4b",
+    emerald: "#35d99a",
+    crimson: "#ff5468",
   },
   ink: {
-    50: "#07080d",
-    100: "#14161f",
-    300: "#474d60",
-    500: "#6d7488",
-    700: "#a0a6b6",
+    50: "#f8f9fc",
+    100: "#eef0f6",
+    300: "#a9b0c3",
+    500: "#737b91",
+    700: "#434a5d",
   },
 };
 
@@ -48,10 +46,8 @@ export default {
       },
       colors: {
         ...palette,
-        // "white" is only used as a hairline / tint colour (border-white/[0.07],
-        // bg-white/[0.03] ...). On the light theme those must be dark tints.
-        white: "#0b0d14",
-        paper: "#ffffff",
+        // raised dark surface used by the app shell / cards ("paper" on the dark theme)
+        paper: "#0d0f15",
         // semantic aliases
         graphite: palette.void[800],
         surface: palette.void[700],
@@ -86,18 +82,18 @@ export default {
           "radial-gradient(55% 45% at 12% 0%, rgba(100,120,255,0.13), transparent 62%), radial-gradient(45% 40% at 88% 6%, rgba(141,107,255,0.09), transparent 62%)",
         "grid-fade": "radial-gradient(circle at 50% 0%, rgba(100,120,255,0.09), transparent 60%)",
         "card-sheen": "linear-gradient(150deg, rgba(255,255,255,0.055), rgba(255,255,255,0) 38%)",
-        "primary-sweep": "linear-gradient(100deg, #3d3dff 0%, #5b3df5 55%, #7c3aed 100%)",
+        "primary-sweep": "linear-gradient(100deg, #6478ff 0%, #7d70ff 55%, #8d6bff 100%)",
       },
       boxShadow: {
-        soft: "0 1px 2px rgba(16,20,40,0.05), 0 12px 32px -16px rgba(16,20,40,0.18)",
-        "soft-lg": "0 1px 2px rgba(16,20,40,0.06), 0 30px 70px -30px rgba(16,20,40,0.28)",
-        ambient: "0 30px 80px -40px rgba(16,20,40,0.3)",
-        elevated: "0 1px 0 rgba(255,255,255,0.9) inset, 0 24px 60px -28px rgba(16,20,40,0.3)",
-        glow: "0 10px 30px -12px rgba(61,61,255,0.45)",
-        "glow-lg": "0 24px 60px -18px rgba(61,61,255,0.4)",
-        "glow-amber": "0 12px 34px -12px rgba(194,106,0,0.3)",
-        "glow-crimson": "0 12px 34px -12px rgba(214,31,69,0.3)",
-        "glow-emerald": "0 12px 34px -12px rgba(4,120,87,0.3)",
+        soft: "0 1px 0 rgba(255,255,255,0.04) inset, 0 18px 40px -18px rgba(0,0,0,0.7)",
+        "soft-lg": "0 1px 0 rgba(255,255,255,0.05) inset, 0 40px 90px -30px rgba(0,0,0,0.85)",
+        ambient: "0 30px 80px -40px rgba(0,0,0,0.9)",
+        elevated: "0 1px 0 rgba(255,255,255,0.06) inset, 0 24px 60px -24px rgba(0,0,0,0.85)",
+        glow: "0 10px 34px -12px rgba(100,120,255,0.55)",
+        "glow-lg": "0 24px 60px -18px rgba(100,120,255,0.5)",
+        "glow-amber": "0 12px 34px -12px rgba(243,173,75,0.4)",
+        "glow-crimson": "0 12px 34px -12px rgba(255,84,104,0.42)",
+        "glow-emerald": "0 12px 34px -12px rgba(53,217,154,0.4)",
       },
       transitionTimingFunction: {
         cine: "cubic-bezier(.22,1,.36,1)",

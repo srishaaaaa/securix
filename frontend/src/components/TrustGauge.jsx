@@ -48,7 +48,7 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
   const filled = dash * (animated / 100);
   const scale = size / 180;
 
-  const color = band === "high" ? "#d61f45" : band === "medium" ? "#c26a00" : "#047857";
+  const color = band === "high" ? "#ff5468" : band === "medium" ? "#f3ad4b" : "#35d99a";
   const tier = band === "high" ? "Low trust" : band === "medium" ? "Medium trust" : band ? "High trust" : "";
 
   // tick bezel
@@ -93,7 +93,7 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
                 y1={c + r0 * Math.sin(rad)}
                 x2={c + tickR1 * Math.cos(rad)}
                 y2={c + tickR1 * Math.sin(rad)}
-                stroke={lit ? color : "rgba(16,20,40,0.12)"}
+                stroke={lit ? color : "rgba(255,255,255,0.12)"}
                 strokeOpacity={lit ? (major ? 0.95 : 0.6) : 1}
                 strokeWidth={major ? 1.4 : 1}
               />
@@ -106,7 +106,7 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
               cy={c}
               r={radius}
               fill="none"
-              stroke="rgba(16,20,40,0.07)"
+              stroke="rgba(255,255,255,0.07)"
               strokeWidth={stroke}
               strokeDasharray={`${dash} ${circumference}`}
               strokeLinecap="round"
@@ -125,7 +125,7 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
 
           {/* inner reticle */}
           <g className="origin-center animate-spinSlow" style={{ transformOrigin: `${c}px ${c}px` }}>
-            <circle cx={c} cy={c} r={radius - stroke * 2.2} fill="none" stroke="rgba(16,20,40,0.1)" strokeWidth="1" strokeDasharray="1.5 5" />
+            <circle cx={c} cy={c} r={radius - stroke * 2.2} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="1.5 5" />
           </g>
 
           {/* trust core: concentric inner ring + counter-orbiting signal markers */}
@@ -141,14 +141,14 @@ export default function TrustGauge({ riskScore = 0, band = "", size = 180, label
             {[30, 95, 170, 215, 290, 335].map((deg, i) => {
               const rr = radius - stroke * (1.4 + (i % 3) * 0.9);
               const a = (deg * Math.PI) / 180;
-              return <circle key={deg} cx={c + rr * Math.cos(a)} cy={c + rr * Math.sin(a)} r={0.9} fill="#07080d" opacity={0.25 + (i % 3) * 0.15} />;
+              return <circle key={deg} cx={c + rr * Math.cos(a)} cy={c + rr * Math.sin(a)} r={0.9} fill="#eef0f6" opacity={0.25 + (i % 3) * 0.15} />;
             })}
           </g>
 
           {/* orbiting head marker */}
           {animated > 0 && (
             <g>
-              <circle cx={head.x} cy={head.y} r={stroke * 1.05} fill="#ffffff" stroke={color} strokeWidth={1.5} />
+              <circle cx={head.x} cy={head.y} r={stroke * 1.05} fill="#07080c" stroke={color} strokeWidth={1.5} />
               <circle cx={head.x} cy={head.y} r={stroke * 0.38} fill={color} />
             </g>
           )}

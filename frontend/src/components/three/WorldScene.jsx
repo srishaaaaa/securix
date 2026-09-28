@@ -156,7 +156,7 @@ function check(N) {
   return out;
 }
 
-const COLORS = ["#3d3dff", "#14161f", "#4338ca", "#3d3dff", "#7c3aed", "#047857"];
+const COLORS = ["#8fa2ff", "#c7d2ff", "#9db0ff", "#8fa2ff", "#b9a4ff", "#35d99a"];
 
 function Field({ tier }) {
   const pts = useRef();
@@ -172,7 +172,7 @@ function Field({ tier }) {
     const seeds = new Float32Array(N);
     for (let i = 0; i < N; i++) seeds[i] = rand(i, 24);
     geo.setAttribute("aSeed", new THREE.BufferAttribute(seeds, 1));
-    const mat = makePointMaterial({ color: COLORS[0], scanColor: "#3d3dff", size: tier === "phone" ? 17 : 30, opacity: 1.7 });
+    const mat = makePointMaterial({ color: COLORS[0], scanColor: "#ffffff", size: tier === "phone" ? 16 : 24, opacity: 1.15 });
     return { shapes, geo, pos, mat, colors: COLORS.map((c) => new THREE.Color(c)) };
   }, [N, tier]);
 

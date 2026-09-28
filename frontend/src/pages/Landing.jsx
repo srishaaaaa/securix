@@ -145,7 +145,7 @@ function HorizontalStrip() {
     >
       <div className="flex items-start justify-between">
         <span className={`font-display text-[clamp(3.5rem,7vw,6.5rem)] font-bold leading-none ${dark ? "text-paper/15" : "text-ink-50/10"}`}>{n}</span>
-        <Icon className={`h-7 w-7 ${dark ? "text-[#8f90ff]" : "text-accent"}`} />
+        <Icon className={`h-7 w-7 ${dark ? "text-accent-strong" : "text-accent-soft"}`} />
       </div>
       <div>
         <span className={`font-mono text-[10px] uppercase tracking-[0.2em] ${dark ? "text-paper/50" : "text-ink-500"}`}>{tag}</span>
