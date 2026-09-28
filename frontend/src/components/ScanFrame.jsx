@@ -1,53 +1,58 @@
 /**
- * ScanFrame — the hero's signature illustration: an ID card and a face
- * silhouette inside a softly-lit viewfinder, with a gentle scanning sweep.
- * Used on the landing hero and while a verification step is "processing".
+ * ScanFrame - a biometric viewfinder: corner brackets, a faint lattice,
+ * an ID card and a landmark face mesh, with a scan beam sweeping through.
+ * Used wherever a verification step is "processing".
  */
 export default function ScanFrame({ active = true, size = 320 }) {
   return (
     <div
-      className="relative overflow-hidden rounded-[28px] glass-panel"
-      style={{ width: size, height: size * 0.78 }}
+      className="relative overflow-hidden rounded-[26px] border border-white/[0.07] bg-void-850/80"
+      style={{ width: size, maxWidth: "100%", aspectRatio: "1 / 0.78" }}
     >
-      <div className="absolute inset-0 grid-overlay opacity-30" />
-      <div className="absolute -top-16 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-accent/25 blur-3xl" />
+      <div className="absolute inset-0 grid-overlay opacity-40" />
+      <div className="absolute left-1/2 top-[-30%] h-2/3 w-2/3 -translate-x-1/2 rounded-full bg-accent/20 blur-3xl" />
 
-      {/* corner brackets, softened */}
-      {["top-4 left-4 border-t border-l", "top-4 right-4 border-t border-r",
-        "bottom-4 left-4 border-b border-l", "bottom-4 right-4 border-b border-r"].map((pos, i) => (
-        <div key={i} className={`absolute h-5 w-5 rounded-[3px] border-accent-soft/40 ${pos}`} />
-      ))}
+      {/* corner brackets */}
+      {["left-4 top-4 border-l border-t", "right-4 top-4 border-r border-t", "bottom-4 left-4 border-b border-l", "bottom-4 right-4 border-b border-r"].map(
+        (pos, i) => (
+          <div key={i} className={`absolute h-6 w-6 rounded-[4px] border-ink-50/50 ${pos}`} />
+        )
+      )}
 
-      <svg viewBox="0 0 300 234" className="absolute inset-0 h-full w-full p-9">
+      <svg viewBox="0 0 300 234" className="absolute inset-0 h-full w-full p-8">
         {/* ID card */}
-        <rect x="20" y="60" width="120" height="80" rx="10" fill="#181c28" stroke="#5b6ef5" strokeOpacity="0.45" strokeWidth="1.5" />
-        <circle cx="45" cy="90" r="12" fill="#212637" stroke="#5b6ef5" strokeOpacity="0.55" />
-        <rect x="63" y="82" width="55" height="6" rx="3" fill="#5b6ef5" opacity="0.5" />
-        <rect x="63" y="94" width="40" height="5" rx="2.5" fill="#727a90" opacity="0.6" />
-        <rect x="30" y="112" width="100" height="5" rx="2.5" fill="#727a90" opacity="0.4" />
-        <rect x="30" y="122" width="70" height="5" rx="2.5" fill="#727a90" opacity="0.4" />
-
-        {/* face silhouette */}
-        <g transform="translate(180,40)">
-          <path d="M40 10 C60 10 70 30 70 55 C70 80 58 95 40 95 C22 95 10 80 10 55 C10 30 20 10 40 10Z"
-                fill="none" stroke="#8fa4ff" strokeWidth="1.5" strokeOpacity="0.75" />
-          <circle cx="27" cy="50" r="2.2" fill="#8fa4ff" />
-          <circle cx="53" cy="50" r="2.2" fill="#8fa4ff" />
-          <path d="M28 68 Q40 76 52 68" stroke="#8fa4ff" strokeWidth="1.5" fill="none" strokeLinecap="round" strokeOpacity="0.75" />
-          {[[20,30],[40,22],[60,30],[15,55],[65,55],[25,80],[55,80]].map(([x,y],i) => (
-            <circle key={i} cx={x} cy={y} r="1.6" fill="#8fa4ff" opacity="0.55" />
+        <g opacity="0.95">
+          <rect x="18" y="58" width="124" height="82" rx="10" fill="#10131b" stroke="#9db0ff" strokeOpacity="0.45" strokeWidth="1.2" />
+          <rect x="28" y="72" width="30" height="36" rx="5" fill="#1b1f29" stroke="#9db0ff" strokeOpacity="0.5" strokeWidth="0.8" />
+          <rect x="66" y="76" width="58" height="5" rx="2.5" fill="#9db0ff" opacity="0.55" />
+          <rect x="66" y="88" width="40" height="4" rx="2" fill="#737b91" opacity="0.7" />
+          <rect x="66" y="98" width="48" height="4" rx="2" fill="#737b91" opacity="0.5" />
+          <rect x="28" y="118" width="102" height="4" rx="2" fill="#737b91" opacity="0.4" />
+          <rect x="28" y="127" width="72" height="4" rx="2" fill="#737b91" opacity="0.35" />
+        </g>
+        {/* dashed link between document face and live face */}
+        <path d="M60 90 C 110 40, 150 40, 190 70" stroke="#9db0ff" strokeOpacity="0.35" strokeDasharray="2 4" fill="none" />
+        {/* face mesh */}
+        <g transform="translate(176,34)">
+          <path d="M44 6 C68 6 80 28 80 56 C80 86 64 104 44 104 C24 104 8 86 8 56 C8 28 20 6 44 6Z" fill="none" stroke="#c7d2ff" strokeWidth="1.1" strokeOpacity="0.8" />
+          {[[22, 34, 66, 34], [14, 56, 74, 56], [22, 80, 66, 80], [44, 8, 44, 102], [26, 16, 26, 96], [62, 16, 62, 96]].map(([a, b, c2, d], i) => (
+            <line key={i} x1={a} y1={b} x2={c2} y2={d} stroke="#9db0ff" strokeOpacity="0.14" />
+          ))}
+          <circle cx="30" cy="50" r="2.2" fill="#fff" />
+          <circle cx="58" cy="50" r="2.2" fill="#fff" />
+          <path d="M44 52 L41 68 L47 68" stroke="#c7d2ff" strokeOpacity="0.6" fill="none" />
+          <path d="M32 80 Q44 88 56 80" stroke="#c7d2ff" strokeWidth="1.2" fill="none" strokeLinecap="round" strokeOpacity="0.8" />
+          {[[18, 30], [44, 18], [70, 30], [12, 58], [76, 58], [22, 88], [66, 88], [44, 100]].map(([x, y], i) => (
+            <circle key={i} cx={x} cy={y} r="1.6" fill="#9db0ff" opacity="0.8" />
           ))}
         </g>
       </svg>
 
       {active && (
-        <div
-          className="absolute left-0 right-0 h-20 animate-pulse bg-gradient-to-b from-transparent via-accent/20 to-transparent"
-          style={{ top: "30%" }}
-        />
+        <div className="absolute inset-x-6 top-0 h-px animate-scanY bg-gradient-to-r from-transparent via-ink-50 to-transparent shadow-[0_0_24px_4px_rgba(157,176,255,0.45)]" />
       )}
 
-      <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 items-center gap-1.5 text-[11px] font-medium tracking-wide text-accent-soft/90">
+      <div className="absolute bottom-3.5 left-1/2 flex -translate-x-1/2 items-center gap-2 font-mono text-[10px] uppercase tracking-[0.2em] text-accent-soft">
         <span className="relative flex h-1.5 w-1.5">
           <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-accent-soft opacity-60" />
           <span className="relative inline-flex h-1.5 w-1.5 rounded-full bg-accent-soft" />

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { AnimatePresence, motion } from "framer-motion";
 import {
   Upload, FileText, Camera, ScanFace, CheckCircle2, XCircle, Clock,
   AlertTriangle, RefreshCcw, ArrowRight, Loader2,
@@ -11,6 +12,9 @@ import ScanFrame from "../components/ScanFrame";
 import TrustGauge from "../components/TrustGauge";
 import StatusBadge from "../components/StatusBadge";
 import StepUpPanel from "../components/StepUpPanel";
+import Stage3D from "../components/three/Stage3D";
+import { DocumentFallback, LivenessGuide } from "../components/story/visuals";
+import { MaskLines, PageShell, SysLabel, staggerChild, staggerParent } from "../components/ui/motion";
 
 const STEPS = ["Document", "Face + liveness", "Challenge", "Analysis", "Decision"];
 
@@ -245,330 +249,589 @@ export default function KycFlow() {
   };
 
   return (
-    <div className="relative mx-auto max-w-3xl px-6 py-14">
-      <div className="pointer-events-none absolute inset-0 bg-grid-fade" />
+    <PageShell className="relative mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8 sm:pt-12">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-[520px] grid-overlay opacity-40" />
 
-      <div className="relative mb-12 text-center">
-        <h1 className="font-display text-2xl font-semibold text-ink-100 sm:text-3xl">Identity verification</h1>
-        <p className="mt-2 text-sm text-ink-300">Complete each step to receive your instant risk decision.</p>
-        <div className="mt-8">
+      <div className="relative mb-10 sm:mb-14">
+        <div className="flex flex-col items-start justify-between gap-5 sm:flex-row sm:items-end">
+          <div>
+            <SysLabel live>Secure verification session</SysLabel>
+            <h1 className="mt-4 font-display text-huge font-semibold uppercase text-ink-50">Identity verification</h1>
+          </div>
+          <p className="max-w-xs text-sm text-ink-300">Complete each step to receive your instant risk decision.</p>
+        </div>
+        <div className="mt-10">
           <StepTracker steps={STEPS} currentIndex={stepIndex} />
         </div>
       </div>
 
       {/* STEP 0 — Document upload */}
       {stepIndex === 0 && (
-        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
-          <h2 className="font-display text-lg font-semibold text-ink-100">Upload your ID document</h2>
-          <p className="mt-1 text-sm text-ink-300">We'll extract your details automatically with OCR.</p>
-
-          <div className="mt-6 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
-            {DOC_TYPES.map((d) => (
-              <button
-                key={d.value}
-                onClick={() => setDocType(d.value)}
-                className={`rounded-lg border px-3 py-2.5 text-xs font-medium transition ${
-                  docType === d.value
-                    ? "border-accent/50 bg-accent/10 text-accent-soft"
-                    : "border-white/[0.08] text-ink-300 hover:border-white/[0.15]"
-                }`}
-              >
-                {d.label}
-              </button>
-            ))}
-          </div>
-
-          <label
-            htmlFor="doc-upload"
-            className="mt-6 flex cursor-pointer flex-col items-center justify-center gap-3 rounded-xl border-2 border-dashed border-white/[0.1] bg-void-800/50 px-6 py-10 text-center transition hover:border-accent/30"
-          >
-            {docPreview ? (
-              <img src={docPreview} alt="Document preview" className="max-h-48 rounded-lg object-contain" />
-            ) : (
-              <>
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-accent/10 ring-1 ring-inset ring-accent/25">
-                  <Upload className="h-5 w-5 text-accent-soft" />
-                </div>
-                <div>
-                  <p className="text-sm font-medium text-ink-100">Click to upload a photo of your document</p>
-                  <p className="mt-1 text-xs text-ink-500">JPG or PNG, clear and well-lit</p>
-                </div>
-              </>
-            )}
-            <input id="doc-upload" type="file" accept="image/*" className="hidden" onChange={onFileChange} />
-          </label>
-
-          <div className="mt-4">
-            <label htmlFor="phone-number" className="text-xs font-medium text-ink-500">
-              Mobile number <span className="text-ink-700">(optional)</span>
-            </label>
-            <input
-              id="phone-number"
-              type="tel"
-              value={phoneNumber}
-              onChange={(e) => setPhoneNumber(e.target.value)}
-              placeholder="+91 98765 43210"
-              className="mt-1.5 w-full rounded-lg border border-white/[0.08] bg-void-800/50 px-3.5 py-2.5 text-sm text-ink-100 placeholder:text-ink-700 focus:border-accent/40 focus:outline-none"
+        <motion.div {...stepMotion} className="relative grid grid-cols-1 gap-5 lg:grid-cols-[1.05fr_0.95fr] lg:gap-6">
+          <div className="relative min-h-[400px] overflow-hidden rounded-[1.75rem] border border-white/[0.07] bg-void-850/70 sm:min-h-[420px] lg:min-h-[560px]">
+            <div className="absolute inset-0 grid-overlay opacity-40" />
+            <Stage3D
+              scene="document"
+              className="absolute inset-x-0 bottom-24 top-10 sm:inset-0"
+              sceneProps={{ status: docLoading ? "processing" : docFile ? "ready" : "idle", label: DOC_TYPES.find((d) => d.value === docType)?.label }}
+              fallback={<DocumentFallback className="absolute inset-0" />}
             />
+            {["left-5 top-5 border-l border-t", "right-5 top-5 border-r border-t", "bottom-5 left-5 border-b border-l", "bottom-5 right-5 border-b border-r"].map((pos) => (
+              <div key={pos} className={`pointer-events-none absolute h-7 w-7 rounded-[4px] border-ink-50/50 ${pos}`} />
+            ))}
+            <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-7 pt-6 sm:px-8">
+              <SysLabel live tone={docLoading ? "accent" : docFile ? "emerald" : "muted"}>
+                {docLoading ? "Reading document" : docFile ? "Document detected" : "Awaiting document"}
+              </SysLabel>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-700">Scanner · 01</span>
+            </div>
+            <div className="pointer-events-none absolute inset-x-0 bottom-0 px-7 pb-7 sm:px-8 sm:pb-8">
+              <AnimatePresence mode="wait">
+                <motion.p
+                  key={docLoading ? "l" : docFile ? "d" : "i"}
+                  initial={{ opacity: 0, y: 12, filter: "blur(6px)" }}
+                  animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+                  exit={{ opacity: 0, y: -12, filter: "blur(6px)" }}
+                  transition={{ duration: 0.4 }}
+                  className={`font-display text-2xl font-semibold uppercase leading-[0.95] tracking-tight sm:text-4xl ${docFile && !docLoading ? "text-signal-emerald" : "text-ink-50"}`}
+                >
+                  {docLoading ? (
+                    <>Extracting<br />fields…</>
+                  ) : docFile ? (
+                    <>Document<br />detected</>
+                  ) : (
+                    <>Place your ID<br /><span className="text-ink-500">inside the frame</span></>
+                  )}
+                </motion.p>
+              </AnimatePresence>
+            </div>
           </div>
 
-          {docError && (
-            <div className="mt-4 flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
-              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-              {docError}
+          <div className="glass-panel rounded-[1.75rem] p-5 sm:p-7">
+            <div className="flex items-center justify-between">
+              <span className="eyebrow">01 · Document</span>
+              <FileText className="h-4 w-4 text-ink-500" />
             </div>
-          )}
+            <h2 className="mt-4 font-display text-2xl font-semibold text-ink-50">Upload your ID document</h2>
+            <p className="mt-1.5 text-sm text-ink-300">We'll extract your details automatically with OCR.</p>
 
-          <button
-            onClick={submitDocument}
-            disabled={docLoading || !docFile}
-            className="mt-6 flex w-full items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-40"
-          >
-            {docLoading ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" /> Reading document…
-              </>
-            ) : (
-              <>
-                <FileText className="h-4 w-4" /> Extract & continue
-              </>
+            <div className="mt-6 grid grid-cols-2 gap-2" role="radiogroup" aria-label="Document type">
+              {DOC_TYPES.map((d) => (
+                <button
+                  key={d.value}
+                  onClick={() => setDocType(d.value)}
+                  role="radio"
+                  aria-checked={docType === d.value}
+                  className={`relative rounded-2xl border px-3.5 py-3 text-left text-xs font-medium transition-all duration-300 ${
+                    docType === d.value
+                      ? "border-accent-soft/50 bg-accent/[0.12] text-ink-50 shadow-[0_0_0_4px_rgba(100,120,255,0.08)]"
+                      : "border-white/[0.07] text-ink-300 hover:border-white/[0.16] hover:text-ink-100"
+                  }`}
+                >
+                  <span className={`mb-2 block h-1.5 w-1.5 rounded-full ${docType === d.value ? "bg-accent-soft" : "bg-white/15"}`} />
+                  {d.label}
+                </button>
+              ))}
+            </div>
+
+            <label
+              htmlFor="doc-upload"
+              className="group relative mt-5 flex cursor-pointer flex-col items-center justify-center gap-3 overflow-hidden rounded-2xl border border-dashed border-white/[0.12] bg-white/[0.02] px-6 py-8 text-center transition hover:border-accent-soft/50 hover:bg-accent/[0.04]"
+            >
+              {docPreview ? (
+                <>
+                  <img src={docPreview} alt="Document preview" className="max-h-44 rounded-xl object-contain ring-1 ring-white/10" />
+                  <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-500">Tap to replace</span>
+                </>
+              ) : (
+                <>
+                  <div className="flex h-12 w-12 items-center justify-center rounded-full border border-white/10 bg-white/[0.03] transition group-hover:scale-110 group-hover:border-accent-soft/40">
+                    <Upload className="h-5 w-5 text-accent-soft" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-medium text-ink-100">Click to upload a photo of your document</p>
+                    <p className="mt-1 text-xs text-ink-500">JPG or PNG, clear and well-lit</p>
+                  </div>
+                </>
+              )}
+              <input id="doc-upload" type="file" accept="image/*" className="hidden" onChange={onFileChange} />
+            </label>
+
+            <div className="mt-5">
+              <label htmlFor="phone-number" className="field-label">
+                Mobile number <span className="normal-case tracking-normal text-ink-700">(optional)</span>
+              </label>
+              <input
+                id="phone-number"
+                type="tel"
+                value={phoneNumber}
+                onChange={(e) => setPhoneNumber(e.target.value)}
+                placeholder="+91 98765 43210"
+                className="field"
+              />
+            </div>
+
+            {docError && (
+              <div role="alert" className="alert-danger mt-4">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                {docError}
+              </div>
             )}
-          </button>
-        </div>
+
+            <button onClick={submitDocument} disabled={docLoading || !docFile} className="btn btn-light mt-6 w-full py-3.5">
+              {docLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" /> Reading document…
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4" /> Extract & continue <ArrowRight className="btn-arrow h-4 w-4" />
+                </>
+              )}
+            </button>
+          </div>
+        </motion.div>
       )}
 
       {/* STEP 1 — Face + liveness */}
       {stepIndex === 1 && (
-        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
-          <h2 className="font-display text-lg font-semibold text-ink-100">Face verification & liveness check</h2>
-          <p className="mt-1 text-sm text-ink-300">
-            Look at the camera and stay still — we'll capture a short burst to confirm it's really you, live.
-          </p>
-
-          <div className="mt-6 flex flex-col items-center gap-5">
-            <div className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-void-800 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
-              <video ref={videoRef} className="h-full w-full scale-x-[-1] object-cover" muted playsInline />
-              {!cameraReady && (
-                <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-void-900/80">
-                  <Camera className="h-8 w-8 text-ink-500" />
-                  <p className="max-w-[220px] text-center text-xs text-ink-500">Camera preview will appear here</p>
-                </div>
-              )}
-              {capturing && (
-                <div className="absolute inset-x-0 bottom-0 bg-void-950/70 px-4 py-2 backdrop-blur">
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full bg-accent transition-all duration-300" style={{ width: `${captureProgress}%` }} />
-                  </div>
-                  <p className="mt-1.5 text-center text-[10px] font-medium uppercase tracking-wide text-accent-soft">
-                    capturing burst {captureProgress}%
-                  </p>
-                </div>
-              )}
-              <canvas ref={canvasRef} className="hidden" />
-            </div>
-
-            {cameraError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                {cameraError}
-              </div>
-            )}
-            {faceError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                {faceError}
-              </div>
-            )}
-
-            {!cameraReady ? (
-              <button
-                onClick={startCamera}
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
-              >
-                <Camera className="h-4 w-4" /> Enable camera
-              </button>
-            ) : (
-              <button
-                onClick={captureBurst}
-                disabled={capturing}
-                className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
-              >
-                {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
-                {capturing ? "Capturing…" : "Start liveness capture"}
-              </button>
-            )}
+        <motion.div {...stepMotion} className="relative grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_0.75fr] lg:gap-6">
+          <div className="relative">
+            <CameraViewport
+              videoRef={videoRef}
+              canvasRef={canvasRef}
+              ready={cameraReady}
+              capturing={capturing}
+              progress={captureProgress}
+              frames={BURST_FRAME_COUNT}
+              title="Live biometric capture"
+            />
           </div>
-        </div>
+
+          <div className="glass-panel flex flex-col rounded-[1.75rem] p-5 sm:p-7">
+            <span className="eyebrow">02 · Biometrics</span>
+            <h2 className="mt-4 font-display text-2xl font-semibold text-ink-50">Face verification & liveness check</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-300">
+              Look at the camera and stay still — we'll capture a short burst to confirm it's really you, live.
+            </p>
+
+            {verification && (
+              <div className="mt-5 rounded-2xl border border-signal-emerald/20 bg-signal-emerald/[0.05] p-4">
+                <div className="flex items-center justify-between">
+                  <SysLabel tone="emerald">Document read</SysLabel>
+                  <span className="font-mono text-[11px] text-signal-emerald">{Math.round(verification.ocr_confidence)}% OCR</span>
+                </div>
+                <dl className="mt-3 space-y-1.5">
+                  <MiniRow label="Name" value={verification.ocr_name} />
+                  <MiniRow label="DOB" value={verification.ocr_dob} />
+                  <MiniRow label="Doc no." value={verification.ocr_doc_number} mono />
+                </dl>
+              </div>
+            )}
+
+            <ul className="mt-5 space-y-2 text-xs text-ink-300">
+              {["Face the camera in good light", "Keep your face inside the oval", "Hold still for about two seconds"].map((t, i) => (
+                <li key={t} className="flex items-center gap-3">
+                  <span className="font-mono text-[10px] text-ink-700">0{i + 1}</span>
+                  {t}
+                </li>
+              ))}
+            </ul>
+
+            <div className="mt-auto pt-6">
+              {cameraError && (
+                <div role="alert" className="alert-danger mb-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  {cameraError}
+                </div>
+              )}
+              {faceError && (
+                <div role="alert" className="alert-danger mb-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  {faceError}
+                </div>
+              )}
+
+              {!cameraReady ? (
+                <button onClick={startCamera} className="btn btn-light w-full py-3.5">
+                  <Camera className="h-4 w-4" /> Enable camera
+                </button>
+              ) : (
+                <button onClick={captureBurst} disabled={capturing} className="btn btn-primary w-full py-3.5">
+                  {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
+                  {capturing ? "Capturing…" : "Start liveness capture"}
+                </button>
+              )}
+            </div>
+          </div>
+        </motion.div>
       )}
 
       {/* STEP 2 — Challenge-response liveness (additional module) */}
       {stepIndex === 2 && (
-        <div className="relative rounded-2xl glass-panel p-7 shadow-soft-lg">
-          <h2 className="font-display text-lg font-semibold text-ink-100">One more check — liveness challenge</h2>
-          <p className="mt-1 text-sm text-ink-300">
-            A random action makes this much harder to spoof with a photo or a pre-recorded video than a plain blink check.
-          </p>
+        <motion.div {...stepMotion} className="relative grid grid-cols-1 gap-5 lg:grid-cols-[1.25fr_0.75fr] lg:gap-6">
+          <div className="relative">
+            <CameraViewport
+              videoRef={videoRef}
+              canvasRef={canvasRef}
+              ready
+              capturing={challengeCapturing}
+              progress={challengeProgress}
+              frames={BURST_FRAME_COUNT}
+              title="Live check"
+              verifying={challengeCapturing && challengeProgress === 100}
+            />
+          </div>
 
-          <div className="mt-6 flex flex-col items-center gap-5">
-            <div className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-void-800 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
-              <video ref={videoRef} className="h-full w-full scale-x-[-1] object-cover" muted playsInline />
-              {challengeCapturing && (
-                <div className="absolute inset-x-0 bottom-0 bg-void-950/70 px-4 py-2 backdrop-blur">
-                  <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
-                    <div className="h-full bg-accent transition-all duration-300" style={{ width: `${challengeProgress}%` }} />
-                  </div>
-                  <p className="mt-1.5 text-center text-[10px] font-medium uppercase tracking-wide text-accent-soft">
-                    capturing {challengeProgress}%
-                  </p>
+          <div className="glass-panel flex flex-col rounded-[1.75rem] p-5 sm:p-7">
+            <span className="eyebrow">03 · Liveness challenge</span>
+            <h2 className="mt-4 font-display text-2xl font-semibold text-ink-50">One more check — liveness challenge</h2>
+            <p className="mt-1.5 text-sm leading-relaxed text-ink-300">
+              A random action makes this much harder to spoof with a photo or a pre-recorded video than a plain blink check.
+            </p>
+
+            <div className="mt-6 flex items-center gap-4 rounded-2xl border border-accent-soft/20 bg-accent/[0.06] p-4">
+              <div className="h-24 w-20 flex-shrink-0">
+                {challengeType && (
+                  <LivenessGuide
+                    challenge={challengeType}
+                    phase={challengeCapturing ? "scanning" : "waiting"}
+                    className="h-full w-full"
+                  />
+                )}
+              </div>
+              <div className="min-w-0" aria-live="polite">
+                <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-accent-soft">Your action</span>
+                {challengeLoading ? (
+                  <span className="mt-1 flex items-center gap-2 text-sm text-accent-soft">
+                    <Loader2 className="h-4 w-4 animate-spin" /> Choosing your challenge…
+                  </span>
+                ) : (
+                  <span className="mt-1 block font-display text-xl font-semibold uppercase leading-tight tracking-tight text-ink-50 sm:text-2xl">
+                    {CHALLENGE_LABELS[challengeType] || "Get ready…"}
+                  </span>
+                )}
+              </div>
+            </div>
+
+            <div className="mt-auto pt-6">
+              {challengeError && (
+                <div role="alert" className="alert-danger mb-3">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  {challengeError}
                 </div>
               )}
-              <canvas ref={canvasRef} className="hidden" />
+
+              <button
+                onClick={captureChallengeBurst}
+                disabled={challengeCapturing || challengeLoading || !challengeType}
+                className="btn btn-primary w-full py-3.5"
+              >
+                {challengeCapturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
+                {challengeCapturing ? "Capturing…" : "Perform action & capture"}
+              </button>
             </div>
-
-            <div className="rounded-xl bg-accent/10 px-5 py-3 text-center ring-1 ring-inset ring-accent/25">
-              {challengeLoading ? (
-                <span className="flex items-center gap-2 text-sm text-accent-soft">
-                  <Loader2 className="h-4 w-4 animate-spin" /> Choosing your challenge…
-                </span>
-              ) : (
-                <span className="text-base font-semibold text-accent-soft">
-                  {CHALLENGE_LABELS[challengeType] || "Get ready…"}
-                </span>
-              )}
-            </div>
-
-            {challengeError && (
-              <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
-                <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-                {challengeError}
-              </div>
-            )}
-
-            <button
-              onClick={captureChallengeBurst}
-              disabled={challengeCapturing || challengeLoading || !challengeType}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
-            >
-              {challengeCapturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <ScanFace className="h-4 w-4" />}
-              {challengeCapturing ? "Capturing…" : "Perform action & capture"}
-            </button>
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* STEP 3 — Analysis (brief processing beat) */}
       {stepIndex === 3 && (
-        <div className="flex flex-col items-center gap-6 rounded-2xl glass-panel p-10 text-center shadow-soft-lg">
-          <ScanFrame size={260} active />
-          <div>
-            <h2 className="font-display text-lg font-semibold text-ink-100">Running risk analysis…</h2>
-            <p className="mt-1 text-sm text-ink-300">Combining OCR confidence, face match, liveness and fraud signals.</p>
-          </div>
-          {finalizeError && (
-            <div className="flex items-center gap-2 rounded-lg bg-signal-crimson/10 px-3.5 py-2.5 text-sm text-signal-crimson ring-1 ring-inset ring-signal-crimson/20">
-              <AlertTriangle className="h-4 w-4 flex-shrink-0" />
-              {finalizeError}
-              <button onClick={() => runFinalize(verification.id)} className="ml-2 underline">
-                Retry
-              </button>
+        <motion.div {...stepMotion} className="glass-panel relative overflow-hidden rounded-[1.75rem] p-5 sm:p-10">
+          <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(60%_60%_at_20%_0%,rgba(100,120,255,0.12),transparent_70%)]" />
+          <div className="relative grid grid-cols-1 items-center gap-8 lg:grid-cols-[auto_1fr] lg:gap-12">
+            <div className="flex justify-center">
+              <ScanFrame size={300} active={finalizing || !finalizeError} />
             </div>
-          )}
-        </div>
+            <div>
+              <SysLabel live>Analysis</SysLabel>
+              <h2 className="mt-3 font-display text-big font-semibold uppercase text-ink-50">Running risk analysis…</h2>
+              <p className="mt-2 text-sm text-ink-300">Combining OCR confidence, face match, liveness and fraud signals.</p>
+
+              <motion.ul variants={staggerParent(0.12, 0.1)} initial="hidden" animate="show" className="mt-6 grid grid-cols-1 gap-x-8 gap-y-1 sm:grid-cols-2">
+                {analysisRows(verification, challengeResult, finalizing).map((row) => (
+                  <motion.li key={row.label} variants={staggerChild} className="flex items-center justify-between gap-3 border-b border-white/[0.05] py-2.5">
+                    <span className="flex items-center gap-2.5">
+                      {row.state === "done" ? (
+                        <CheckCircle2 className="h-4 w-4 text-signal-emerald" />
+                      ) : row.state === "fail" ? (
+                        <XCircle className="h-4 w-4 text-signal-crimson" />
+                      ) : (
+                        <Loader2 className="h-4 w-4 animate-spin text-accent-soft" />
+                      )}
+                      <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-ink-300">{row.label}</span>
+                    </span>
+                    <span className="font-mono text-[11px] text-ink-100">{row.value}</span>
+                  </motion.li>
+                ))}
+              </motion.ul>
+
+              {finalizeError && (
+                <div role="alert" className="alert-danger mt-5">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>{finalizeError}</span>
+                  <button onClick={() => runFinalize(verification.id)} className="ml-auto font-semibold underline underline-offset-2">
+                    Retry
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+        </motion.div>
       )}
 
       {/* STEP 4 — Decision */}
       {stepIndex === 4 && verification && (
-        <div className="rounded-2xl glass-panel p-7 shadow-soft-lg">
-          <div className="flex flex-col items-center border-b border-white/[0.06] pb-8 text-center">
-            <TrustGauge riskScore={verification.risk_score} band={verification.risk_band} size={190} />
-            <div className="mt-4">
-              <StatusBadge status={verification.status} />
+        <motion.div {...stepMotion} className="relative">
+          <DecisionHero verification={verification} />
+
+          <div className="mt-5 grid grid-cols-1 gap-5 lg:grid-cols-[auto_1fr]">
+            <div className="glass-panel flex flex-col items-center justify-center rounded-[1.75rem] px-8 py-8 sm:px-12">
+              <TrustGauge riskScore={verification.risk_score} band={verification.risk_band} size={220} />
+              <div className="mt-5">
+                <StatusBadge status={verification.status} />
+              </div>
             </div>
-          </div>
 
-          <div className="grid grid-cols-2 gap-4 py-7 sm:grid-cols-4">
-            <Metric label="OCR confidence" value={`${Math.round(verification.ocr_confidence)}%`} />
-            <Metric label="Face match" value={`${Math.round(verification.face_match_score)}%`} />
-            <Metric label="Liveness" value={`${Math.round(verification.liveness_score)}%`} />
-            <Metric label="Doc authenticity" value={`${Math.round(verification.document_authenticity_score)}%`} />
-          </div>
+            <div className="glass-panel rounded-[1.75rem] p-5 sm:p-7">
+              <span className="eyebrow">Signals</span>
+              <div className="mt-4 grid grid-cols-2 gap-2.5 sm:grid-cols-4">
+                <Metric label="OCR confidence" value={`${Math.round(verification.ocr_confidence)}%`} />
+                <Metric label="Face match" value={`${Math.round(verification.face_match_score)}%`} />
+                <Metric label="Liveness" value={`${Math.round(verification.liveness_score)}%`} />
+                <Metric label="Doc authenticity" value={`${Math.round(verification.document_authenticity_score)}%`} />
+              </div>
+              <div className="mt-2.5 grid grid-cols-2 gap-2.5 sm:grid-cols-3">
+                <Metric
+                  label={`Challenge: ${challengeType ? challengeType.replace("_", " ") : "—"}`}
+                  value={verification.challenge_passed ? "Passed" : "Failed"}
+                />
+                <Metric label="Trust score" value={`${Math.round(verification.trust_score)}/100`} />
+                <Metric label="Fraud network" value={verification.fraud_network_flag ? `${verification.fraud_network_size} linked` : "Clean"} />
+              </div>
 
-          <div className="grid grid-cols-2 gap-4 pb-7 sm:grid-cols-3">
-            <Metric
-              label={`Challenge: ${challengeType ? challengeType.replace("_", " ") : "—"}`}
-              value={verification.challenge_passed ? "Passed" : "Failed"}
-            />
-            <Metric label="Trust score" value={`${Math.round(verification.trust_score)}/100`} />
-            <Metric label="Fraud network" value={verification.fraud_network_flag ? `${verification.fraud_network_size} linked` : "Clean"} />
-          </div>
+              <div className="mt-5 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 sm:p-5">
+                <h3 className="eyebrow">Extracted details</h3>
+                <dl className="mt-3 grid grid-cols-1 gap-x-6 sm:grid-cols-2">
+                  <DetailRow label="Name" value={verification.ocr_name} />
+                  <DetailRow label="Date of birth" value={verification.ocr_dob} />
+                  <DetailRow label="Document number" value={verification.ocr_doc_number} mono />
+                  <DetailRow label="Address" value={verification.ocr_address} />
+                </dl>
+              </div>
 
-          <div className="rounded-xl bg-void-800/60 p-5">
-            <h3 className="font-display text-sm font-semibold text-ink-100">Extracted details</h3>
-            <dl className="mt-3 grid grid-cols-1 gap-2.5 sm:grid-cols-2">
-              <DetailRow label="Name" value={verification.ocr_name} />
-              <DetailRow label="Date of birth" value={verification.ocr_dob} />
-              <DetailRow label="Document number" value={verification.ocr_doc_number} mono />
-              <DetailRow label="Address" value={verification.ocr_address} />
-            </dl>
-          </div>
-
-          {verification.fraud_notes && (
-            <div className="mt-5 flex items-start gap-2.5 rounded-xl bg-void-800/60 p-4 text-sm text-ink-300">
-              {verification.status === "approved" ? (
-                <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-emerald" />
-              ) : verification.status === "rejected" ? (
-                <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-crimson" />
-              ) : (
-                <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-amber" />
+              {verification.fraud_notes && (
+                <div className="mt-4 flex items-start gap-3 rounded-2xl border border-white/[0.06] bg-white/[0.02] p-4 text-sm text-ink-300">
+                  {verification.status === "approved" ? (
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-emerald" />
+                  ) : verification.status === "rejected" ? (
+                    <XCircle className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-crimson" />
+                  ) : (
+                    <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-amber" />
+                  )}
+                  <span>{verification.fraud_notes}</span>
+                </div>
               )}
-              <span>{verification.fraud_notes}</span>
             </div>
-          )}
+          </div>
 
           {verification.step_up_action !== "none" && (
             <StepUpPanel verification={verification} onResolved={(updated) => setVerification(updated)} />
           )}
 
-          <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-            <button
-              onClick={() => navigate(`/verification-progress/${verification.id}`)}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/40 bg-accent/10 px-5 py-3 text-sm font-semibold text-accent-soft transition hover:bg-accent/20"
-            >
+          <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+            <button onClick={() => navigate(`/verification-progress/${verification.id}`)} className="btn btn-ghost flex-1 py-3.5">
               View full report
             </button>
-            <button
-              onClick={() => navigate("/dashboard")}
-              className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-5 py-3 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
-            >
-              Go to dashboard <ArrowRight className="h-4 w-4" />
+            <button onClick={() => navigate("/dashboard")} className="btn btn-light flex-1 py-3.5">
+              Go to dashboard <ArrowRight className="btn-arrow h-4 w-4" />
             </button>
-            <button
-              onClick={restart}
-              className="flex items-center justify-center gap-2 rounded-lg border border-white/[0.08] px-5 py-3 text-sm font-medium text-ink-300 transition hover:border-white/[0.15] hover:text-ink-100"
-            >
+            <button onClick={restart} className="btn btn-ghost py-3.5 text-ink-300">
               <RefreshCcw className="h-4 w-4" /> Verify another document
             </button>
           </div>
+        </motion.div>
+      )}
+    </PageShell>
+  );
+}
+
+/* ------------------------------------------------------------------ */
+/* Presentational helpers                                              */
+/* ------------------------------------------------------------------ */
+
+const stepMotion = {
+  initial: { opacity: 0, y: 24, filter: "blur(8px)" },
+  animate: { opacity: 1, y: 0, filter: "blur(0px)" },
+  transition: { duration: 0.6, ease: [0.22, 1, 0.36, 1] },
+};
+
+/**
+ * Camera viewport chrome around the existing <video>/<canvas> refs. The
+ * refs, element types and mount timing are exactly as before - this only
+ * draws brackets, the face guide and the capture counter on top.
+ */
+function CameraViewport({ videoRef, canvasRef, ready, capturing, progress, frames, title, verifying = false }) {
+  const frame = Math.round((progress / 100) * frames);
+  return (
+    <div className="relative w-full overflow-hidden rounded-[1.75rem] bg-void-950 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
+      <video ref={videoRef} className="h-full w-full scale-x-[-1] object-cover" muted playsInline />
+
+      {/* vignette + face guide */}
+      <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_34%_44%_at_50%_48%,transparent_96%,rgba(4,5,8,0.55)_100%)]" />
+      <svg viewBox="0 0 400 300" className="pointer-events-none absolute inset-0 h-full w-full" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+        <ellipse
+          cx="200" cy="144" rx="82" ry="108"
+          fill="none"
+          stroke={capturing ? "#35d99a" : "rgba(238,240,246,0.55)"}
+          strokeWidth="1.2"
+          strokeDasharray={capturing ? "0" : "3 6"}
+          style={{ transition: "stroke .4s ease" }}
+        />
+        {capturing &&
+          Array.from({ length: 24 }).map((_, i) => {
+            const a = (i / 24) * Math.PI * 2;
+            return <circle key={i} cx={200 + Math.cos(a) * 82} cy={144 + Math.sin(a) * 108} r="1.4" fill="#35d99a" opacity={i / 24 <= progress / 100 ? 1 : 0.2} />;
+          })}
+        <path d="M194 144h12M200 138v12" stroke="rgba(238,240,246,0.35)" />
+      </svg>
+
+      {["left-4 top-4 border-l-2 border-t-2", "right-4 top-4 border-r-2 border-t-2", "bottom-4 left-4 border-b-2 border-l-2", "bottom-4 right-4 border-b-2 border-r-2"].map((pos) => (
+        <div
+          key={pos}
+          className={`pointer-events-none absolute h-7 w-7 rounded-[5px] transition-colors duration-500 ${capturing ? "border-signal-emerald" : "border-ink-50/70"} ${pos}`}
+        />
+      ))}
+
+      {/* top bar */}
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-center justify-between px-5 pt-5 sm:px-6">
+        <span className="flex items-center gap-2 rounded-full bg-void-950/70 px-3 py-1.5 font-mono text-[10px] uppercase tracking-[0.2em] text-ink-100 backdrop-blur">
+          <span className={`h-1.5 w-1.5 rounded-full ${ready ? "animate-blink bg-signal-crimson" : "bg-ink-700"}`} />
+          {ready ? "Live" : "Offline"}
+        </span>
+        <span className="hidden font-mono text-[10px] uppercase tracking-[0.2em] text-ink-300 sm:block">{title}</span>
+      </div>
+
+      {!ready && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-void-900/85">
+          <Camera className="h-8 w-8 text-ink-500" />
+          <p className="max-w-[240px] text-center text-xs text-ink-500">Camera preview will appear here</p>
         </div>
       )}
+
+      {/* scan line */}
+      {capturing && <div className="pointer-events-none absolute inset-x-[18%] top-0 h-px animate-scanY bg-gradient-to-r from-transparent via-signal-emerald to-transparent" />}
+
+      {/* bottom status */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-void-950/90 to-transparent px-5 pb-5 pt-12 sm:px-6" aria-live="polite">
+        {capturing ? (
+          <div className="flex items-end justify-between gap-4">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.22em] text-signal-emerald">
+                {verifying ? "Verifying motion…" : "Capturing"}
+              </p>
+              <p className="mt-1 font-display text-3xl font-semibold tabular-nums text-ink-50 sm:text-4xl">
+                {String(frame).padStart(2, "0")} <span className="text-ink-500">/ {String(frames).padStart(2, "0")}</span>
+              </p>
+            </div>
+            <div className="flex gap-1.5 pb-2">
+              {Array.from({ length: frames }).map((_, i) => (
+                <span key={i} className={`h-1.5 w-6 rounded-full transition-colors duration-300 sm:w-8 ${i < frame ? "bg-signal-emerald" : "bg-white/15"}`} />
+              ))}
+            </div>
+          </div>
+        ) : ready ? (
+          <p className="text-center font-display text-base font-semibold uppercase tracking-tight text-ink-50 sm:text-lg">
+            Position your face inside the frame
+          </p>
+        ) : null}
+      </div>
+      <canvas ref={canvasRef} className="hidden" />
+    </div>
+  );
+}
+
+/** Analysis checklist - every value comes from existing state, nothing invented. */
+function analysisRows(verification, challengeResult, finalizing) {
+  const pct = (v) => (typeof v === "number" ? `${Math.round(v)}%` : "—");
+  const done = (v) => (typeof v === "number" ? "done" : "pending");
+  const v = verification || {};
+  return [
+    { label: "Document · OCR", value: pct(v.ocr_confidence), state: done(v.ocr_confidence) },
+    { label: "Authenticity", value: pct(v.document_authenticity_score), state: done(v.document_authenticity_score) },
+    { label: "Forgery", value: typeof v.forgery_score === "number" ? `${Math.round(v.forgery_score)}% risk` : "—", state: done(v.forgery_score) },
+    { label: "Face match", value: pct(v.face_match_score), state: done(v.face_match_score) },
+    { label: "Liveness", value: pct(v.liveness_score), state: done(v.liveness_score) },
+    {
+      label: "Challenge",
+      value: challengeResult ? `${challengeResult.passed ? "Passed" : "Failed"} · ${Math.round(challengeResult.confidence)}%` : "—",
+      state: challengeResult ? (challengeResult.passed ? "done" : "fail") : "pending",
+    },
+    { label: "Device & geo", value: "Signal sent", state: "done" },
+    { label: "Risk & fraud network", value: finalizing ? "Computing…" : typeof v.risk_score === "number" ? "Computed" : "—", state: finalizing ? "pending" : typeof v.risk_score === "number" ? "done" : "pending" },
+  ];
+}
+
+/** Large cinematic decision headline, derived only from the real status. */
+function DecisionHero({ verification }) {
+  const stepUpOpen = verification.step_up_action && verification.step_up_action !== "none" && verification.step_up_status !== "completed";
+  const cfg =
+    verification.status === "approved"
+      ? { lines: ["Identity", "verified."], tone: "text-signal-emerald", glow: "rgba(53,217,154,0.16)", Icon: CheckCircle2 }
+      : verification.status === "rejected"
+      ? { lines: ["Verification", "declined."], tone: "text-signal-crimson", glow: "rgba(255,84,104,0.14)", Icon: XCircle }
+      : stepUpOpen
+      ? { lines: ["Additional", "verification required."], tone: "text-signal-amber", glow: "rgba(243,173,75,0.14)", Icon: Clock }
+      : { lines: ["Additional review", "required."], tone: "text-signal-amber", glow: "rgba(243,173,75,0.14)", Icon: Clock };
+  const { Icon } = cfg;
+  return (
+    <div className="relative overflow-hidden rounded-[1.75rem] border border-white/[0.07] px-5 py-10 sm:px-10 sm:py-14">
+      <div className="pointer-events-none absolute inset-0" style={{ background: `radial-gradient(70% 90% at 15% 0%, ${cfg.glow}, transparent 70%)` }} />
+      <div className="relative flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
+        <div>
+          <SysLabel tone={verification.status === "approved" ? "emerald" : verification.status === "rejected" ? "crimson" : "amber"}>
+            Decision · <span className="text-ink-500">{String(verification.id).slice(0, 8)}</span>
+          </SysLabel>
+          <h2 className={`mt-4 font-display font-semibold uppercase ${cfg.lines.join(" ").length > 22 ? "text-huge" : "text-giant"} ${cfg.tone}`}>
+            <MaskLines lines={cfg.lines} delay={0.1} />
+          </h2>
+        </div>
+        <motion.div
+          initial={{ scale: 0, rotate: -30 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", stiffness: 260, damping: 16, delay: 0.35 }}
+          className={`hidden h-20 w-20 flex-shrink-0 items-center justify-center rounded-full border border-current sm:flex ${cfg.tone}`}
+        >
+          <Icon className="h-9 w-9" />
+        </motion.div>
+      </div>
+    </div>
+  );
+}
+
+function MiniRow({ label, value, mono }) {
+  return (
+    <div className="flex items-center justify-between gap-3 text-xs">
+      <dt className="text-ink-500">{label}</dt>
+      <dd className={`truncate text-ink-100 ${mono ? "font-mono" : ""}`}>{value || "—"}</dd>
     </div>
   );
 }
 
 function Metric({ label, value }) {
   return (
-    <div className="rounded-xl bg-void-800/60 px-3 py-3.5 text-center">
-      <p className="font-display text-lg font-semibold text-ink-100">{value}</p>
-      <p className="mt-0.5 text-[10px] uppercase tracking-wide text-ink-500">{label}</p>
+    <div className="rounded-2xl border border-white/[0.06] bg-white/[0.02] px-3.5 py-3.5">
+      <p className="font-display text-xl font-semibold tabular-nums text-ink-50">{value}</p>
+      <p className="mt-1 font-mono text-[9.5px] uppercase tracking-[0.14em] text-ink-500">{label}</p>
     </div>
   );
 }
 
 function DetailRow({ label, value, mono }) {
   return (
-    <div className="flex items-center justify-between gap-3 border-b border-white/[0.04] py-1.5 last:border-0 sm:last:border-b sm:odd:border-r-0">
-      <span className="text-xs text-ink-500">{label}</span>
-      <span className={`text-sm text-ink-100 ${mono ? "font-mono" : ""}`}>{value || "—"}</span>
+    <div className="flex items-center justify-between gap-3 border-b border-white/[0.05] py-2.5">
+      <dt className="text-xs text-ink-500">{label}</dt>
+      <dd className={`text-right text-sm text-ink-100 ${mono ? "font-mono" : ""}`}>{value || "—"}</dd>
     </div>
   );
 }

@@ -45,9 +45,11 @@ export default function StepUpPanel({ verification, onResolved }) {
 
   if (verification.step_up_action === "none" || status === "completed") {
     return status === "completed" ? (
-      <div className="mt-5 flex items-center gap-2.5 rounded-xl bg-signal-emerald/10 px-4 py-3.5 text-sm text-signal-emerald ring-1 ring-inset ring-signal-emerald/20">
-        <CheckCircle2 className="h-4 w-4 flex-shrink-0" />
-        Step-up verification complete — decision updated.
+      <div role="status" className="mt-6 flex items-center gap-3 rounded-2xl border border-signal-emerald/25 bg-signal-emerald/[0.07] px-5 py-4 text-sm text-signal-emerald">
+        <span className="flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full bg-signal-emerald/15">
+          <CheckCircle2 className="h-4 w-4" />
+        </span>
+        <span className="font-medium">Step-up verification complete — decision updated.</span>
       </div>
     ) : null;
   }
@@ -144,32 +146,28 @@ export default function StepUpPanel({ verification, onResolved }) {
   };
 
   return (
-    <div className="mt-5 rounded-2xl border border-signal-amber/20 bg-signal-amber/[0.05] p-5">
-      <div className="flex items-start gap-2.5">
-        <div className="mt-0.5 flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-lg bg-signal-amber/15">
+    <div className="relative mt-6 overflow-hidden rounded-[1.4rem] border border-signal-amber/25 bg-gradient-to-b from-signal-amber/[0.07] to-transparent p-5 sm:p-6">
+      <div className="pointer-events-none absolute -right-16 -top-16 h-40 w-40 rounded-full bg-signal-amber/10 blur-3xl" />
+      <div className="relative flex items-start gap-3.5">
+        <div className="mt-0.5 flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-xl bg-signal-amber/15 ring-1 ring-inset ring-signal-amber/30">
           <AlertTriangle className="h-4 w-4 text-signal-amber" />
         </div>
         <div>
-          <h3 className="font-display text-sm font-semibold text-ink-100">Additional verification required</h3>
-          <p className="mt-1 text-xs leading-relaxed text-ink-300">{reason}</p>
+          <p className="font-mono text-[10px] uppercase tracking-[0.2em] text-signal-amber">Checkpoint</p>
+          <h3 className="mt-1 font-display text-lg font-semibold uppercase tracking-tight text-ink-50">Additional verification required</h3>
+          <p className="mt-1.5 text-sm leading-relaxed text-ink-300">{reason}</p>
         </div>
       </div>
 
       {/* ---- second_factor: choose OTP or repeat selfie ---- */}
       {verification.step_up_action === "second_factor" && status !== "failed" && (
-        <div className="mt-4">
+        <div className="relative mt-5">
           {!method && (
-            <div className="flex flex-col gap-2.5 sm:flex-row">
-              <button
-                onClick={() => setMethod("otp")}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent-soft transition hover:bg-accent/15"
-              >
+            <div className="grid grid-cols-1 gap-2.5 sm:grid-cols-2">
+              <button onClick={() => setMethod("otp")} className="btn btn-accent-ghost w-full rounded-2xl py-3.5">
                 <KeyRound className="h-4 w-4" /> Verify with OTP
               </button>
-              <button
-                onClick={() => setMethod("selfie")}
-                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent-soft transition hover:bg-accent/15"
-              >
+              <button onClick={() => setMethod("selfie")} className="btn btn-accent-ghost w-full rounded-2xl py-3.5">
                 <Camera className="h-4 w-4" /> Retake selfie
               </button>
             </div>
@@ -178,95 +176,90 @@ export default function StepUpPanel({ verification, onResolved }) {
           {method === "otp" && (
             <div className="mt-1">
               {!otpSent ? (
-                <button
-                  onClick={requestOtp}
-                  disabled={otpLoading}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
-                >
+                <button onClick={requestOtp} disabled={otpLoading} className="btn btn-primary">
                   {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <KeyRound className="h-4 w-4" />} Send OTP
                 </button>
               ) : (
-                <div className="flex flex-col gap-2.5">
+                <div className="flex flex-col gap-3">
                   {devOtp && (
                     <p className="text-xs text-ink-500">
                       No SMS/email provider configured in this build — your test OTP is{" "}
                       <span className="font-mono text-accent-soft">{devOtp}</span>.
                     </p>
                   )}
-                  <div className="flex gap-2">
+                  <div className="flex flex-col gap-2 xs:flex-row">
                     <input
                       value={otpValue}
                       onChange={(e) => setOtpValue(e.target.value.replace(/\D/g, "").slice(0, 6))}
                       placeholder="6-digit OTP"
-                      className="w-32 rounded-lg border border-white/[0.1] bg-void-800 px-3 py-2 text-sm text-ink-100 outline-none transition focus:border-accent/50"
+                      aria-label="One-time password"
+                      inputMode="numeric"
+                      className="field font-mono tracking-[0.4em] xs:w-44"
                     />
-                    <button
-                      onClick={verifyOtp}
-                      disabled={otpLoading || otpValue.length < 4}
-                      className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-50"
-                    >
+                    <button onClick={verifyOtp} disabled={otpLoading || otpValue.length < 4} className="btn btn-primary">
                       {otpLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : "Verify"}
                     </button>
                   </div>
                 </div>
               )}
-              {otpError && <p className="mt-2 text-xs text-signal-crimson">{otpError}</p>}
+              {otpError && <p role="alert" className="mt-2.5 text-xs text-signal-crimson">{otpError}</p>}
             </div>
           )}
 
           {method === "selfie" && (
-            <div className="mt-1 flex flex-col items-center gap-3">
-              <div className="relative w-full max-w-xs overflow-hidden rounded-xl bg-void-800 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
+            <div className="mt-1 flex flex-col items-center gap-4">
+              <div className="relative w-full max-w-sm overflow-hidden rounded-2xl bg-void-850 ring-1 ring-white/[0.08]" style={{ aspectRatio: "4/3" }}>
                 <video ref={videoRef} className="h-full w-full scale-x-[-1] object-cover" muted playsInline />
+                {["left-3 top-3 border-l border-t", "right-3 top-3 border-r border-t", "bottom-3 left-3 border-b border-l", "bottom-3 right-3 border-b border-r"].map((pos) => (
+                  <div key={pos} className={`pointer-events-none absolute h-5 w-5 rounded-[3px] border-ink-50/60 ${pos}`} />
+                ))}
                 {!cameraReady && (
-                  <div className="absolute inset-0 flex items-center justify-center bg-void-900/80">
+                  <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-void-900/85">
                     <Camera className="h-6 w-6 text-ink-500" />
+                    <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">Camera offline</span>
                   </div>
+                )}
+                {capturing && (
+                  <div className="absolute inset-x-6 top-0 h-px animate-scanY bg-gradient-to-r from-transparent via-ink-50 to-transparent" />
                 )}
                 <canvas ref={canvasRef} className="hidden" />
               </div>
               {!cameraReady ? (
-                <button onClick={startCamera} className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow">
+                <button onClick={startCamera} className="btn btn-primary">
                   <Camera className="h-4 w-4" /> Enable camera
                 </button>
               ) : (
-                <button
-                  onClick={captureAndSubmitSelfie}
-                  disabled={capturing}
-                  className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow disabled:opacity-50"
-                >
+                <button onClick={captureAndSubmitSelfie} disabled={capturing} className="btn btn-primary">
                   {capturing ? <Loader2 className="h-4 w-4 animate-spin" /> : <Camera className="h-4 w-4" />}
                   {capturing ? "Capturing…" : "Capture & verify"}
                 </button>
               )}
-              {selfieError && <p className="text-xs text-signal-crimson">{selfieError}</p>}
+              {selfieError && <p role="alert" className="text-center text-xs text-signal-crimson">{selfieError}</p>}
             </div>
           )}
         </div>
       )}
 
       {status === "failed" && (
-        <p className="mt-3 text-xs text-signal-crimson">
+        <p role="alert" className="relative mt-4 text-xs text-signal-crimson">
           {selfieError || "This step-up attempt didn't pass. This verification is now held for manual/admin review."}
         </p>
       )}
 
       {/* ---- video_kyc ---- */}
       {verification.step_up_action === "video_kyc" && (
-        <div className="mt-4">
+        <div className="relative mt-5">
           {!queueEntry ? (
-            <button
-              onClick={requestVideoKyc}
-              disabled={queueLoading}
-              className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110 disabled:opacity-50"
-            >
+            <button onClick={requestVideoKyc} disabled={queueLoading} className="btn btn-primary">
               {queueLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Video className="h-4 w-4" />} Join video-KYC queue
             </button>
           ) : (
-            <div className="flex items-center gap-2.5 rounded-lg bg-void-800/60 px-4 py-3 text-sm text-ink-300">
-              <Clock className="h-4 w-4 flex-shrink-0 text-signal-amber" />
-              You're in the queue ({queueEntry.status.replace("_", " ")}) — an agent will call you shortly. You'll be
-              notified once the call is complete.
+            <div role="status" className="flex items-start gap-3 rounded-2xl border border-white/[0.07] bg-white/[0.03] px-4 py-3.5 text-sm text-ink-300">
+              <Clock className="mt-0.5 h-4 w-4 flex-shrink-0 text-signal-amber" />
+              <span>
+                You're in the queue ({queueEntry.status.replace("_", " ")}) — an agent will call you shortly. You'll be
+                notified once the call is complete.
+              </span>
             </div>
           )}
         </div>

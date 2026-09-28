@@ -1,80 +1,170 @@
-import { useEffect, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import { animate, useReducedMotion } from "framer-motion";
 
 /**
- * TrustGauge — the signature visual element of Securix.
- * Renders the *trust* score (100 - risk) as an arc: full accent arc = fully
- * trusted, arc recedes and shifts to amber/crimson as risk climbs.
+ * TrustGauge - the signature instrument of Securix.
+ * Renders the *trust* score (100 - risk) as a precision ring: a tick
+ * bezel that fills with trust, a primary arc, a counter-rotating inner
+ * reticle and an orbiting marker at the arc head. Arc recedes and shifts
+ * to amber/crimson as risk climbs. Same inputs, same number, same band.
  */
 export default function TrustGauge({ riskScore = 0, band = "", size = 180, label = "Trust score" }) {
   const trust = Math.max(0, Math.min(100, 100 - riskScore));
   const [animated, setAnimated] = useState(0);
+  const gid = useId().replace(/:/g, "");
+  const reduce = useReducedMotion();
+  const from = useRef(0);
 
+  // one tween drives arc, ticks, head marker and number together;
+  // it always settles on exactly `trust`
   useEffect(() => {
-    const t = setTimeout(() => setAnimated(trust), 100);
-    return () => clearTimeout(t);
-  }, [trust]);
+    if (reduce) {
+      setAnimated(trust);
+      return;
+    }
+    let controls;
+    const t = setTimeout(() => {
+      controls = animate(from.current, trust, {
+        duration: 1.4,
+        ease: [0.22, 1, 0.36, 1],
+        onUpdate: (v) => {
+          from.current = v;
+          setAnimated(v);
+        },
+        onComplete: () => setAnimated(trust),
+      });
+    }, 100);
+    return () => {
+      clearTimeout(t);
+      controls?.stop();
+    };
+  }, [trust, reduce]);
 
-  const stroke = Math.max(6, Math.round(size * 0.058));
-  const radius = (size - stroke) / 2;
+  const stroke = Math.max(5, Math.round(size * 0.042));
+  const radius = size / 2 - stroke - size * 0.085;
   const circumference = 2 * Math.PI * radius;
   const arcFraction = 300 / 360; // 300-degree gauge, 60-degree gap at bottom
   const dash = circumference * arcFraction;
   const filled = dash * (animated / 100);
   const scale = size / 180;
 
-  const color =
-    band === "high"
-      ? "#f2495c"
-      : band === "medium"
-      ? "#f0a63a"
-      : "#5b6ef5";
+  const color = band === "high" ? "#ff5468" : band === "medium" ? "#f3ad4b" : "#35d99a";
+  const tier = band === "high" ? "Low trust" : band === "medium" ? "Medium trust" : band ? "High trust" : "";
+
+  // tick bezel
+  const ticks = 60;
+  const tickR1 = size / 2 - 2;
+  const tickR0 = tickR1 - size * 0.045;
+  const c = size / 2;
+  const startDeg = 120; // matches the arc start after rotation
+  const headDeg = startDeg + 300 * (animated / 100);
+  const head = {
+    x: c + radius * Math.cos((headDeg * Math.PI) / 180),
+    y: c + radius * Math.sin((headDeg * Math.PI) / 180),
+  };
 
   return (
     <div className="flex flex-col items-center" style={{ width: size }}>
       <div className="relative" style={{ width: size, height: size }}>
-        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="-rotate-[150deg]">
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke="#1b2130"
-            strokeWidth={stroke}
-            strokeDasharray={`${dash} ${circumference}`}
-            strokeLinecap="round"
-          />
-          <circle
-            cx={size / 2}
-            cy={size / 2}
-            r={radius}
-            fill="none"
-            stroke={color}
-            strokeWidth={stroke}
-            strokeDasharray={`${filled} ${circumference}`}
-            strokeLinecap="round"
-            style={{
-              transition: "stroke-dasharray 1.1s cubic-bezier(.22,1,.36,1), stroke 0.5s ease",
-              filter: `drop-shadow(0 0 10px ${color}66)`,
-            }}
-          />
+        {/* ambient bloom behind the instrument */}
+        <div
+          className="absolute inset-[18%] rounded-full blur-2xl transition-colors duration-700"
+          style={{ background: `${color}22` }}
+        />
+        <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="relative">
+          <defs>
+            <linearGradient id={`g${gid}`} x1="0" y1="1" x2="1" y2="0">
+              <stop offset="0%" stopColor={color} stopOpacity="0.55" />
+              <stop offset="100%" stopColor={color} />
+            </linearGradient>
+          </defs>
+
+          {/* tick bezel */}
+          {Array.from({ length: ticks }).map((_, i) => {
+            const deg = startDeg + (300 / (ticks - 1)) * i;
+            const rad = (deg * Math.PI) / 180;
+            const lit = (i / (ticks - 1)) * 100 <= animated && animated > 0;
+            const major = i % 5 === 0;
+            const r0 = major ? tickR0 - size * 0.015 : tickR0;
+            return (
+              <line
+                key={i}
+                x1={c + r0 * Math.cos(rad)}
+                y1={c + r0 * Math.sin(rad)}
+                x2={c + tickR1 * Math.cos(rad)}
+                y2={c + tickR1 * Math.sin(rad)}
+                stroke={lit ? color : "rgba(255,255,255,0.12)"}
+                strokeOpacity={lit ? (major ? 0.95 : 0.6) : 1}
+                strokeWidth={major ? 1.4 : 1}
+              />
+            );
+          })}
+
+          <g transform={`rotate(120 ${c} ${c})`}>
+            <circle
+              cx={c}
+              cy={c}
+              r={radius}
+              fill="none"
+              stroke="rgba(255,255,255,0.07)"
+              strokeWidth={stroke}
+              strokeDasharray={`${dash} ${circumference}`}
+              strokeLinecap="round"
+            />
+            <circle
+              cx={c}
+              cy={c}
+              r={radius}
+              fill="none"
+              stroke={`url(#g${gid})`}
+              strokeWidth={stroke}
+              strokeDasharray={`${filled} ${circumference}`}
+              strokeLinecap="round"
+            />
+          </g>
+
+          {/* inner reticle */}
+          <g className="origin-center animate-spinSlow" style={{ transformOrigin: `${c}px ${c}px` }}>
+            <circle cx={c} cy={c} r={radius - stroke * 2.2} fill="none" stroke="rgba(255,255,255,0.1)" strokeWidth="1" strokeDasharray="1.5 5" />
+          </g>
+
+          {/* orbiting head marker */}
+          {animated > 0 && (
+            <g>
+              <circle cx={head.x} cy={head.y} r={stroke * 1.05} fill="#07080c" stroke={color} strokeWidth={1.5} />
+              <circle cx={head.x} cy={head.y} r={stroke * 0.38} fill={color} />
+            </g>
+          )}
         </svg>
+
         <div className="absolute inset-0 flex flex-col items-center justify-center px-2">
           <span
-            className="font-display font-semibold tabular-nums leading-none"
-            style={{ color, fontSize: `${Math.round(34 * scale)}px` }}
+            className="font-mono uppercase text-ink-500"
+            style={{ fontSize: `${Math.max(8, Math.round(9 * scale))}px`, letterSpacing: "0.22em" }}
+          >
+            Trust
+          </span>
+          <span
+            className="font-display font-semibold tabular-nums leading-none tracking-tight text-ink-50"
+            style={{ fontSize: `${Math.round(46 * scale)}px`, marginTop: `${Math.round(4 * scale)}px` }}
           >
             {Math.round(animated)}
           </span>
           <span
-            className="mt-1.5 text-center uppercase leading-tight tracking-wide text-ink-500"
-            style={{ fontSize: `${Math.max(9, Math.round(10 * scale))}px` }}
+            className="mt-2 text-center uppercase leading-tight text-ink-500"
+            style={{ fontSize: `${Math.max(7, Math.round(8 * scale))}px`, letterSpacing: "0.14em", maxWidth: `${Math.round(radius * 1.2)}px` }}
           >
             {label}
           </span>
         </div>
       </div>
-      <div className="mt-3 text-xs font-medium uppercase tracking-wide" style={{ color }}>
-        {band ? `${band} risk` : "—"}
+      <div className="mt-3 flex flex-col items-center gap-1">
+        {tier && (
+          <span className="font-display text-sm font-semibold uppercase tracking-[0.14em]" style={{ color }}>
+            {tier}
+          </span>
+        )}
+        <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">{band ? `${band} risk` : "—"}</span>
       </div>
     </div>
   );

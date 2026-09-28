@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { motion } from "framer-motion";
 import {
   ScanFace, FileText, Calendar, ArrowRight, Inbox,
   QrCode, ShieldCheck, ShieldAlert, ShieldQuestion,
@@ -9,6 +10,7 @@ import { api } from "../api/client";
 import { useAuth } from "../context/AuthContext";
 import StatusBadge from "../components/StatusBadge";
 import TrustGauge from "../components/TrustGauge";
+import { LitCard, MaskLines, PageShell, Reveal, SysLabel, staggerChild, staggerParent } from "../components/ui/motion";
 
 /* ------------------------------------------------------------------ */
 /* Aadhaar Secure QR + Risk-Based Step-Up — compact summary presenters */
@@ -53,7 +55,7 @@ const TONE = {
 function SignalPill({ tone, label, Icon }) {
   const c = TONE[tone];
   return (
-    <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10.5px] font-medium ring-1 ring-inset ${c.bg} ${c.ring} ${c.text}`}>
+    <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-1 font-mono text-[9.5px] uppercase tracking-[0.1em] ring-1 ring-inset ${c.bg} ${c.ring} ${c.text}`}>
       <Icon className="h-3 w-3" /> {label}
     </span>
   );
@@ -63,17 +65,15 @@ function SignalPill({ tone, label, Icon }) {
 function ModuleSummaryCard({ title, data, emptyLabel, emptyIcon: EmptyIcon }) {
   const tone = data ? TONE[data.tone] : null;
   return (
-    <div className="rounded-xl bg-void-700/60 p-4 ring-1 ring-white/[0.06]">
-      <p className="mb-2 text-[11px] font-medium uppercase tracking-wide text-ink-500">
-        {title}
-      </p>
+    <div className="rounded-2xl border border-white/[0.05] bg-white/[0.02] p-4">
+      <p className="eyebrow mb-3">{title}</p>
       {data ? (
-        <div className={`flex items-center gap-2 rounded-lg px-3 py-2 ${tone.bg}`}>
+        <div className={`flex items-center gap-2.5 rounded-xl px-3 py-2.5 ${tone.bg}`}>
           <data.Icon className={`h-4 w-4 flex-shrink-0 ${tone.text}`} />
           <span className={`text-sm font-medium ${tone.text}`}>{data.label}</span>
         </div>
       ) : (
-        <div className="flex items-center gap-2 rounded-lg bg-void-600/50 px-3 py-2">
+        <div className="flex items-center gap-2.5 rounded-xl bg-white/[0.03] px-3 py-2.5">
           <EmptyIcon className="h-4 w-4 flex-shrink-0 text-ink-500" />
           <span className="text-sm text-ink-500">{emptyLabel}</span>
         </div>
@@ -99,52 +99,61 @@ export default function Dashboard() {
   const latestStepUp = latest ? stepUpSummary(latest) : null;
 
   return (
-    <div className="relative mx-auto max-w-5xl px-6 py-14">
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 bg-aurora opacity-70" />
+    <PageShell className="relative mx-auto max-w-6xl px-4 pb-20 pt-8 sm:px-8 sm:pt-12">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-80 grid-overlay opacity-40" />
 
-      <div className="relative mb-10 flex flex-col items-start justify-between gap-4 sm:flex-row sm:items-center">
+      <div className="relative mb-10 flex flex-col items-start justify-between gap-6 sm:mb-14 sm:flex-row sm:items-end">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-ink-100 sm:text-3xl">Welcome, {user?.full_name?.split(" ")[0]}</h1>
-          <p className="mt-1.5 text-sm text-ink-300">Your identity verification history and current status.</p>
+          <SysLabel live>Welcome, {user?.full_name?.split(" ")[0]}</SysLabel>
+          <h1 className="mt-4 font-display text-huge font-semibold uppercase text-ink-50">
+            <MaskLines lines={["Your identity", <span key="s" className="text-ink-500">status.</span>]} delay={0.1} />
+          </h1>
+          <p className="mt-4 text-sm text-ink-300">Your identity verification history and current status.</p>
         </div>
-        <Link
-          to="/verify"
-          className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow transition hover:brightness-110"
-        >
+        <Link to="/verify" className="btn btn-light">
           <ScanFace className="h-4 w-4" /> New verification
         </Link>
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <div className="h-8 w-8 animate-spin rounded-full border-2 border-accent/25 border-t-accent" />
+        <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[340px_1fr]" aria-busy="true">
+          <div className="skeleton h-[420px] rounded-[1.75rem]" />
+          <div className="space-y-3">
+            {[0, 1, 2].map((i) => (
+              <div key={i} className="skeleton h-24 rounded-2xl" />
+            ))}
+          </div>
         </div>
       ) : verifications.length === 0 ? (
-        <div className="relative flex flex-col items-center gap-4 rounded-2xl glass-panel py-20 text-center shadow-soft">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-void-700 ring-1 ring-white/[0.06]">
+        <div className="glass-panel relative flex flex-col items-center gap-5 overflow-hidden rounded-[1.75rem] px-6 py-20 text-center">
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/2 perspective-grid opacity-50" />
+          <div className="relative flex h-16 w-16 items-center justify-center rounded-full border border-white/10 bg-white/[0.03]">
             <Inbox className="h-6 w-6 text-ink-500" />
           </div>
-          <div>
-            <p className="font-medium text-ink-100">No verifications yet</p>
-            <p className="mt-1 text-sm text-ink-300">Start your first KYC check to see your risk score here.</p>
+          <div className="relative">
+            <p className="font-display text-2xl font-semibold uppercase text-ink-50">No verifications yet</p>
+            <p className="mt-2 text-sm text-ink-300">Start your first KYC check to see your risk score here.</p>
           </div>
-          <Link to="/verify" className="mt-2 flex items-center gap-2 rounded-lg bg-gradient-to-r from-accent to-violet px-4 py-2.5 text-sm font-semibold text-white shadow-glow">
-            Start verification <ArrowRight className="h-4 w-4" />
+          <Link to="/verify" className="btn btn-light relative mt-2">
+            Start verification <ArrowRight className="btn-arrow h-4 w-4" />
           </Link>
         </div>
       ) : (
-        <div className="relative grid grid-cols-1 gap-6 lg:grid-cols-[280px_1fr]">
-          <div className="flex flex-col gap-4">
-            <div className="flex flex-col items-center rounded-2xl glass-panel p-7 shadow-soft">
-              <span className="mb-3 text-[11px] font-medium uppercase tracking-wide text-ink-500">Latest score</span>
-              <TrustGauge riskScore={latest.risk_score} band={latest.risk_band} size={170} />
-              <div className="mt-4">
+        <div className="relative grid grid-cols-1 gap-5 lg:grid-cols-[340px_1fr]">
+          <div className="flex flex-col gap-5">
+            <Reveal className="glass-panel relative flex flex-col items-center overflow-hidden rounded-[1.75rem] px-6 pb-7 pt-8">
+              <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(70%_50%_at_50%_0%,rgba(100,120,255,0.12),transparent_70%)]" />
+              <span className="eyebrow relative mb-4">Latest score</span>
+              <div className="relative">
+                <TrustGauge riskScore={latest.risk_score} band={latest.risk_band} size={210} />
+              </div>
+              <div className="relative mt-5">
                 <StatusBadge status={latest.status} />
               </div>
-            </div>
+            </Reveal>
 
             {/* Aadhaar Secure QR + Risk-Based Step-Up, surfaced right on the dashboard */}
-            <div className="flex flex-col gap-3 rounded-2xl glass-panel p-4 shadow-soft">
+            <Reveal delay={0.08} className="glass-panel flex flex-col gap-3 rounded-[1.75rem] p-4">
               <ModuleSummaryCard
                 title="Aadhaar Secure QR"
                 data={latestQr}
@@ -157,51 +166,57 @@ export default function Dashboard() {
                 emptyLabel="Instant approval — no step-up needed"
                 emptyIcon={Fingerprint}
               />
-            </div>
+            </Reveal>
           </div>
 
-          <div className="space-y-3">
-            {verifications.map((v) => {
-              const qr = aadhaarQrSummary(v);
-              const stepUp = stepUpSummary(v);
-              return (
-                <div key={v.id} className="flex flex-col gap-3 rounded-xl glass-panel p-5 shadow-soft transition hover:border-white/[0.12] sm:flex-row sm:items-center sm:justify-between">
-                  <div className="flex items-center gap-3.5">
-                    <div className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg bg-void-700 ring-1 ring-white/[0.06]">
-                      <FileText className="h-4.5 w-4.5 text-accent-soft" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-medium capitalize text-ink-100">{v.document_type?.replace("_", " ") || "Document"}</p>
-                      <p className="flex items-center gap-1.5 text-xs text-ink-500">
-                        <Calendar className="h-3 w-3" /> {new Date(v.created_at).toLocaleString()}
-                      </p>
-                      {(qr || stepUp) && (
-                        <div className="mt-1.5 flex flex-wrap gap-1.5">
-                          {qr && <SignalPill tone={qr.tone} label={qr.label} Icon={qr.Icon} />}
-                          {stepUp && <SignalPill tone={stepUp.tone} label={stepUp.label} Icon={stepUp.Icon} />}
+          <div>
+            <div className="mb-4 flex items-center justify-between px-1">
+              <span className="eyebrow">Verification history</span>
+              <span className="font-mono text-[10px] uppercase tracking-[0.18em] text-ink-700">{String(verifications.length).padStart(2, "0")} records</span>
+            </div>
+            <motion.div variants={staggerParent(0.07)} initial="hidden" animate="show" className="space-y-3">
+              {verifications.map((v, idx) => {
+                const qr = aadhaarQrSummary(v);
+                const stepUp = stepUpSummary(v);
+                return (
+                  <motion.div key={v.id} variants={staggerChild}>
+                    <LitCard className="glass-panel group flex flex-col gap-4 rounded-2xl p-4 transition-transform duration-500 hover:-translate-y-0.5 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+                      <div className="flex items-center gap-4">
+                        <span className="hidden font-mono text-[11px] text-ink-700 sm:block">{String(idx + 1).padStart(2, "0")}</span>
+                        <div className="flex h-11 w-11 flex-shrink-0 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.03]">
+                          <FileText className="h-4.5 w-4.5 text-accent-soft" />
                         </div>
-                      )}
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-5">
-                    <div className="text-right">
-                      <p className="font-display text-sm font-semibold text-ink-100">{v.risk_score?.toFixed(1) ?? "—"}</p>
-                      <p className="text-[10px] uppercase tracking-wide text-ink-500">risk score</p>
-                    </div>
-                    <StatusBadge status={v.status} size="sm" />
-                    <Link
-                      to={`/verification-progress/${v.id}`}
-                      className="flex items-center gap-1 rounded-lg border border-white/[0.08] px-3 py-1.5 text-xs font-medium text-ink-300 transition hover:border-accent/40 hover:text-accent-soft"
-                    >
-                      Report <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                </div>
-              );
-            })}
+                        <div className="min-w-0">
+                          <p className="font-display text-base font-semibold capitalize text-ink-50">{v.document_type?.replace("_", " ") || "Document"}</p>
+                          <p className="mt-0.5 flex items-center gap-1.5 font-mono text-[11px] text-ink-500">
+                            <Calendar className="h-3 w-3" /> {new Date(v.created_at).toLocaleString()}
+                          </p>
+                          {(qr || stepUp) && (
+                            <div className="mt-2 flex flex-wrap gap-1.5">
+                              {qr && <SignalPill tone={qr.tone} label={qr.label} Icon={qr.Icon} />}
+                              {stepUp && <SignalPill tone={stepUp.tone} label={stepUp.label} Icon={stepUp.Icon} />}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center justify-between gap-5 border-t border-white/[0.05] pt-3 sm:justify-end sm:border-0 sm:pt-0">
+                        <div className="text-left sm:text-right">
+                          <p className="font-display text-2xl font-semibold tabular-nums text-ink-50">{v.risk_score?.toFixed(1) ?? "—"}</p>
+                          <p className="font-mono text-[9.5px] uppercase tracking-[0.16em] text-ink-500">risk score</p>
+                        </div>
+                        <StatusBadge status={v.status} size="sm" />
+                        <Link to={`/verification-progress/${v.id}`} className="btn btn-ghost btn-sm">
+                          Report <ArrowRight className="btn-arrow h-3 w-3" />
+                        </Link>
+                      </div>
+                    </LitCard>
+                  </motion.div>
+                );
+              })}
+            </motion.div>
           </div>
         </div>
       )}
-    </div>
+    </PageShell>
   );
 }
