@@ -1,4 +1,4 @@
-# Render (or any Docker host) image for the SECURIX backend.
+# Render (or any Docker host) image for the AUTHENIX backend.
 # Python 3.12 because mediapipe doesn't support 3.13+.
 FROM python:3.12-slim
 

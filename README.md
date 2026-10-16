@@ -1,12 +1,12 @@
-# SECURIX — AI-Powered Digital KYC Verification & Fraud Detection System
+# AUTHENIX — AI-Powered Digital KYC Verification & Fraud Detection System
 
-A working, end-to-end implementation of the SECURIX KYC pipeline: document OCR,
+A working, end-to-end implementation of the AUTHENIX KYC pipeline: document OCR,
 face verification with multi-frame liveness detection, a weighted fraud/risk
 engine, an automated decision engine, and an admin console — wrapped in a
 dark, cyber-security-themed React frontend.
 
 ```
-securix/
+authenix/
 ├── backend/     FastAPI + SQLite, all AI/CV logic
 └── frontend/    React + Vite + Tailwind
 ```

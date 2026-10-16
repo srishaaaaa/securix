@@ -287,7 +287,7 @@ export function IdCardVisual({ className = "", scanning = true }) {
         ))}
         <rect width="340" height="30" fill="rgba(61,61,255,0.14)" />
         <text x="16" y="20" fill="#4f46e5" fontFamily="Space Grotesk" fontSize="11" fontWeight="600" letterSpacing="2">IDENTITY DOCUMENT</text>
-        <text x="258" y="20" fill="rgba(79,70,229,0.5)" fontFamily="JetBrains Mono" fontSize="8">SECURIX</text>
+        <text x="258" y="20" fill="rgba(79,70,229,0.5)" fontFamily="JetBrains Mono" fontSize="8">AUTHENIX</text>
         <rect x="16" y="44" width="74" height="94" rx="8" fill="#eef0f7" stroke="rgba(61,61,255,0.4)" />
         <ellipse cx="53" cy="82" rx="19" ry="24" stroke="rgba(79,70,229,0.6)" />
         <path d="M22 138 C 26 112, 80 112, 84 138" stroke="rgba(79,70,229,0.6)" />
@@ -298,7 +298,7 @@ export function IdCardVisual({ className = "", scanning = true }) {
         {["NAME", "DOB", "DOC NO.", "ADDRESS"].map((l, i) => (
           <text key={l} x="104" y={48 + i * 28} fill="#8a91a4" fontFamily="JetBrains Mono" fontSize="6.5" letterSpacing="1">{l}</text>
         ))}
-        <text x="16" y="178" fill="rgba(79,70,229,0.35)" fontFamily="JetBrains Mono" fontSize="10.5">IDIND&lt;&lt;SECURIX&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text>
+        <text x="16" y="178" fill="rgba(79,70,229,0.35)" fontFamily="JetBrains Mono" fontSize="10.5">IDIND&lt;&lt;AUTHENIX&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;&lt;</text>
         <text x="16" y="196" fill="rgba(79,70,229,0.35)" fontFamily="JetBrains Mono" fontSize="10.5">8812034M2901017&lt;&lt;&lt;&lt;&lt;04</text>
         {scanning && (
           <rect x="0" width="340" height="3" fill="#07080d" opacity="0.8">

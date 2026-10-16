@@ -245,7 +245,7 @@ class WebhookEndpoint(Base):
     verification tied to their API key completes. Signed with HMAC-SHA256
     over the raw payload using `secret`, sent as the X-Securix-Signature
     header - the same pattern Stripe/GitHub webhooks use, so a partner can
-    verify the request really came from SECURIX."""
+    verify the request really came from AUTHENIX."""
     __tablename__ = "webhook_endpoints"
 
     id = Column(String, primary_key=True, default=gen_id)

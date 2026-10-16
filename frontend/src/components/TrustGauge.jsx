@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { animate, useReducedMotion } from "framer-motion";
 
 /**
- * TrustGauge - the signature instrument of Securix.
+ * TrustGauge - the signature instrument of Authenix.
  * Renders the *trust* score (100 - risk) as a precision ring: a tick
  * bezel that fills with trust, a primary arc, a counter-rotating inner
  * reticle and an orbiting marker at the arc head. Arc recedes and shifts

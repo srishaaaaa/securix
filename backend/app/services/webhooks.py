@@ -6,7 +6,7 @@ the API key that owns (or, for UI-created verifications, to every active
 endpoint across all keys - see dispatch_event) a completed verification.
 Signature scheme matches the Stripe/GitHub convention: the raw JSON body
 is signed with the endpoint's secret, sent as X-Securix-Signature, so a
-partner can verify the request actually came from SECURIX and wasn't
+partner can verify the request actually came from AUTHENIX and wasn't
 forged or replayed from a different payload.
 
 Delivery is best-effort and non-blocking: called via FastAPI

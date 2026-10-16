@@ -242,7 +242,7 @@ export default function Landing() {
           <div className="relative mx-auto flex w-full max-w-[1400px] flex-1 flex-col justify-end px-5 pb-10 pt-[46svh] sm:px-10 lg:justify-center lg:pt-28">
             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25, duration: 0.6 }}>
               <div className="flex flex-wrap items-center gap-x-5 gap-y-2">
-                <SysLabel live>SECURIX / Identity engine</SysLabel>
+                <SysLabel live>AUTHENIX / Identity engine</SysLabel>
                 <SysLabel tone="muted" className="hidden sm:inline-flex">System status / online</SysLabel>
               </div>
             </motion.div>
@@ -286,7 +286,7 @@ export default function Landing() {
               </Magnetic>
               <Magnetic className="w-full xs:w-auto" strength={0.2}>
                 <a href="#chapters" className="btn btn-ghost btn-lg w-full xs:w-auto">
-                  Explore Securix <ArrowDown className="h-4 w-4" />
+                  Explore Authenix <ArrowDown className="h-4 w-4" />
                 </a>
               </Magnetic>
             </motion.div>
@@ -492,7 +492,7 @@ export default function Landing() {
           <footer className="mx-auto mt-14 flex max-w-[1400px] flex-col items-center justify-between gap-4 border-t border-white/[0.1] pt-8 sm:flex-row">
             <div className="flex items-center gap-2.5">
               <Logo className="h-6 w-6" />
-              <span className="font-display text-sm font-semibold tracking-[0.18em] text-ink-50">SECURIX</span>
+              <span className="font-display text-sm font-semibold tracking-[0.18em] text-ink-50">AUTHENIX</span>
             </div>
             <span className="font-mono text-[10px] uppercase tracking-[0.2em] text-ink-500">AI-powered digital KYC & fraud detection</span>
           </footer>

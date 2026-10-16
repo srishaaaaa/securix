@@ -4,7 +4,7 @@ import * as THREE from "three";
 import { faceLattice, makePointMaterial } from "./geometry";
 
 /**
- * SECURIX world: one particle field fixed behind the whole landing page.
+ * AUTHENIX world: one particle field fixed behind the whole landing page.
  * It morphs through the story as the page scrolls:
  *   0 identity sphere · 1 ID card · 2 face mesh · 3 identity network
  *   4 trust orb · 5 verification check

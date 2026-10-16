@@ -124,7 +124,7 @@ export default function AdminDashboard() {
       <div className="relative mb-10 flex flex-col justify-between gap-6 sm:mb-12 lg:flex-row lg:items-end">
         <div>
           <div className="flex flex-wrap gap-x-5 gap-y-2">
-            <SysLabel live>SECURIX / Security operations</SysLabel>
+            <SysLabel live>AUTHENIX / Security operations</SysLabel>
             <SysLabel tone="muted">Risk engine / active</SysLabel>
           </div>
           <h1 className="mt-4 font-display text-huge font-semibold uppercase text-ink-50">
@@ -557,7 +557,7 @@ export default function AdminDashboard() {
                   <input
                     value={newWebhookUrl}
                     onChange={(e) => setNewWebhookUrl(e.target.value)}
-                    placeholder="https://partner.example.com/webhooks/securix"
+                    placeholder="https://partner.example.com/webhooks/authenix"
                     aria-label="Webhook URL"
                     className="field min-w-0 flex-1 !py-2.5 sm:min-w-[240px]"
                   />

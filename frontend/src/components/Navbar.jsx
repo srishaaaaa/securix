@@ -6,7 +6,7 @@ import { useAuth } from "../context/AuthContext";
 import Cursor from "./Cursor";
 import Atmosphere from "./Atmosphere";
 
-/** The SECURIX mark: an iris ring around a verified core. */
+/** The AUTHENIX mark: an iris ring around a verified core. */
 export function Logo({ className = "h-8 w-8" }) {
   // unique gradient id: several logos can be mounted at once (sidebar + top bar)
   const gid = `lg${useId().replace(/:/g, "")}`;
@@ -74,9 +74,9 @@ function PublicNav() {
               : "border-white/[0.06] bg-void-900/40 py-2 backdrop-blur-xl"
           }`}
         >
-          <Link to="/" className="group flex items-center gap-2.5 py-1" aria-label="Securix home">
+          <Link to="/" className="group flex items-center gap-2.5 py-1" aria-label="Authenix home">
             <Logo className="h-7 w-7 transition-transform duration-700 group-hover:rotate-90" />
-            <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">SECURIX</span>
+            <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">AUTHENIX</span>
           </Link>
 
           <nav className="hidden items-center gap-1 sm:flex">
@@ -131,7 +131,7 @@ function PublicNav() {
             )}
           </nav>
 
-          {/* phone: SECURIX · MENU */}
+          {/* phone: AUTHENIX · MENU */}
           <button
             onClick={() => setMenuOpen(true)}
             className="flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 font-mono text-[11px] uppercase tracking-[0.22em] text-ink-100 sm:hidden"
@@ -159,13 +159,13 @@ function PublicNav() {
             <div className="flex items-center justify-between py-3">
               <span className="flex items-center gap-2.5">
                 <Logo className="h-7 w-7" />
-                <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">SECURIX</span>
+                <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">AUTHENIX</span>
               </span>
               <button onClick={() => setMenuOpen(false)} className="flex h-10 w-10 items-center justify-center rounded-full border border-white/10 text-ink-100" aria-label="Close menu">
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <span className="mt-6 font-mono text-[10px] uppercase tracking-[0.24em] text-ink-500">SECURIX / Identity engine</span>
+            <span className="mt-6 font-mono text-[10px] uppercase tracking-[0.24em] text-ink-500">AUTHENIX / Identity engine</span>
             <motion.ul
               className="mt-6 flex flex-col"
               initial="h"
@@ -254,9 +254,9 @@ function AppNav() {
     <>
       {/* laptop / desktop: fixed sidebar */}
       <aside className="app-sidebar no-print fixed inset-y-0 left-0 z-50 hidden w-[16rem] flex-col border-r border-white/[0.08] bg-paper/80 px-4 py-5 backdrop-blur-xl lg:flex">
-        <Link to="/" className="group flex items-center gap-2.5 px-2" aria-label="Securix home">
+        <Link to="/" className="group flex items-center gap-2.5 px-2" aria-label="Authenix home">
           <Logo className="h-8 w-8 transition-transform duration-700 group-hover:rotate-90" />
-          <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">SECURIX</span>
+          <span className="font-display text-[15px] font-semibold tracking-[0.18em] text-ink-50">AUTHENIX</span>
         </Link>
         <span className="mt-2 px-2 font-mono text-[9.5px] uppercase tracking-[0.22em] text-ink-500">Identity intelligence</span>
 
@@ -317,9 +317,9 @@ function AppNav() {
 
       {/* phone / tablet: compact top bar */}
       <header className="no-print sticky top-0 z-50 flex items-center justify-between border-b border-white/[0.08] bg-paper/85 px-4 py-3 backdrop-blur-xl lg:hidden">
-        <Link to="/" className="flex items-center gap-2" aria-label="Securix home">
+        <Link to="/" className="flex items-center gap-2" aria-label="Authenix home">
           <Logo className="h-7 w-7" />
-          <span className="font-display text-[14px] font-semibold tracking-[0.18em] text-ink-50">SECURIX</span>
+          <span className="font-display text-[14px] font-semibold tracking-[0.18em] text-ink-50">AUTHENIX</span>
         </Link>
         <div className="flex items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center rounded-full bg-ink-50 text-xs font-semibold text-paper">

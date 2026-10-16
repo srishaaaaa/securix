@@ -1,9 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 
-// SECURIX 2.0 design tokens. A near-black graphite environment with soft
+// AUTHENIX 2.0 design tokens. A near-black graphite environment with soft
 // white type, one electric indigo accent and three signal colours. Glow is
 // reserved for meaning (a live state, a decision), never decoration.
-// SECURIX 4 - light premium. "void" stays the background scale and "ink"
+// AUTHENIX 4 - light premium. "void" stays the background scale and "ink"
 // the text scale, so every component flips with the tokens.
 const palette = {
   void: {

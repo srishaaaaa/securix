@@ -42,7 +42,7 @@ function cardTexture(label) {
   g.fillText((label || "IDENTITY DOCUMENT").toUpperCase(), 48, 54);
   g.fillStyle = "rgba(199,210,255,0.5)";
   g.font = "500 20px 'JetBrains Mono', monospace";
-  g.fillText("SECURIX · VERIFY", c.width - 250, 52);
+  g.fillText("AUTHENIX · VERIFY", c.width - 250, 52);
   // photo
   g.fillStyle = "#232a3b";
   g.beginPath();
@@ -82,7 +82,7 @@ function cardTexture(label) {
   // MRZ
   g.fillStyle = "rgba(199,210,255,0.35)";
   g.font = "500 26px 'JetBrains Mono', monospace";
-  g.fillText("IDIND<<SECURIX<<<<<<<<<<<<<<<<<<<<<", 48, 520);
+  g.fillText("IDIND<<AUTHENIX<<<<<<<<<<<<<<<<<<<<<", 48, 520);
   g.fillText("8812034M2901017<<<<<<<<<<<<<<<<<<04", 48, 560);
   g.restore();
   g.strokeStyle = "rgba(157,176,255,0.35)";

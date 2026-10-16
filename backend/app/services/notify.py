@@ -124,7 +124,7 @@ def notify_status_change(verification_id: str, user_id: Optional[str], new_statu
         user = db.query(models.User).filter(models.User.id == user_id).first() if user_id else None
 
         if user and user.email:
-            send_email(db, verification.id, user.email, "SECURIX verification update", body)
+            send_email(db, verification.id, user.email, "AUTHENIX verification update", body)
 
         phone = verification.phone_number or (user.mobile if user else None)
         if phone:

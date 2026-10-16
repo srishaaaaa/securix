@@ -9,7 +9,7 @@ from . import auth as auth_utils
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
-    title="SECURIX API",
+    title="AUTHENIX API",
     description="AI-Powered Digital KYC Verification and Fraud Detection System",
     version="1.0.0",
 )
@@ -34,7 +34,7 @@ app.include_router(video_kyc.router)
 
 @app.get("/api/health")
 def health():
-    return {"status": "ok", "service": "SECURIX API"}
+    return {"status": "ok", "service": "AUTHENIX API"}
 
 
 def _seed_admin():
@@ -45,7 +45,7 @@ def _seed_admin():
         existing = db.query(models.User).filter(models.User.email == "admin@securix.io").first()
         if not existing:
             admin_user = models.User(
-                full_name="SECURIX Admin",
+                full_name="AUTHENIX Admin",
                 email="admin@securix.io",
                 mobile="0000000000",
                 password_hash=auth_utils.hash_password("Admin@123"),

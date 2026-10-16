@@ -3,7 +3,7 @@ Additional module - KYC-as-a-service partner API.
 
 Lets a partner (fintech/bank) submit a document + selfie directly via a
 server-to-server call, authenticated with an API key instead of a user
-login, and get a decision back synchronously. This is what turns SECURIX
+login, and get a decision back synchronously. This is what turns AUTHENIX
 from "an app with a UI" into something another company's onboarding flow
 can call directly.
 
